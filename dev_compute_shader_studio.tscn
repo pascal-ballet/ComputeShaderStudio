@@ -11,7 +11,12 @@ script = ExtResource("1_5me5p")
 [node name="ComputeShaderMatrices" type="Node" parent="ComputeShaderStudio"]
 
 [node name="Matrix1" type="Sprite2D" parent="ComputeShaderStudio/ComputeShaderMatrices"]
-position = Vector2(593, 304)
+position = Vector2(294, 315)
+scale = Vector2(3.27344, 3.02344)
+texture = ExtResource("1_jcytc")
+
+[node name="Matrix2" type="Sprite2D" parent="ComputeShaderStudio/ComputeShaderMatrices"]
+position = Vector2(843, 317)
 scale = Vector2(3.27344, 3.02344)
 texture = ExtResource("1_jcytc")
 

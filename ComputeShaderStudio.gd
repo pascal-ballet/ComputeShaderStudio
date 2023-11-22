@@ -1,8 +1,8 @@
 extends Node
 
 
-var SX:int = 32
-var SY:int = 32
+var SX:int = 128
+var SY:int = 128
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -15,10 +15,10 @@ func _ready():
 	var shader := rd.shader_create_from_spirv(shader_spirv)
 
 	# Prepare our data. We use floats in the shader, so we need 32 bit.
-	var input :PackedFloat32Array = PackedFloat32Array()
+	var input :PackedInt32Array = PackedInt32Array()
 	for i in range(SX):
 		for j in range(SY):
-			input.append(randf())
+			input.append(randi())
 	var input_bytes := input.to_byte_array()
 
 	# Create a storage buffer that can hold our float values.
@@ -37,7 +37,7 @@ func _ready():
 	var compute_list := rd.compute_list_begin()
 	rd.compute_list_bind_compute_pipeline(compute_list, pipeline)
 	rd.compute_list_bind_uniform_set(compute_list, uniform_set, 0)
-	rd.compute_list_dispatch(compute_list, SX/2, SY/2, 1)
+	rd.compute_list_dispatch(compute_list, SX>>3, SY>>3, 1)
 	rd.compute_list_end()
 
 	# Submit to GPU and wait for sync
@@ -46,20 +46,22 @@ func _ready():
 
 	# Read back the data from the buffer
 	var output_bytes := rd.buffer_get_data(buffer)
-	var output := output_bytes.to_float32_array()
+	var output := output_bytes.to_int32_array()
 	display_values(output)
 
-func display_values(values : PackedFloat32Array):
+func display_values(values : PackedInt32Array):
 	var img:Image = Image.create(SX,SY,false, Image.FORMAT_RGBA8)
 	for i in range(SX):
 		for j in range(SY):
 			var p:int = i+j*SX
-			var v:float = values[p]
-			var rgb = var_to_bytes(v)
-			img.set_pixel(i,j,Color(rgb[4],rgb[5],rgb[6],1.0) )
+			var v:int = values[p]
+			var r:float = ((v & 0x0000FF00) >> 8)/255.0
+			var g:float = ((v & 0x00FF0000) >> 16)/255.0
+			var b:float = ((v & 0xFF000000) >> 24)/255.0
+			img.set_pixel(i,j,Color(r,g,b,1.0) )
 	$ComputeShaderMatrices/Matrix1.set_texture(ImageTexture.create_from_image(img))
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
+func _process(_delta):
 	pass
 
