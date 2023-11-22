@@ -1,0 +1,20 @@
+[gd_scene load_steps=3 format=3 uid="uid://ddr6qtwy1pesd"]
+
+[ext_resource type="Script" path="res://ComputeShaderStudio.gd" id="1_5me5p"]
+[ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://icon.svg" id="1_jcytc"]
+
+[node name="DevComputeShaderStudio" type="Node2D"]
+
+[node name="ComputeShaderStudio" type="Node" parent="."]
+script = ExtResource("1_5me5p")
+
+[node name="ComputeShaderMatrices" type="Node" parent="ComputeShaderStudio"]
+
+[node name="Matrix1" type="Sprite2D" parent="ComputeShaderStudio/ComputeShaderMatrices"]
+position = Vector2(593, 304)
+scale = Vector2(3.27344, 3.02344)
+texture = ExtResource("1_jcytc")
+
+[node name="ComputeShaderScript" type="Node" parent="ComputeShaderStudio"]
+
+[node name="Script1" type="Node" parent="ComputeShaderStudio/ComputeShaderScript"]
