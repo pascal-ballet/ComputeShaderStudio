@@ -23,3 +23,5 @@ texture = ExtResource("1_jcytc")
 [node name="ComputeShaderScript" type="Node" parent="ComputeShaderStudio"]
 
 [node name="Script1" type="Node" parent="ComputeShaderStudio/ComputeShaderScript"]
+
+[node name="Script2" type="Node" parent="ComputeShaderStudio/ComputeShaderScript"]
