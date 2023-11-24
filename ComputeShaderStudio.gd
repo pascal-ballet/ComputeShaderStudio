@@ -15,8 +15,8 @@ extends Node
 # The Sprites that display the data
 var main = """
 	// Write your code here
-	data_1[x] *= 1;
-	data_2[x] *= 1;
+	data_1[x] += 1;
+	data_2[x] *= data_1[x];
 
 """ 
 
@@ -26,10 +26,15 @@ var main = """
 
 
 
+
+
+
+
+var rd : RenderingDevice
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	# Create a local rendering device.
-	var rd := RenderingServer.create_local_rendering_device()
+	rd = RenderingServer.create_local_rendering_device()
 
 	# Load GLSL shader
 	var shader_file := load("res://script_1.glsl")
@@ -56,16 +61,16 @@ func _ready():
 	var uniform_set := rd.uniform_set_create([uniform], shader, 0) # the last parameter (the 0) needs to match the "set" in our shader file
 
 	# Create a compute pipeline
-	var pipeline := rd.compute_pipeline_create(shader)
-	var compute_list := rd.compute_list_begin()
+	var pipeline : RID = rd.compute_pipeline_create(shader)
+	var compute_list : int = rd.compute_list_begin()
 	rd.compute_list_bind_compute_pipeline(compute_list, pipeline)
 	rd.compute_list_bind_uniform_set(compute_list, uniform_set, 0)
 	rd.compute_list_dispatch(compute_list, GWSX>>3, GWSY>>3, 1)
 	rd.compute_list_end()
 
-	# Submit to GPU and wait for sync
-	rd.submit()
-	rd.sync()
+
+
+
 
 	# Read back the data from the buffer
 ###	var output_bytes := rd.buffer_get_data(buffer)
@@ -86,5 +91,7 @@ func display_values(values : PackedInt32Array):
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):
-	pass
+	# Submit to GPU and wait for sync
+	rd.submit()
+	rd.sync()
 
