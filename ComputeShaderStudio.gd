@@ -1,35 +1,30 @@
 extends Node
 
 
-@export var sp1:Node
-@export var sp2:Node
+@export var data_1:Sprite2D
+@export var data_2:Sprite2D
+
+# Global Workspace
+@export var GWSX:int = 128
+@export var GWSY:int = 128
+#@export var SZ:int = 1
 
 # Accessible variables
-# step : time step of the execution
-# The Sprites that are : 
-var mains = ["""
-	// main 1
-	int x = gl_GlobalInvocationID.x;
-	int y = gl_GlobalInvocationID.y;
-	Matrix1.data[x] *= 1;		
+# uint x,y,z : GlobalInvocationID (	uint x = gl_GlobalInvocationID.x;)
+# uint step : time step of the execution
+# The Sprites that display the data
+var main = """
+	// Write your code here
+	data_1[x] *= 1;
+	data_2[x] *= 1;
 
-""", """
-	// main 2
-	int x = gl_GlobalInvocationID.x;
-	int y = gl_GlobalInvocationID.y;
-	Matrix1.data[x] *= 1;		
-
-"""
-]
+""" 
 
 
 
 
 
 
-
-var SX:int = 128
-var SY:int = 128
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -37,51 +32,35 @@ func _ready():
 	var rd := RenderingServer.create_local_rendering_device()
 
 	# Load GLSL shader
-	var shader_file_1 := load("res://script_1.glsl")
-	var shader_file_2 := load("res://script_1.glsl")
-	var shader_spirv_1: RDShaderSPIRV = shader_file_1.get_spirv()
-	var shader_spirv_2: RDShaderSPIRV = shader_file_2.get_spirv()
-	var shader_1 := rd.shader_create_from_spirv(shader_spirv_1)
-	var shader_2 := rd.shader_create_from_spirv(shader_spirv_2)
+	var shader_file := load("res://script_1.glsl")
+	var shader_spirv: RDShaderSPIRV = shader_file.get_spirv()
+	var shader := rd.shader_create_from_spirv(shader_spirv)
 
 	# Prepare our data. We use ints in the shader, so we need 32 bit.
-	var input_1 :PackedInt32Array = PackedInt32Array()
-	for i in range(SX):
-		for j in range(SY):
-			input_1.append(randi())
-	var input_bytes_1 := input_1.to_byte_array()
-
-	var input_2 :PackedInt32Array = PackedInt32Array()
-	for i in range(SX):
-		for j in range(SY):
-			input_2.append(randi())
-	var input_bytes_2 := input_2.to_byte_array()
+	var input :PackedInt32Array = PackedInt32Array()
+	for i in range(GWSX):
+		for j in range(GWSY):
+			input.append(randi())
+	var input_bytes := input.to_byte_array()
 
 	# Create a storage buffer that can hold our float values.
 	# Each float has 4 bytes (32 bit) so 10 x 4 = 40 bytes
-	var buffer_1 := rd.storage_buffer_create(input_bytes_1.size(), input_bytes_1)
-	var buffer_2 := rd.storage_buffer_create(input_bytes_2.size(), input_bytes_2)
+	var buffer := rd.storage_buffer_create(input_bytes.size(), input_bytes)
 
 	# Create a uniform to assign the buffer to the rendering device
-	var uniform_1 := RDUniform.new()
-	var uniform_2 := RDUniform.new()
+	var uniform := RDUniform.new()
 
-	uniform_1.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
-	uniform_1.binding = 0 # this needs to match the "binding" in our shader file
-	uniform_1.add_id(buffer_1)
-	var uniform_set_1 := rd.uniform_set_create([uniform_1], shader_1, 0) # the last parameter (the 0) needs to match the "set" in our shader file
-
-	uniform_2.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
-	uniform_2.binding = 0 # this needs to match the "binding" in our shader file
-	uniform_2.add_id(buffer_2)
-	var uniform_set_2 := rd.uniform_set_create([uniform_2], shader_2, 1) # the last parameter (the 1) needs to match the "set" in our shader file
+	uniform.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
+	uniform.binding = 0 # this needs to match the "binding" in our shader file
+	uniform.add_id(buffer)
+	var uniform_set := rd.uniform_set_create([uniform], shader, 0) # the last parameter (the 0) needs to match the "set" in our shader file
 
 	# Create a compute pipeline
-	var pipeline := rd.compute_pipeline_create(shader_1)
+	var pipeline := rd.compute_pipeline_create(shader)
 	var compute_list := rd.compute_list_begin()
 	rd.compute_list_bind_compute_pipeline(compute_list, pipeline)
-###	rd.compute_list_bind_uniform_set(compute_list, uniform_set, 0)
-	rd.compute_list_dispatch(compute_list, SX>>3, SY>>3, 1)
+	rd.compute_list_bind_uniform_set(compute_list, uniform_set, 0)
+	rd.compute_list_dispatch(compute_list, GWSX>>3, GWSY>>3, 1)
 	rd.compute_list_end()
 
 	# Submit to GPU and wait for sync
@@ -94,10 +73,10 @@ func _ready():
 ###	display_values(output)
 
 func display_values(values : PackedInt32Array):
-	var img:Image = Image.create(SX,SY,false, Image.FORMAT_RGBA8)
-	for i in range(SX):
-		for j in range(SY):
-			var p:int = i+j*SX
+	var img:Image = Image.create(GWSX,GWSY,false, Image.FORMAT_RGBA8)
+	for i in range(GWSX):
+		for j in range(GWSY):
+			var p:int = i+j*GWSX
 			var v:int = values[p]
 			var r:float = ((v & 0x0000FF00) >> 8)/255.0
 			var g:float = ((v & 0x00FF0000) >> 16)/255.0
