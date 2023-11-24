@@ -5,8 +5,10 @@
 
 [node name="DevComputeShaderStudio" type="Node2D"]
 
-[node name="ComputeShaderStudio" type="Node" parent="."]
+[node name="ComputeShaderStudio" type="Node" parent="." node_paths=PackedStringArray("sp1", "sp2")]
 script = ExtResource("1_5me5p")
+sp1 = NodePath("../Matrix1")
+sp2 = NodePath("../Matrix2")
 
 [node name="Matrix1" type="Sprite2D" parent="."]
 position = Vector2(294, 315)
