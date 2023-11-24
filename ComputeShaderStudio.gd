@@ -1,5 +1,33 @@
 extends Node
 
+
+@export var sp1:Node
+@export var sp2:Node
+
+# Accessible variables
+# step : time step of the execution
+# The Sprites that are : 
+var mains = ["""
+	// main 1
+	int x = gl_GlobalInvocationID.x;
+	int y = gl_GlobalInvocationID.y;
+	Matrix1.data[x] *= 1;		
+
+""", """
+	// main 2
+	int x = gl_GlobalInvocationID.x;
+	int y = gl_GlobalInvocationID.y;
+	Matrix1.data[x] *= 1;		
+
+"""
+]
+
+
+
+
+
+
+
 var SX:int = 128
 var SY:int = 128
 
@@ -52,7 +80,7 @@ func _ready():
 	var pipeline := rd.compute_pipeline_create(shader_1)
 	var compute_list := rd.compute_list_begin()
 	rd.compute_list_bind_compute_pipeline(compute_list, pipeline)
-	rd.compute_list_bind_uniform_set(compute_list, uniform_set, 0)
+###	rd.compute_list_bind_uniform_set(compute_list, uniform_set, 0)
 	rd.compute_list_dispatch(compute_list, SX>>3, SY>>3, 1)
 	rd.compute_list_end()
 
@@ -61,9 +89,9 @@ func _ready():
 	rd.sync()
 
 	# Read back the data from the buffer
-	var output_bytes := rd.buffer_get_data(buffer)
-	var output := output_bytes.to_int32_array()
-	display_values(output)
+###	var output_bytes := rd.buffer_get_data(buffer)
+###	var output := output_bytes.to_int32_array()
+###	display_values(output)
 
 func display_values(values : PackedInt32Array):
 	var img:Image = Image.create(SX,SY,false, Image.FORMAT_RGBA8)
