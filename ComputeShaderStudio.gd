@@ -10,7 +10,7 @@ extends Node
 #@export var SZ:int = 1
 
 
-var header = """
+var src_header = """
 #[compute]
 #version 450
 
@@ -18,22 +18,27 @@ var header = """
 layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 
 // A binding to the buffer we create in our script
-layout(set = 0, binding = 0, std430) restrict buffer MyDataBuffer {
-	int data[];
+layout(set = 0, binding = 0, std430) restrict buffer AllGrids {
+	int data_1[];
+	int data_2[];
 }
-data_1;
+grids;
 
+uint GWSX = 128;
+	
 """
 # Accessible variables
 # uint x,y,z : from GlobalInvocationID (	uint x = gl_GlobalInvocationID.x;)
 # uint GWSX,GWSY,GWSZ : from Global WorkSpace
 # uint step : time step of the execution
 # The Sprites that display the data
-var main = """
+var src_main = """
+void main() {
 	// Write your code here
-	data_1.data[x] += 1;
-	//data_2.data[x] *= data_1[x];
-
+	uint p = x + y * GWSX;
+	grids.data_1[p] += 1;
+	//grids.data_2[p] *= 2;
+}
 """ 
 
 
@@ -110,7 +115,7 @@ func display_values(values : PackedInt32Array):
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):
 #	# Submit to GPU and wait for sync
-#	rd.submit()
-#	rd.sync()
+	rd.submit()
+	rd.sync()
 	pass
 
