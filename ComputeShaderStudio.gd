@@ -9,14 +9,30 @@ extends Node
 @export var GWSY:int = 128
 #@export var SZ:int = 1
 
+
+var header = """
+#[compute]
+#version 450
+
+// Invocations in the (x, y, z) dimension
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
+
+// A binding to the buffer we create in our script
+layout(set = 0, binding = 0, std430) restrict buffer MyDataBuffer {
+	int data[];
+}
+data_1;
+
+"""
 # Accessible variables
-# uint x,y,z : GlobalInvocationID (	uint x = gl_GlobalInvocationID.x;)
+# uint x,y,z : from GlobalInvocationID (	uint x = gl_GlobalInvocationID.x;)
+# uint GWSX,GWSY,GWSZ : from Global WorkSpace
 # uint step : time step of the execution
 # The Sprites that display the data
 var main = """
 	// Write your code here
-	data_1[x] += 1;
-	data_2[x] *= data_1[x];
+	data_1.data[x] += 1;
+	//data_2.data[x] *= data_1[x];
 
 """ 
 
@@ -69,13 +85,15 @@ func _ready():
 	rd.compute_list_end()
 
 
-
+	# Submit to GPU and wait for sync
+	rd.submit()
+	rd.sync()
 
 
 	# Read back the data from the buffer
-###	var output_bytes := rd.buffer_get_data(buffer)
-###	var output := output_bytes.to_int32_array()
-###	display_values(output)
+	var output_bytes := rd.buffer_get_data(buffer)
+	var output := output_bytes.to_int32_array()
+	display_values(output)
 
 func display_values(values : PackedInt32Array):
 	var img:Image = Image.create(GWSX,GWSY,false, Image.FORMAT_RGBA8)
@@ -87,11 +105,12 @@ func display_values(values : PackedInt32Array):
 			var g:float = ((v & 0x00FF0000) >> 16)/255.0
 			var b:float = ((v & 0xFF000000) >> 24)/255.0
 			img.set_pixel(i,j,Color(r,g,b,1.0) )
-	$ComputeShaderMatrices/Matrix1.set_texture(ImageTexture.create_from_image(img))
+	data_1.set_texture(ImageTexture.create_from_image(img))
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):
-	# Submit to GPU and wait for sync
-	rd.submit()
-	rd.sync()
+#	# Submit to GPU and wait for sync
+#	rd.submit()
+#	rd.sync()
+	pass
 
