@@ -7,6 +7,7 @@
 
 [node name="ComputeShaderStudio" type="Node" parent="." node_paths=PackedStringArray("data")]
 script = ExtResource("1_5me5p")
+code = Array[String](["", ""])
 data = [NodePath("../Matrix1"), NodePath("../Matrix2")]
 
 [node name="Matrix1" type="Sprite2D" parent="."]
