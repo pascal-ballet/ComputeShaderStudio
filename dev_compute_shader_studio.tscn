@@ -5,10 +5,9 @@
 
 [node name="DevComputeShaderStudio" type="Node2D"]
 
-[node name="ComputeShaderStudio" type="Node" parent="." node_paths=PackedStringArray("data_1", "data_2")]
+[node name="ComputeShaderStudio" type="Node" parent="." node_paths=PackedStringArray("data")]
 script = ExtResource("1_5me5p")
-data_1 = NodePath("../Matrix1")
-data_2 = NodePath("../Matrix2")
+data = [NodePath("../Matrix1"), NodePath("../Matrix2")]
 
 [node name="Matrix1" type="Sprite2D" parent="."]
 position = Vector2(294, 315)
@@ -19,3 +18,14 @@ texture = ExtResource("1_jcytc")
 position = Vector2(843, 317)
 scale = Vector2(3.27344, 3.02344)
 texture = ExtResource("1_jcytc")
+
+[node name="Button" type="Button" parent="."]
+offset_right = 226.0
+offset_bottom = 61.0
+text = "Compute"
+
+[node name="Label" type="Label" parent="."]
+offset_right = 40.0
+offset_bottom = 23.0
+
+[connection signal="pressed" from="Button" to="ComputeShaderStudio" method="_on_button_pressed"]
