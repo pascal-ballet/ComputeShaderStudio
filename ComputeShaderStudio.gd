@@ -18,12 +18,18 @@ var src_header = """
 layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 
 // A binding to the buffer we create in our script
-layout(set = 0, binding = 0, std430) restrict buffer AllGrids {
-	int data_1[];
-	int data_2[];
+layout(binding = 0) buffer Data0 {
+	int data_0[];
 };
 
-uint WSX = 128;
+layout(binding = 1) buffer Data1 {
+	int data_1[];
+};
+
+layout(binding = 2) buffer Params {
+	int stage;
+};
+
 	
 """
 # Accessible variables
@@ -32,11 +38,20 @@ uint WSX = 128;
 # uint step : time step of the execution
 # The Sprites that display the data
 var src_main_1 = """
+// The code to execute in each invocation
 void main() {
-	// Write your code here
-	uint p = x + y * WSX;
-	grids.data_1[p] += 1;
-	grids.data_2[p] *= 2;
+	uint x = gl_GlobalInvocationID.x;
+	uint y = gl_GlobalInvocationID.y;
+	uint p = x + y * 128;
+	
+	data_0[p] = data_0[p] / 2;
+	data_1[p] = data_1[p] + 1024;
+	
+	//if (stage == 0)
+	//    data_1[gl_GlobalInvocationID.x] += 10;
+	//if (stage == 1)
+	//    data_1[gl_GlobalInvocationID.x] -= 10;
+		
 }
 """ 
 
@@ -82,9 +97,19 @@ func _ready():
 	# *  SHADERS CREATION *
 	# *********************
 	# Load GLSL shader
-	var shader_file := load("res://script_1.glsl")
-	var shader_spirv: RDShaderSPIRV = shader_file.get_spirv()
+	var shader_file : Resource = load("res://script_1.glsl")
+
+
+
+	#var shader_spirv: RDShaderSPIRV = shader_file.get_spirv()
+	var shader_spirv: RDShaderSPIRV = RDShaderSPIRV.new()
+	shader_spirv.set_script(src_header + src_main_1)
+
+
+
 	shader = rd.shader_create_from_spirv(shader_spirv)
+
+
 
 	# *********************
 	# *  BUFFERS CREATION *
