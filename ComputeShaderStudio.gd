@@ -1,16 +1,54 @@
 extends Node
 
-# Global Workspace
-@export var workspace_x:int = 128
-@export var workspace_y:int = 128
+var WSX:int = 128 # Workspace Size X, usually it matches the x size of your Sprite2D
+var WSY:int = 128 # Workspace Size Y, usually it matches the y size of your Sprite2D
+var nb_passes:int = 1
 
-@export_multiline var code:Array[String]
+# Put your GLSL code in the GLSL_main string below
+# Here are all the accessible variables (uniforms) inside your GLSL code:
+#   uint x,y     : from GlobalInvocationID
+#   uint p       : the position [x][y] in the invocation (generally match the data size)
+#   uint WSX,WSY : the Global WorkSpace of invocations (generally match the data size)
+#   uint step    : time step of the execution
+#   int* data_0, data_1, etc : are the data displayed by your Sprite2D
+#                         access them by data_0[p]
+#  uint nb_passes: the number of passes your code needs to work
+#  uint current_pass: which pass is currently executed (one pass per frame)
+var GLSL_main = """
+// Write your code HERE
+void main() {
+	uint x = gl_GlobalInvocationID.x;
+	uint y = gl_GlobalInvocationID.y;
+	uint p = x + y * 128;
+	
+	data_0[p] = data_0[p] / 2;
+	data_1[p] = data_1[p] + 1024;
+	
+	//if (current_pass == 0)
+	//    data_1[p] += 10;
+	//if (current_pass == 1)
+	//    data_1[p] -= 10;
+		
+}
+""" 
 
-@export var data:Array[Sprite2D]
 
-#@export var SZ:int = 1
 
-var src_header = """
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var GLSL_header = """
 #[compute]
 #version 450
 
@@ -32,38 +70,8 @@ layout(binding = 2) buffer Params {
 
 	
 """
-# Accessible variables
-# uint x,y,z : from GlobalInvocationID (	uint x = gl_GlobalInvocationID.x;)
-# uint GWSX,GWSY,GWSZ : from Global WorkSpace
-# uint step : time step of the execution
-# The Sprites that display the data
-var src_main_1 = """
-// The code to execute in each invocation
-void main() {
-	uint x = gl_GlobalInvocationID.x;
-	uint y = gl_GlobalInvocationID.y;
-	uint p = x + y * 128;
-	
-	data_0[p] = data_0[p] / 2;
-	data_1[p] = data_1[p] + 1024;
-	
-	//if (stage == 0)
-	//    data_1[gl_GlobalInvocationID.x] += 10;
-	//if (stage == 1)
-	//    data_1[gl_GlobalInvocationID.x] -= 10;
-		
-}
-""" 
 
-
-
-
-
-
-
-
-
-
+@export var data:Array[Sprite2D]
 
 var rd 				: RenderingDevice
 var shader 			: RID
@@ -78,12 +86,9 @@ var uniform_set		: RID
 
 var data_1:Sprite2D
 var data_2:Sprite2D
-var WSX:int = 128
-var WSY:int = 128
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	WSX = workspace_x
-	WSY = workspace_y
 	data_1 = data[0]
 	data_2 = data[1]
 	# Create a local rendering device.
@@ -100,7 +105,7 @@ func _ready():
 	# var shader_file : Resource = load("res://script_1.glsl")
 	#var shader_spirv: RDShaderSPIRV = shader_file.get_spirv()
 
-	var shader_spirv: RDShaderSPIRV = string_to_file_to_spirv(src_header+src_main_1)
+	var shader_spirv: RDShaderSPIRV = string_to_file_to_spirv(GLSL_header + GLSL_main)
 	shader = rd.shader_create_from_spirv(shader_spirv)
 
 
@@ -182,7 +187,7 @@ func display_values(sprite : Sprite2D, values : PackedByteArray): # PackedInt32A
 	sprite.set_texture(ImageTexture.create_from_image(image))
 
 
-var stage : int = 0
+
 var step  : int = 0
 
 func compute():
@@ -198,10 +203,12 @@ func compute():
 	
 	display_all_values()
 	
+var current_pass : int = 0
+
 func _process(_delta):
 	# compute()
 	
-	stage = (stage + 1) % 2
+	current_pass = (current_pass + 1) % nb_passes
 	#_update_stage()
 	#print("step="+str(step))
 	step += 1
@@ -230,20 +237,21 @@ func _process(_delta):
 #	rd.submit()
 #	rd.sync()
 
-func string_to_file_to_spirv(str:String)->RDShaderSPIRV:
+func string_to_file_to_spirv(src:String)->RDShaderSPIRV:
 	# Save str into a file
 	var file_path = "res://temp_file.glsl" # chemin du fichier temporaire
 	var file = FileAccess.open(file_path,FileAccess.WRITE)
-	file.store_string(str)
-	file = null
+	file.store_string(src)
+	file.close()
 	# Load it as a resource GLSL shader
 	var shader_file : Resource = load("res://temp_file.glsl")
-	# Remove the temp_file
-	if DirAccess.dir_exists_absolute(file_path):
-		DirAccess.remove_absolute(file_path)
 
 	# Compile the glsl file
 	var shader_spirv: RDShaderSPIRV = shader_file.get_spirv()
+	
+	# Remove the temp_file
+	# if DirAccess.dir_exists_absolute(file_path):
+	# 	DirAccess.remove_absolute(file_path)
 	
 	return shader_spirv
 

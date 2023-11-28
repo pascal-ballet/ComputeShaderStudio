@@ -5,9 +5,8 @@
 
 [node name="DevComputeShaderStudio" type="Node2D"]
 
-[node name="ComputeShaderStudio" type="Node" parent="." node_paths=PackedStringArray("data")]
+[node name="ComputeShaderStudio2D" type="Node" parent="." node_paths=PackedStringArray("data")]
 script = ExtResource("1_5me5p")
-code = Array[String](["", ""])
 data = [NodePath("../Matrix1"), NodePath("../Matrix2")]
 
 [node name="Matrix1" type="Sprite2D" parent="."]
@@ -29,4 +28,4 @@ text = "Compute"
 offset_right = 40.0
 offset_bottom = 23.0
 
-[connection signal="pressed" from="Button" to="ComputeShaderStudio" method="_on_button_pressed"]
+[connection signal="pressed" from="Button" to="ComputeShaderStudio2D" method="_on_button_pressed"]
