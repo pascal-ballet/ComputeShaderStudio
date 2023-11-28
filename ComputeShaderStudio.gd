@@ -210,7 +210,7 @@ func compute():
 	rd.submit()
 	rd.sync()
 	
-	display_all_values()
+
 	
 
 
@@ -223,7 +223,7 @@ func _process(_delta):
 	if current_pass == 0:
 		step += 1
 	
-	
+	display_all_values()
 	
 	
 	
@@ -267,3 +267,4 @@ func string_to_file_to_spirv(src:String)->RDShaderSPIRV:
 
 func _on_button_pressed():
 	compute()
+	display_all_values()
