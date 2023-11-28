@@ -15,12 +15,12 @@ layout(binding = 1) buffer Data1 {
 };
 
 layout(binding = 2) buffer Params {
-	int stage;
+	int current_pass;
 };
 
 	
 
-// The code to execute in each invocation
+// Write your code HERE
 void main() {
 	uint x = gl_GlobalInvocationID.x;
 	uint y = gl_GlobalInvocationID.y;
@@ -29,9 +29,9 @@ void main() {
 	data_0[p] = data_0[p] / 2;
 	data_1[p] = data_1[p] + 1024;
 	
-	//if (stage == 0)
-	//    data_1[gl_GlobalInvocationID.x] += 10;
-	//if (stage == 1)
-	//    data_1[gl_GlobalInvocationID.x] -= 10;
-		
+	//if (current_pass == 0)
+	//    data_1[p] += 10;
+	//if (current_pass == 1)
+	//    data_1[p] -= 10;
+	
 }

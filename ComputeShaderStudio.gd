@@ -1,17 +1,18 @@
 extends Node
 
-var WSX:int = 128 # Workspace Size X, usually it matches the x size of your Sprite2D
-var WSY:int = 128 # Workspace Size Y, usually it matches the y size of your Sprite2D
-var nb_passes:int = 1
+var WSX				: int = 128 # Workspace Size X, usually it matches the x size of your Sprite2D
+var WSY				: int = 128 # Workspace Size Y, usually it matches the y size of your Sprite2D
+var nb_passes		: int = 1
+var current_pass 	: int = 0
 
 # Put your GLSL code in the GLSL_main string below
 # Here are all the accessible variables (uniforms) inside your GLSL code:
-#   uint x,y     : from GlobalInvocationID
-#   uint p       : the position [x][y] in the invocation (generally match the data size)
+#   uint x,y     : from GlobalInvocationID.x and .y
+#   uint p       : the position [x][y] in the invocation
 #   uint WSX,WSY : the Global WorkSpace of invocations (generally match the data size)
-#   uint step    : time step of the execution
-#   int* data_0, data_1, etc : are the data displayed by your Sprite2D
-#                         access them by data_0[p]
+#   int* data_0, data_1, etc : are the data displayed by your Sprite2D.
+#                  Access them by data_0[p], data_1[p], etc
+#   uint step    : time step of the execution. Incresed by 1 after nb_passes
 #  uint nb_passes: the number of passes your code needs to work
 #  uint current_pass: which pass is currently executed (one pass per frame)
 var GLSL_main = """
@@ -28,9 +29,17 @@ void main() {
 	//    data_1[p] += 10;
 	//if (current_pass == 1)
 	//    data_1[p] -= 10;
-		
+	
 }
 """ 
+
+
+
+
+
+
+
+
 
 
 
@@ -65,7 +74,7 @@ layout(binding = 1) buffer Data1 {
 };
 
 layout(binding = 2) buffer Params {
-	int stage;
+	int current_pass;
 };
 
 	
@@ -77,8 +86,8 @@ var rd 				: RenderingDevice
 var shader 			: RID
 var buffer 			: RID
 var buffer_2 		: RID
-var buffer_stage 	: RID
-var uniform_stage 	: RDUniform
+var buffer_pass 	: RID
+var uniform_pass 	: RDUniform
 var pipeline		: RID
 var uniform_set		: RID
 
@@ -130,13 +139,13 @@ func _ready():
 	var input_bytes_2 := input_2.to_byte_array()
 	buffer_2 = rd.storage_buffer_create(input_bytes_2.size(), input_bytes_2)
 
-	# Buffer for stage
-	var input_stage :PackedInt32Array = PackedInt32Array()
+	# Buffer for current_pass
+	var input_pass :PackedInt32Array = PackedInt32Array()
 	for i in range(1):
 		for j in range(1):
-			input_stage.append(0)
-	var input_stage_bytes := input_stage.to_byte_array()
-	buffer_stage = rd.storage_buffer_create(input_stage_bytes.size(), input_stage_bytes)
+			input_pass.append(0)
+	var input_pass_bytes := input_pass.to_byte_array()
+	buffer_pass = rd.storage_buffer_create(input_pass_bytes.size(), input_pass_bytes)
 
 	# *********************
 	# *  UNIFORM CREATION *
@@ -154,14 +163,14 @@ func _ready():
 	uniform_2.binding = 1 # this needs to match the "binding" in our shader file
 	uniform_2.add_id(buffer_2)
 
-	# Create Stage uniform 2
-	uniform_stage = RDUniform.new()
-	uniform_stage.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
-	uniform_stage.binding = 2 # this needs to match the "binding" in our shader file
-	uniform_stage.add_id(buffer_stage)
+	# Create current_pass uniform 2
+	uniform_pass = RDUniform.new()
+	uniform_pass.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
+	uniform_pass.binding = 2 # this needs to match the "binding" in our shader file
+	uniform_pass.add_id(buffer_pass)
 	
 	# Create the uniform SET between CPU & GPU
-	uniform_set = rd.uniform_set_create([uniform, uniform_2, uniform_stage], shader, 0) # the last parameter (the 0) needs to match the "set" in our shader file
+	uniform_set = rd.uniform_set_create([uniform, uniform_2, uniform_pass], shader, 0) # the last parameter (the 0) needs to match the "set" in our shader file
 
 	# **************************
 	# *  COMPUTE LIST CREATION *
@@ -203,39 +212,40 @@ func compute():
 	
 	display_all_values()
 	
-var current_pass : int = 0
+
 
 func _process(_delta):
 	# compute()
 	
 	current_pass = (current_pass + 1) % nb_passes
-	#_update_stage()
+	#_update_current_pass()
 	#print("step="+str(step))
-	step += 1
+	if current_pass == 0:
+		step += 1
 	
 	
 	
 	
 	
 	
-#func _update_stage():
-#	# Buffer for stage
-#	var buffer_stage := rd.storage_buffer_create(4, PackedByteArray([stage]))
-#
-#	# Re-Create Stage uniform
-#	uniform_stage = RDUniform.new()
-#	uniform_stage.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
-#	uniform_stage.binding = 2 # this needs to match the "binding" in our shader file
-#	uniform_stage.add_id(buffer_stage)
-#
-#	var compute_list :  = rd.compute_list_begin()
-#	rd.compute_list_bind_compute_pipeline(compute_list, pipeline)
-#	rd.compute_list_bind_uniform_set(compute_list, rd.uniform_set_create([uniform_stage], shader, 0), 0)
-#	rd.compute_list_dispatch(compute_list, 1, 1, 1)
-#	rd.compute_list_end()
-#
-#	rd.submit()
-#	rd.sync()
+func _update_current_pass():
+	# Buffer for current pass
+	var buffer_pass := rd.storage_buffer_create(4, PackedByteArray([current_pass]))
+
+	# Re-Create current_pass uniform
+	uniform_pass = RDUniform.new()
+	uniform_pass.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
+	uniform_pass.binding = 2 # this needs to match the "binding" in our shader file
+	uniform_pass.add_id(buffer_pass)
+
+	var compute_list :  = rd.compute_list_begin()
+	rd.compute_list_bind_compute_pipeline(compute_list, pipeline)
+	rd.compute_list_bind_uniform_set(compute_list, rd.uniform_set_create([uniform_pass], shader, 0), 0)
+	rd.compute_list_dispatch(compute_list, 1, 1, 1)
+	rd.compute_list_end()
+
+	rd.submit()
+	rd.sync()
 
 func string_to_file_to_spirv(src:String)->RDShaderSPIRV:
 	# Save str into a file
