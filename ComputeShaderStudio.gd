@@ -97,16 +97,10 @@ func _ready():
 	# *  SHADERS CREATION *
 	# *********************
 	# Load GLSL shader
-	var shader_file : Resource = load("res://script_1.glsl")
-
-
-
+	# var shader_file : Resource = load("res://script_1.glsl")
 	#var shader_spirv: RDShaderSPIRV = shader_file.get_spirv()
-	var shader_spirv: RDShaderSPIRV = RDShaderSPIRV.new()
-	shader_spirv.set_script(src_header + src_main_1)
 
-
-
+	var shader_spirv: RDShaderSPIRV = string_to_file_to_spirv(src_header+src_main_1)
 	shader = rd.shader_create_from_spirv(shader_spirv)
 
 
@@ -236,7 +230,22 @@ func _process(_delta):
 #	rd.submit()
 #	rd.sync()
 
+func string_to_file_to_spirv(str:String)->RDShaderSPIRV:
+	# Save str into a file
+	var file_path = "res://temp_file.glsl" # chemin du fichier temporaire
+	var file = FileAccess.open(file_path,FileAccess.WRITE)
+	file.store_string(str)
+	file = null
+	# Load it as a resource GLSL shader
+	var shader_file : Resource = load("res://temp_file.glsl")
+	# Remove the temp_file
+	if DirAccess.dir_exists_absolute(file_path):
+		DirAccess.remove_absolute(file_path)
 
+	# Compile the glsl file
+	var shader_spirv: RDShaderSPIRV = shader_file.get_spirv()
+	
+	return shader_spirv
 
 func _on_button_pressed():
 	compute()
