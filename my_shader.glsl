@@ -26,8 +26,10 @@ void main() {
 	uint y = gl_GlobalInvocationID.y;
 	uint p = x + y * 128;
 	
-	data_0[p] = data_0[p] / 2;
-	data_1[p] = data_1[p] + 1024;
+	if (current_pass == 0) {
+		data_0[p] = data_0[p] / 2;
+		data_1[p] = data_1[p] + 1024;
+	}
 	
 	//if (current_pass == 0)
 	//    data_1[p] += 10;

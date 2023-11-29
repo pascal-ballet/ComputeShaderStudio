@@ -2,7 +2,7 @@ extends Node
 
 var WSX				: int = 128 # Workspace Size X, usually it matches the x size of your Sprite2D
 var WSY				: int = 128 # Workspace Size Y, usually it matches the y size of your Sprite2D
-var nb_passes		: int = 1
+var nb_passes		: int = 2
 var current_pass 	: int = 0
 
 # Put your GLSL code in the GLSL_main string below
@@ -22,8 +22,10 @@ void main() {
 	uint y = gl_GlobalInvocationID.y;
 	uint p = x + y * 128;
 	
-	data_0[p] = data_0[p] / 2;
-	data_1[p] = data_1[p] + 1024;
+	if (current_pass == 0) {
+		data_0[p] = data_0[p] / 2;
+		data_1[p] = data_1[p] + 1024;
+	}
 	
 	//if (current_pass == 0)
 	//    data_1[p] += 10;
@@ -87,7 +89,13 @@ var shader 			: RID
 var buffer 			: RID
 var buffer_2 		: RID
 var buffer_pass 	: RID
+
+
+var uniform 		: RDUniform
+var uniform_2 		: RDUniform
 var uniform_pass 	: RDUniform
+
+
 var pipeline		: RID
 var uniform_set		: RID
 
@@ -151,19 +159,19 @@ func _ready():
 	# *  UNIFORM CREATION *
 	# *********************
 	
-	# Create uniform 0
-	var uniform := RDUniform.new()
+	# Create uniform
+	uniform = RDUniform.new()
 	uniform.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
 	uniform.binding = 0 # this needs to match the "binding" in our shader file
 	uniform.add_id(buffer)
 
-	# Create uniform 1
-	var uniform_2 := RDUniform.new()
+	# Create uniform 2
+	uniform_2 = RDUniform.new()
 	uniform_2.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
 	uniform_2.binding = 1 # this needs to match the "binding" in our shader file
 	uniform_2.add_id(buffer_2)
 
-	# Create current_pass uniform 2
+	# Create current_pass uniform pass
 	uniform_pass = RDUniform.new()
 	uniform_pass.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
 	uniform_pass.binding = 2 # this needs to match the "binding" in our shader file
@@ -200,22 +208,45 @@ func display_values(sprite : Sprite2D, values : PackedByteArray): # PackedInt32A
 var step  : int = 0
 
 func compute():
+	print("Step="+str(step)+" CurrentPass="+str(current_pass))
+	
+	
+	# Update the uniform
+#
+#	# ReCreate current_pass uniform pass
+#	uniform_pass = RDUniform.new()
+#	uniform_pass.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
+#	uniform_pass.binding = 2 # this needs to match the "binding" in our shader file
+#	uniform_pass.add_id(buffer_pass)
+	
+	
+	# Create the uniform SET between CPU & GPU
+	if step == 2:
+		rd.global_shader_parameter_set('current_pass', current_pass)
+#		buffer_pass = rd.storage_buffer_create(4, PackedByteArray([current_pass]))
+#		uniform_pass.clear_ids()
+#		uniform_pass.add_id(buffer_pass)
+#		uniform_set = rd.uniform_set_create([uniform, uniform_2, uniform_pass], shader, 0) # the last parameter (the 0) needs to match the "set" in our shader file
+#
+	
+	#######################################################################
 	var compute_list : int = rd.compute_list_begin() ######################
 	rd.compute_list_bind_compute_pipeline(compute_list, pipeline)
+	
 	rd.compute_list_bind_uniform_set(compute_list, uniform_set, 0)
+	
+	
 	rd.compute_list_dispatch(compute_list, WSX>>3, WSY>>3, 1)
 	rd.compute_list_end() ##################################################
+	#######################################################################
+
+
 
 	# Submit to GPU and wait for sync
 	rd.submit()
 	rd.sync()
 	
-
-	
-
-
-func _process(_delta):
-	# compute()
+	# Update step and passes
 	
 	current_pass = (current_pass + 1) % nb_passes
 	#_update_current_pass()
@@ -223,14 +254,20 @@ func _process(_delta):
 	if current_pass == 0:
 		step += 1
 	
-	display_all_values()
+
+func _process(_delta):
+	# compute()
 	
+
 	
+	#display_all_values()
 	
+	pass
 	
+#var buffer_pass : RID
 func _update_current_pass():
 	# Buffer for current pass
-	var buffer_pass := rd.storage_buffer_create(4, PackedByteArray([current_pass]))
+	buffer_pass = rd.storage_buffer_create(4, PackedByteArray([current_pass]))
 
 	# Re-Create current_pass uniform
 	uniform_pass = RDUniform.new()
@@ -249,12 +286,12 @@ func _update_current_pass():
 
 func string_to_file_to_spirv(src:String)->RDShaderSPIRV:
 	# Save str into a file
-	var file_path = "res://temp_file.glsl" # chemin du fichier temporaire
+	var file_path = "res://my_shader.glsl" # chemin du fichier temporaire
 	var file = FileAccess.open(file_path,FileAccess.WRITE)
 	file.store_string(src)
 	file.close()
 	# Load it as a resource GLSL shader
-	var shader_file : Resource = load("res://temp_file.glsl")
+	var shader_file : Resource = load("res://my_shader.glsl")
 
 	# Compile the glsl file
 	var shader_spirv: RDShaderSPIRV = shader_file.get_spirv()
