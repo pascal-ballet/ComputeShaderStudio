@@ -22,8 +22,16 @@ void main() {
 	uint y = gl_GlobalInvocationID.y;
 	uint p = x + y * WSX;
 	
+	if (step == 1 && current_pass == 0) {
+		if (data_0[p] < 999990){
+			data_0[p] = 0x0000FF00;
+		} else {
+			data_0[p] = 0x00FF0000;
+		}
+	}
+	
 	if (current_pass == 0) {
-		data_0[p] = data_0[p] / 2;
+		//data_0[p] = data_0[p] / 2;
 		data_1[p] = data_1[p] + 1024;
 	}
 	
@@ -63,18 +71,11 @@ layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 
 // Bindings to the buffers we create in our script
 layout(binding = 0) buffer Params {
+	int step;
 	int current_pass;
 };
 
 """
-#layout(binding = 1) buffer Data0 {
-#	int data_0[];
-#};
-#
-#layout(binding = 2) buffer Data1 {
-#	int data_1[];
-#};
-
 
 
 
@@ -83,11 +84,11 @@ layout(binding = 0) buffer Params {
 var rd 				: RenderingDevice
 var shader 			: RID
 var buffers 		: Array[RID]
-var buffer_pass 	: RID
+var buffer_params 	: RID
 
 var uniforms		: Array[RDUniform]
 #var uniform_2 		: RDUniform
-var uniform_pass 	: RDUniform
+var uniform_params 	: RDUniform
 
 var bindings		: Array = []
 
@@ -112,8 +113,9 @@ func _ready():
 
 	# Create GLSL Header
 	GLSL_header += """
-int WSX="""+str(WSX)+""";"""+"""
-int WSY="""+str(WSY)+""";"""
+uint WSX="""+str(WSX)+""";"""+"""
+uint WSY="""+str(WSY)+""";
+"""
 
 	for i in nb_buffers:
 		GLSL_header += """
@@ -134,10 +136,11 @@ layout(binding = """+str(i+1)+""") buffer Data"""+str(i)+""" {
 	# *********************
 	
 	# Buffer for current_pass
-	var input_pass :PackedInt32Array = PackedInt32Array()
-	input_pass.append(0)
-	var input_pass_bytes := input_pass.to_byte_array()
-	buffer_pass = rd.storage_buffer_create(input_pass_bytes.size(), input_pass_bytes)
+	var input_params :PackedInt32Array = PackedInt32Array()
+	input_params.append(step)
+	input_params.append(current_pass)
+	var input_params_bytes := input_params.to_byte_array()
+	buffer_params = rd.storage_buffer_create(input_params_bytes.size(), input_params_bytes)
 	
 	# Buffers from/for data (Sprite2D)
 	for b in nb_buffers:
@@ -153,10 +156,10 @@ layout(binding = """+str(i+1)+""") buffer Data"""+str(i)+""" {
 	# *********************
 	
 	# Create current_pass uniform pass
-	uniform_pass = RDUniform.new()
-	uniform_pass.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
-	uniform_pass.binding = 0 # this needs to match the "binding" in our shader file
-	uniform_pass.add_id(buffer_pass)
+	uniform_params = RDUniform.new()
+	uniform_params.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
+	uniform_params.binding = 0 # this needs to match the "binding" in our shader file
+	uniform_params.add_id(buffer_params)
 	
 	var nb_uniforms : int = data.size()
 	for b in nb_uniforms:
@@ -167,7 +170,7 @@ layout(binding = """+str(i+1)+""") buffer Data"""+str(i)+""" {
 		uniforms.append(uniform)
 
 	# Create the uniform SET between CPU & GPU
-	bindings = [uniform_pass]
+	bindings = [uniform_params]
 	for b in nb_buffers:
 		bindings.append(uniforms[b])
 	
@@ -231,16 +234,17 @@ func _process(_delta):
 ## Pass the intersting values from CPU to GPU
 func _update_uniforms():
 	# Buffer for current_pass
-	var input_pass :PackedInt32Array = PackedInt32Array()
-	input_pass.append(current_pass)
-	var input_pass_bytes := input_pass.to_byte_array()
-	buffer_pass = rd.storage_buffer_create(input_pass_bytes.size(), input_pass_bytes)
+	var input_params :PackedInt32Array = PackedInt32Array()
+	input_params.append(step)
+	input_params.append(current_pass)
+	var input_params_bytes := input_params.to_byte_array()
+	buffer_params = rd.storage_buffer_create(input_params_bytes.size(), input_params_bytes)
 	# Create current_pass uniform pass
-	uniform_pass = RDUniform.new()
-	uniform_pass.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
-	uniform_pass.binding = 0 # this needs to match the "binding" in our shader file
-	uniform_pass.add_id(buffer_pass)
-	bindings[0] = uniform_pass
+	uniform_params = RDUniform.new()
+	uniform_params.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
+	uniform_params.binding = 0 # this needs to match the "binding" in our shader file
+	uniform_params.add_id(buffer_params)
+	bindings[0] = uniform_params
 	
 	uniform_set = rd.uniform_set_create(bindings, shader, 0)
 	# Note: when changing the uniform set, use the same bindings Array (do not create a new Array)

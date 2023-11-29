@@ -13,4 +13,4 @@ config_version=5
 config/name="compute_shader_studio"
 run/main_scene="res://dev_compute_shader_studio.tscn"
 config/features=PackedStringArray("4.1", "Forward Plus")
-config/icon="res://icon.svg"
+config/icon="res://icon.png"
