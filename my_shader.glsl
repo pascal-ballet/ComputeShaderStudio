@@ -18,6 +18,7 @@ layout(binding = 2) buffer Params {
 	int current_pass;
 };
 
+
 	
 
 // Write your code HERE

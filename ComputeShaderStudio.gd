@@ -79,6 +79,7 @@ layout(binding = 2) buffer Params {
 	int current_pass;
 };
 
+
 	
 """
 
@@ -95,6 +96,7 @@ var uniform 		: RDUniform
 var uniform_2 		: RDUniform
 var uniform_pass 	: RDUniform
 
+var bindings		: Array = []
 
 var pipeline		: RID
 var uniform_set		: RID
@@ -116,7 +118,7 @@ func _ready():
 		return
 		
 	# *********************
-	# *  SHADERS CREATION *
+	# *  SHADER CREATION  *
 	# *********************
 	# Load GLSL shader
 	# var shader_file : Resource = load("res://script_1.glsl")
@@ -124,7 +126,6 @@ func _ready():
 
 	var shader_spirv: RDShaderSPIRV = string_to_file_to_spirv(GLSL_header + GLSL_main)
 	shader = rd.shader_create_from_spirv(shader_spirv)
-
 
 
 	# *********************
@@ -178,7 +179,8 @@ func _ready():
 	uniform_pass.add_id(buffer_pass)
 	
 	# Create the uniform SET between CPU & GPU
-	uniform_set = rd.uniform_set_create([uniform, uniform_2, uniform_pass], shader, 0) # the last parameter (the 0) needs to match the "set" in our shader file
+	bindings = [uniform, uniform_2, uniform_pass]
+	uniform_set = rd.uniform_set_create(bindings, shader, 0) # the last parameter (the 0) needs to match the "set" in our shader file
 
 	# **************************
 	# *  COMPUTE LIST CREATION *
@@ -210,24 +212,7 @@ var step  : int = 0
 func compute():
 	print("Step="+str(step)+" CurrentPass="+str(current_pass))
 	
-	
-	# Update the uniform
-#
-#	# ReCreate current_pass uniform pass
-#	uniform_pass = RDUniform.new()
-#	uniform_pass.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
-#	uniform_pass.binding = 2 # this needs to match the "binding" in our shader file
-#	uniform_pass.add_id(buffer_pass)
-	
-	
-	# Create the uniform SET between CPU & GPU
-	if step == 2:
-		rd.global_shader_parameter_set('current_pass', current_pass)
-#		buffer_pass = rd.storage_buffer_create(4, PackedByteArray([current_pass]))
-#		uniform_pass.clear_ids()
-#		uniform_pass.add_id(buffer_pass)
-#		uniform_set = rd.uniform_set_create([uniform, uniform_2, uniform_pass], shader, 0) # the last parameter (the 0) needs to match the "set" in our shader file
-#
+	_update_uniforms()
 	
 	#######################################################################
 	var compute_list : int = rd.compute_list_begin() ######################
@@ -265,24 +250,20 @@ func _process(_delta):
 	pass
 	
 #var buffer_pass : RID
-func _update_current_pass():
-	# Buffer for current pass
-	buffer_pass = rd.storage_buffer_create(4, PackedByteArray([current_pass]))
-
-	# Re-Create current_pass uniform
+func _update_uniforms():
+	# Buffer for current_pass
+	var input_pass :PackedInt32Array = PackedInt32Array()
+	input_pass.append(current_pass)
+	var input_pass_bytes := input_pass.to_byte_array()
+	buffer_pass = rd.storage_buffer_create(input_pass_bytes.size(), input_pass_bytes)
+	# Create current_pass uniform pass
 	uniform_pass = RDUniform.new()
 	uniform_pass.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
 	uniform_pass.binding = 2 # this needs to match the "binding" in our shader file
 	uniform_pass.add_id(buffer_pass)
-
-	var compute_list :  = rd.compute_list_begin()
-	rd.compute_list_bind_compute_pipeline(compute_list, pipeline)
-	rd.compute_list_bind_uniform_set(compute_list, rd.uniform_set_create([uniform_pass], shader, 0), 0)
-	rd.compute_list_dispatch(compute_list, 1, 1, 1)
-	rd.compute_list_end()
-
-	rd.submit()
-	rd.sync()
+	bindings[2] = uniform_pass
+	
+	uniform_set = rd.uniform_set_create(bindings, shader, 0)
 
 func string_to_file_to_spirv(src:String)->RDShaderSPIRV:
 	# Save str into a file
@@ -290,6 +271,14 @@ func string_to_file_to_spirv(src:String)->RDShaderSPIRV:
 	var file = FileAccess.open(file_path,FileAccess.WRITE)
 	file.store_string(src)
 	file.close()
+	
+	# Un petit délai
+	var start_time = Time.get_ticks_msec()
+	var wait_duration = 50 # Millisecondes
+	while Time.get_ticks_msec() < start_time + wait_duration:
+		pass # Cette boucle bloque l'exécution pendant 'wait_duration' millisecondes
+
+
 	# Load it as a resource GLSL shader
 	var shader_file : Resource = load("res://my_shader.glsl")
 
