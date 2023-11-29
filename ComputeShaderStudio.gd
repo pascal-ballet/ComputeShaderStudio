@@ -135,9 +135,7 @@ layout(binding = """+str(i+1)+""") buffer Data"""+str(i)+""" {
 	
 	# Buffer for current_pass
 	var input_pass :PackedInt32Array = PackedInt32Array()
-	for i in range(1):
-		for j in range(1):
-			input_pass.append(0)
+	input_pass.append(0)
 	var input_pass_bytes := input_pass.to_byte_array()
 	buffer_pass = rd.storage_buffer_create(input_pass_bytes.size(), input_pass_bytes)
 	
@@ -262,7 +260,7 @@ func string_to_file_to_spirv(src:String)->RDShaderSPIRV:
 	
 	# A small delay for the file to close
 	var start_time = Time.get_ticks_msec()
-	var wait_duration = 500 # Millisecondes
+	var wait_duration = 1000 # Millisecondes
 	while Time.get_ticks_msec() < start_time + wait_duration:
 		pass # Bloc the execution to give time to the file to close
 
