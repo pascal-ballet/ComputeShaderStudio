@@ -20,17 +20,12 @@ var GLSL_main = """
 void main() {
 	uint x = gl_GlobalInvocationID.x;
 	uint y = gl_GlobalInvocationID.y;
-	uint p = x + y * 128;
+	uint p = x + y * WSX;
 	
 	if (current_pass == 0) {
 		data_0[p] = data_0[p] / 2;
 		data_1[p] = data_1[p] + 1024;
 	}
-	
-	//if (current_pass == 0)
-	//    data_1[p] += 10;
-	//if (current_pass == 1)
-	//    data_1[p] -= 10;
 	
 }
 """ 
@@ -66,34 +61,32 @@ var GLSL_header = """
 // Invocations in the (x, y, z) dimension
 layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 
-// A binding to the buffer we create in our script
-layout(binding = 0) buffer Data0 {
-	int data_0[];
-};
-
-layout(binding = 1) buffer Data1 {
-	int data_1[];
-};
-
-layout(binding = 2) buffer Params {
+// Bindings to the buffers we create in our script
+layout(binding = 0) buffer Params {
 	int current_pass;
 };
 
-
-	
 """
+#layout(binding = 1) buffer Data0 {
+#	int data_0[];
+#};
+#
+#layout(binding = 2) buffer Data1 {
+#	int data_1[];
+#};
+
+
+
 
 @export var data:Array[Sprite2D]
 
 var rd 				: RenderingDevice
 var shader 			: RID
-var buffer 			: RID
-var buffer_2 		: RID
+var buffers 		: Array[RID]
 var buffer_pass 	: RID
 
-
-var uniform 		: RDUniform
-var uniform_2 		: RDUniform
+var uniforms		: Array[RDUniform]
+#var uniform_2 		: RDUniform
 var uniform_pass 	: RDUniform
 
 var bindings		: Array = []
@@ -101,15 +94,9 @@ var bindings		: Array = []
 var pipeline		: RID
 var uniform_set		: RID
 
-
-
-var data_1:Sprite2D
-var data_2:Sprite2D
-
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	data_1 = data[0]
-	data_2 = data[1]
+
 	# Create a local rendering device.
 	rd = RenderingServer.create_local_rendering_device()
 	if not rd:
@@ -120,11 +107,25 @@ func _ready():
 	# *********************
 	# *  SHADER CREATION  *
 	# *********************
-	# Load GLSL shader
-	# var shader_file : Resource = load("res://script_1.glsl")
-	#var shader_spirv: RDShaderSPIRV = shader_file.get_spirv()
 
-	var shader_spirv: RDShaderSPIRV = string_to_file_to_spirv(GLSL_header + GLSL_main)
+	var nb_buffers : int = data.size()
+
+	# Create GLSL Header
+	GLSL_header += """
+int WSX="""+str(WSX)+""";"""+"""
+int WSY="""+str(WSY)+""";"""
+
+	for i in nb_buffers:
+		GLSL_header += """
+layout(binding = """+str(i+1)+""") buffer Data"""+str(i)+""" {
+	int data_"""+str(i)+"""[];
+};
+
+"""
+	var GLSL_code : String = GLSL_header + GLSL_main
+	print(GLSL_code)
+
+	var shader_spirv: RDShaderSPIRV = string_to_file_to_spirv(GLSL_code)
 	shader = rd.shader_create_from_spirv(shader_spirv)
 
 
@@ -132,22 +133,6 @@ func _ready():
 	# *  BUFFERS CREATION *
 	# *********************
 	
-	# Buffer 1
-	var input :PackedInt32Array = PackedInt32Array()
-	for i in range(WSX):
-		for j in range(WSY):
-			input.append(randi())
-	var input_bytes := input.to_byte_array()
-	buffer = rd.storage_buffer_create(input_bytes.size(), input_bytes)
-
-	# Buffer 2
-	var input_2 :PackedInt32Array = PackedInt32Array()
-	for i in range(WSX):
-		for j in range(WSY):
-			input_2.append(randi()%65536)
-	var input_bytes_2 := input_2.to_byte_array()
-	buffer_2 = rd.storage_buffer_create(input_bytes_2.size(), input_bytes_2)
-
 	# Buffer for current_pass
 	var input_pass :PackedInt32Array = PackedInt32Array()
 	for i in range(1):
@@ -155,31 +140,39 @@ func _ready():
 			input_pass.append(0)
 	var input_pass_bytes := input_pass.to_byte_array()
 	buffer_pass = rd.storage_buffer_create(input_pass_bytes.size(), input_pass_bytes)
+	
+	# Buffers from/for data (Sprite2D)
+	for b in nb_buffers:
+		var input :PackedInt32Array = PackedInt32Array()
+		for i in range(WSX):
+			for j in range(WSY):
+				input.append(randi())
+		var input_bytes := input.to_byte_array()
+		buffers.append(rd.storage_buffer_create(input_bytes.size(), input_bytes))
 
 	# *********************
-	# *  UNIFORM CREATION *
+	# * UNIFORMS CREATION *
 	# *********************
 	
-	# Create uniform
-	uniform = RDUniform.new()
-	uniform.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
-	uniform.binding = 0 # this needs to match the "binding" in our shader file
-	uniform.add_id(buffer)
-
-	# Create uniform 2
-	uniform_2 = RDUniform.new()
-	uniform_2.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
-	uniform_2.binding = 1 # this needs to match the "binding" in our shader file
-	uniform_2.add_id(buffer_2)
-
 	# Create current_pass uniform pass
 	uniform_pass = RDUniform.new()
 	uniform_pass.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
-	uniform_pass.binding = 2 # this needs to match the "binding" in our shader file
+	uniform_pass.binding = 0 # this needs to match the "binding" in our shader file
 	uniform_pass.add_id(buffer_pass)
 	
+	var nb_uniforms : int = data.size()
+	for b in nb_uniforms:
+		var uniform = RDUniform.new()
+		uniform.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
+		uniform.binding = b+1 # this needs to match the "binding" in our shader file
+		uniform.add_id(buffers[b])
+		uniforms.append(uniform)
+
 	# Create the uniform SET between CPU & GPU
-	bindings = [uniform, uniform_2, uniform_pass]
+	bindings = [uniform_pass]
+	for b in nb_buffers:
+		bindings.append(uniforms[b])
+	
 	uniform_set = rd.uniform_set_create(bindings, shader, 0) # the last parameter (the 0) needs to match the "set" in our shader file
 
 	# **************************
@@ -188,24 +181,23 @@ func _ready():
 	# Create a compute pipeline
 	pipeline = rd.compute_pipeline_create(shader)
 	
+	# Execute once (should it stay?)
 	compute()
 	# Read back the data from the buffer
 	display_all_values()
 
 func display_all_values():
 	# Read back the data from the buffer
-	var output_bytes :   PackedByteArray = rd.buffer_get_data(buffer)
-	display_values(data_1, output_bytes)
+	var output_bytes :   PackedByteArray = rd.buffer_get_data(buffers[0])
+	display_values(data[0], output_bytes)
 	# Read back the data from the buffer_2
-	var output_bytes_2 : PackedByteArray = rd.buffer_get_data(buffer_2)
-	display_values(data_2, output_bytes_2)
+	var output_bytes_2 : PackedByteArray = rd.buffer_get_data(buffers[1])
+	display_values(data[1], output_bytes_2)
 
 func display_values(sprite : Sprite2D, values : PackedByteArray): # PackedInt32Array):
 	var image_format : int = Image.FORMAT_RGBA8
 	var image := Image.create_from_data(128, 128, false, image_format, values)
 	sprite.set_texture(ImageTexture.create_from_image(image))
-
-
 
 var step  : int = 0
 
@@ -214,42 +206,31 @@ func compute():
 	
 	_update_uniforms()
 	
-	#######################################################################
-	var compute_list : int = rd.compute_list_begin() ######################
+	# Prepare the Computer List ############################################
+	var compute_list : int = rd.compute_list_begin()
 	rd.compute_list_bind_compute_pipeline(compute_list, pipeline)
-	
 	rd.compute_list_bind_uniform_set(compute_list, uniform_set, 0)
-	
-	
 	rd.compute_list_dispatch(compute_list, WSX>>3, WSY>>3, 1)
-	rd.compute_list_end() ##################################################
+	rd.compute_list_end()
 	#######################################################################
-
-
 
 	# Submit to GPU and wait for sync
 	rd.submit()
 	rd.sync()
 	
-	# Update step and passes
-	
+	# Update step and current_passe
 	current_pass = (current_pass + 1) % nb_passes
-	#_update_current_pass()
-	#print("step="+str(step))
 	if current_pass == 0:
 		step += 1
 	
 
 func _process(_delta):
 	# compute()
-	
-
-	
 	#display_all_values()
-	
 	pass
 	
-#var buffer_pass : RID
+
+## Pass the intersting values from CPU to GPU
 func _update_uniforms():
 	# Buffer for current_pass
 	var input_pass :PackedInt32Array = PackedInt32Array()
@@ -259,25 +240,31 @@ func _update_uniforms():
 	# Create current_pass uniform pass
 	uniform_pass = RDUniform.new()
 	uniform_pass.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
-	uniform_pass.binding = 2 # this needs to match the "binding" in our shader file
+	uniform_pass.binding = 0 # this needs to match the "binding" in our shader file
 	uniform_pass.add_id(buffer_pass)
-	bindings[2] = uniform_pass
+	bindings[0] = uniform_pass
 	
 	uniform_set = rd.uniform_set_create(bindings, shader, 0)
+	# Note: when changing the uniform set, use the same bindings Array (do not create a new Array)
 
 func string_to_file_to_spirv(src:String)->RDShaderSPIRV:
+	# This method should be changed but
+	# I still don't know how to pass a String
+	# instead of a Resource to compile the GLSL
+	# (and the resource is loaded from the disc)
+	# If you have a better solution, please give me :-)
+	
 	# Save str into a file
 	var file_path = "res://my_shader.glsl" # chemin du fichier temporaire
 	var file = FileAccess.open(file_path,FileAccess.WRITE)
 	file.store_string(src)
 	file.close()
 	
-	# Un petit délai
+	# A small delay for the file to close
 	var start_time = Time.get_ticks_msec()
-	var wait_duration = 50 # Millisecondes
+	var wait_duration = 500 # Millisecondes
 	while Time.get_ticks_msec() < start_time + wait_duration:
-		pass # Cette boucle bloque l'exécution pendant 'wait_duration' millisecondes
-
+		pass # Bloc the execution to give time to the file to close
 
 	# Load it as a resource GLSL shader
 	var shader_file : Resource = load("res://my_shader.glsl")
@@ -285,7 +272,7 @@ func string_to_file_to_spirv(src:String)->RDShaderSPIRV:
 	# Compile the glsl file
 	var shader_spirv: RDShaderSPIRV = shader_file.get_spirv()
 	
-	# Remove the temp_file
+	# Remove the temp_file (finally, I prefere to leave the file: it can be useful)
 	# if DirAccess.dir_exists_absolute(file_path):
 	# 	DirAccess.remove_absolute(file_path)
 	
