@@ -22,7 +22,7 @@ void main() {
 	uint y = gl_GlobalInvocationID.y;
 	uint p = x + y * WSX;
 	data_0[p] = 0xFFF00FFF - int(p)*(step+1);
-	data_1[p] = 0xFF00AA00 + int( 1.0 + 99999.9*sin(float(x+float(step+y))/1000.0));
+	data_1[p] = 0xFF0000AA + int( 1.0 + 99999.9*sin(float(x+float(step+y))/1000.0));
 }
 """ 
 
@@ -53,7 +53,6 @@ void main() {
 #region ComputeShaderStudio
 
 var GLSL_header = """
-#[compute]
 #version 450
 
 // Invocations in the (x, y, z) dimension
@@ -66,10 +65,16 @@ layout(binding = 0) buffer Params {
 };
 
 """
-
+## Print the current step.
 @export var print_step:bool = false
+## Print the current pass.
 @export var print_passes:bool = false
+## Print in Output all the generated code.
+## Can be usefull for debugging.
+@export var print_generated_code:bool = false
+## Do not launch compute shader at launch.
 @export var pause:bool = false
+## Drag and drop your Sprite2D here.
 @export var data:Array[Sprite2D]
 
 var rd 				: RenderingDevice
@@ -119,31 +124,21 @@ layout(binding = """+str(i+1)+""") buffer Data"""+str(i)+""" {
 
 """
 	var GLSL_code : String = GLSL_header + GLSL_main
-	print(GLSL_code)
-
-	#var shader_spirv: RDShaderSPIRV = string_to_file_to_spirv(GLSL_code)
+	if print_generated_code == true:
+		print(GLSL_code)
 	
-	# Way to compile shaher using string (to try)
+	# Compile the shader by passing a string
 	var shader_src := RDShaderSource.new()
 	shader_src.set_stage_source(RenderingDevice.SHADER_STAGE_COMPUTE, GLSL_code)
 	var shader_spirv := rd.shader_compile_spirv_from_source(shader_src)
 	
+	var err:String=shader_spirv.compile_error_compute
+	
+	if err != "":
+		printerr(err)
+		get_tree().quit()
 	
 	shader = rd.shader_create_from_spirv(shader_spirv)
-
-#
-#var rd := RenderingServer.create_local_rendering_device()
-#
-#var shader_string := "your shader here"
-#
-#var shader_src := RDShaderSource.new()
-#shader_src.set_stage_source(RenderingDevice.SHADER_STAGE_COMPUTE, shader_string)
-#
-#var shader_spirv := rd.shader_compile_spirv_from_source(shader_src)
-#
-#var shader := rd.shader_create_from_spirv(shader_spirv)
-
-
 
 
 	# *********************
@@ -263,38 +258,6 @@ func _update_uniforms():
 	
 	uniform_set = rd.uniform_set_create(bindings, shader, 0)
 	# Note: when changing the uniform set, use the same bindings Array (do not create a new Array)
-
-func string_to_file_to_spirv(src:String)->RDShaderSPIRV:
-	# This method should be changed but
-	# I still don't know how to pass a String
-	# instead of a Resource to compile the GLSL
-	# (and the resource is loaded from the disc)
-	# If you have a better solution, please give me :-)
-	
-	# Save str into a file
-	var file_path = "res://my_shader.glsl" # path of the glsl generated file
-	var file = FileAccess.open(file_path,FileAccess.WRITE)
-	file.store_string(src)
-	file.close()
-	file = null
-	# A small delay for the file to close
-	var start_time = Time.get_ticks_msec()
-	var wait_duration = 1000 # Millisecondes
-	while Time.get_ticks_msec() < start_time + wait_duration:
-		pass # Bloc the execution to give time to the file to close
-
-	# Load it as a resource GLSL shader
-	# var shader_file : Resource = load("res://my_shader.glsl")
-	var shader_file : Resource = ResourceLoader.load("res://my_shader.glsl","",ResourceLoader.CACHE_MODE_REPLACE)
-	
-	# Compile the glsl file
-	var shader_spirv: RDShaderSPIRV = shader_file.get_spirv()
-	
-	# Remove the temp_file (finally, I prefere to leave the file: it can be useful)
-	# if DirAccess.dir_exists_absolute(file_path):
-	# 	DirAccess.remove_absolute(file_path)
-	
-	return shader_spirv
 
 func _on_button_pressed():
 	compute()
