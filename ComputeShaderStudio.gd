@@ -2,7 +2,6 @@ extends Node
 
 var WSX				: int = 128 # Workspace Size X, usually it matches the x size of your Sprite2D
 var WSY				: int = 128 # Workspace Size Y, usually it matches the y size of your Sprite2D
-var nb_passes		: int = 2
 var current_pass 	: int = 0
 
 # Put your GLSL code in the GLSL_main string below
@@ -15,26 +14,15 @@ var current_pass 	: int = 0
 #   uint step    : time step of the execution. Incresed by 1 after nb_passes
 #  uint nb_passes: the number of passes your code needs to work
 #  uint current_pass: which pass is currently executed (one pass per frame)
+var nb_passes		: int = 1
 var GLSL_main = """
 // Write your code HERE
 void main() {
 	uint x = gl_GlobalInvocationID.x;
 	uint y = gl_GlobalInvocationID.y;
 	uint p = x + y * WSX;
-	
-	if (step == 1 && current_pass == 0) {
-		if (data_0[p] < 999990){
-			data_0[p] = 0x0000FF00;
-		} else {
-			data_0[p] = 0x00FF0000;
-		}
-	}
-	
-	if (current_pass == 0) {
-		//data_0[p] = data_0[p] / 2;
-		data_1[p] = data_1[p] + 1024;
-	}
-	
+	data_0[p] = 0xFFF00FFF - int(p)*(step+1);
+	data_1[p] = 0xFF00AA00 + int( 1.0 + 99999.9*sin(float(x+float(step+y))/1000.0));
 }
 """ 
 
@@ -62,6 +50,8 @@ void main() {
 
 
 
+#region ComputeShaderStudio
+
 var GLSL_header = """
 #[compute]
 #version 450
@@ -77,8 +67,9 @@ layout(binding = 0) buffer Params {
 
 """
 
-
-
+@export var print_step:bool = false
+@export var print_passes:bool = false
+@export var pause:bool = false
 @export var data:Array[Sprite2D]
 
 var rd 				: RenderingDevice
@@ -96,8 +87,11 @@ var pipeline		: RID
 var uniform_set		: RID
 
 # Called when the node enters the scene tree for the first time.
+#region _ready
 func _ready():
+	compile()
 
+func compile():
 	# Create a local rendering device.
 	rd = RenderingServer.create_local_rendering_device()
 	if not rd:
@@ -183,17 +177,16 @@ layout(binding = """+str(i+1)+""") buffer Data"""+str(i)+""" {
 	pipeline = rd.compute_pipeline_create(shader)
 	
 	# Execute once (should it stay?)
-	compute()
+	# compute()
 	# Read back the data from the buffer
-	display_all_values()
+	# display_all_values()
+#endregion
 
 func display_all_values():
-	# Read back the data from the buffer
-	var output_bytes :   PackedByteArray = rd.buffer_get_data(buffers[0])
-	display_values(data[0], output_bytes)
-	# Read back the data from the buffer_2
-	var output_bytes_2 : PackedByteArray = rd.buffer_get_data(buffers[1])
-	display_values(data[1], output_bytes_2)
+	# Read back the data from the buffers
+	for b in data.size():
+		var output_bytes :   PackedByteArray = rd.buffer_get_data(buffers[b])
+		display_values(data[b], output_bytes)
 
 func display_values(sprite : Sprite2D, values : PackedByteArray): # PackedInt32Array):
 	var image_format : int = Image.FORMAT_RGBA8
@@ -203,7 +196,10 @@ func display_values(sprite : Sprite2D, values : PackedByteArray): # PackedInt32A
 var step  : int = 0
 
 func compute():
-	print("Step="+str(step)+" CurrentPass="+str(current_pass))
+	if print_step == true && current_pass%nb_passes == 0:
+		print("Step="+str(step))
+	if print_passes == true:
+		print(" CurrentPass="+str(current_pass))
 	
 	_update_uniforms()
 	
@@ -223,15 +219,13 @@ func compute():
 	current_pass = (current_pass + 1) % nb_passes
 	if current_pass == 0:
 		step += 1
-	
 
 func _process(_delta):
-	# compute()
-	#display_all_values()
-	pass
-	
+	if pause == false:
+		compute()
+		display_all_values()
 
-## Pass the intersting values from CPU to GPU
+## Pass the interesting values from CPU to GPU
 func _update_uniforms():
 	# Buffer for current_pass
 	var input_params :PackedInt32Array = PackedInt32Array()
@@ -257,11 +251,11 @@ func string_to_file_to_spirv(src:String)->RDShaderSPIRV:
 	# If you have a better solution, please give me :-)
 	
 	# Save str into a file
-	var file_path = "res://my_shader.glsl" # chemin du fichier temporaire
+	var file_path = "res://my_shader.glsl" # path of the glsl generated file
 	var file = FileAccess.open(file_path,FileAccess.WRITE)
 	file.store_string(src)
 	file.close()
-	
+	file = null
 	# A small delay for the file to close
 	var start_time = Time.get_ticks_msec()
 	var wait_duration = 1000 # Millisecondes
@@ -269,8 +263,9 @@ func string_to_file_to_spirv(src:String)->RDShaderSPIRV:
 		pass # Bloc the execution to give time to the file to close
 
 	# Load it as a resource GLSL shader
-	var shader_file : Resource = load("res://my_shader.glsl")
-
+	# var shader_file : Resource = load("res://my_shader.glsl")
+	var shader_file : Resource = ResourceLoader.load("res://my_shader.glsl","",ResourceLoader.CACHE_MODE_REPLACE)
+	
 	# Compile the glsl file
 	var shader_spirv: RDShaderSPIRV = shader_file.get_spirv()
 	
@@ -283,3 +278,5 @@ func string_to_file_to_spirv(src:String)->RDShaderSPIRV:
 func _on_button_pressed():
 	compute()
 	display_all_values()
+
+#endregion

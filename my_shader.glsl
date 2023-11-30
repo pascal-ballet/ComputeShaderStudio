@@ -30,18 +30,6 @@ void main() {
 	uint x = gl_GlobalInvocationID.x;
 	uint y = gl_GlobalInvocationID.y;
 	uint p = x + y * WSX;
-	
-	if (step == 1 && current_pass == 0) {
-		if (data_0[p] < 999990){
-			data_0[p] = 0x0000FF00;
-		} else {
-			data_0[p] = 0x00FF0000;
-		}
-	}
-	
-	if (current_pass == 0) {
-		//data_0[p] = data_0[p] / 2;
-		data_1[p] = data_1[p] + 1024;
-	}
-	
+	data_0[p] = 0xFFF00FFF - int(p)*(step+1);
+	data_1[p] = 0xFF00AA00 + int( 1.0 + 99999.9*sin(float(x+float(step+y))/1000.0));
 }

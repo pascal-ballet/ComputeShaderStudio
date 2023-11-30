@@ -1,23 +1,23 @@
 [gd_scene load_steps=3 format=3 uid="uid://ddr6qtwy1pesd"]
 
-[ext_resource type="Script" path="res://ComputeShaderStudio.gd" id="1_5me5p"]
-[ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://icon.svg" id="1_jcytc"]
+[ext_resource type="Script" path="res://ComputeShaderStudio.gd" id="1_1q03e"]
+[ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://icon.svg" id="2_unia6"]
 
-[node name="DevComputeShaderStudio" type="Node2D"]
+[node name="CompShadStudioEx1" type="Node2D"]
 
 [node name="ComputeShaderStudio2D" type="Node" parent="." node_paths=PackedStringArray("data")]
-script = ExtResource("1_5me5p")
+script = ExtResource("1_1q03e")
 data = [NodePath("../Matrix1"), NodePath("../Matrix2")]
 
 [node name="Matrix1" type="Sprite2D" parent="."]
 position = Vector2(294, 315)
 scale = Vector2(3.27344, 3.02344)
-texture = ExtResource("1_jcytc")
+texture = ExtResource("2_unia6")
 
 [node name="Matrix2" type="Sprite2D" parent="."]
 position = Vector2(843, 317)
 scale = Vector2(3.27344, 3.02344)
-texture = ExtResource("1_jcytc")
+texture = ExtResource("2_unia6")
 
 [node name="Button" type="Button" parent="."]
 offset_right = 226.0
