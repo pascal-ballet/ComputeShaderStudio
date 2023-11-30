@@ -121,8 +121,29 @@ layout(binding = """+str(i+1)+""") buffer Data"""+str(i)+""" {
 	var GLSL_code : String = GLSL_header + GLSL_main
 	print(GLSL_code)
 
-	var shader_spirv: RDShaderSPIRV = string_to_file_to_spirv(GLSL_code)
+	#var shader_spirv: RDShaderSPIRV = string_to_file_to_spirv(GLSL_code)
+	
+	# Way to compile shaher using string (to try)
+	var shader_src := RDShaderSource.new()
+	shader_src.set_stage_source(RenderingDevice.SHADER_STAGE_COMPUTE, GLSL_code)
+	var shader_spirv := rd.shader_compile_spirv_from_source(shader_src)
+	
+	
 	shader = rd.shader_create_from_spirv(shader_spirv)
+
+#
+#var rd := RenderingServer.create_local_rendering_device()
+#
+#var shader_string := "your shader here"
+#
+#var shader_src := RDShaderSource.new()
+#shader_src.set_stage_source(RenderingDevice.SHADER_STAGE_COMPUTE, shader_string)
+#
+#var shader_spirv := rd.shader_compile_spirv_from_source(shader_src)
+#
+#var shader := rd.shader_create_from_spirv(shader_spirv)
+
+
 
 
 	# *********************
