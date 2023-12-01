@@ -17,8 +17,6 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="ComputeShaderStudio2D" parent="." node_paths=PackedStringArray("data") instance=ExtResource("1_hxmyd")]
-print_step = true
-print_passes = true
 pause = true
 nb_passes = 2
 GLSL_code = "// Write your code HERE
@@ -28,21 +26,23 @@ GLSL_code = "// Write your code HERE
 void compute_next_step(uint x, uint y, uint p) {
 		if ( x > 0 && y > 0 && x < WSX-1 && y < WSY - 1) { // in sandbox
 			uint n = 0 ; // Number of living neighbors
-			for (int i = int(x)-1; i <= x+1; i++) {
-				for (int j = int(y)-1; j <= y+1; j++) {
-					uint k = uint(i) + uint(j) * uint(WSX);
+			for (uint i = x-1; i <= x+1; i++) {
+				for (uint j = y-1; j <= y+1; j++) {
+					uint k = i + j * WSX;
 					if (k != p && data_0[k] == ALIVE )
 						n++;
 				}
 			}
-			data_1[p] = data_0[0] ;
 			if (data_0[p] == DEAD) {
-				if ( n == 2 || n == 3)
+				if ( n == 3)
 					data_1[p] = ALIVE; // Birth
+				else
+					data_1[p] = DEAD ;
 			} else { // ALIVE
-				data_1[p] = ALIVE;
-				if (n <=1 || n >= 4)
+				if (n <=1 || n >= 4) // Under or over population
 					data_1[p] = DEAD;
+				else
+					data_1[p] = ALIVE; // Survive
 			}
 		}
 }
