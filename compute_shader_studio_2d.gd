@@ -1,7 +1,5 @@
 extends Node
 
-var WSX				: int = 128 # Workspace Size X, usually it matches the x size of your Sprite2D
-var WSY				: int = 128 # Workspace Size Y, usually it matches the y size of your Sprite2D
 var current_pass 	: int = 0
 
 # Put your GLSL code in the GLSL_main string below
@@ -41,6 +39,11 @@ layout(binding = 0) buffer Params {
 @export var pause:bool = false
 ## Number of passes (synchronized code) needed.
 @export var nb_passes		: int = 1
+## Workspace Size X, usually it matches the x size of your Sprite2D image
+@export var WSX				: int = 128
+## Workspace Size Y, usually it matches the y size of your Sprite2D image
+@export var WSY				: int = 128
+
 ## Write your GLSL code here
 @export_multiline var GLSL_code : String = """
 // Write your code HERE
@@ -184,7 +187,7 @@ func display_all_values():
 
 func display_values(sprite : Sprite2D, values : PackedByteArray): # PackedInt32Array):
 	var image_format : int = Image.FORMAT_RGBA8
-	var image := Image.create_from_data(128, 128, false, image_format, values)
+	var image := Image.create_from_data(WSX, WSY, false, image_format, values)
 	sprite.set_texture(ImageTexture.create_from_image(image))
 
 var step  : int = 0

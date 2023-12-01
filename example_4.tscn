@@ -1,0 +1,113 @@
+[gd_scene load_steps=3 format=3 uid="uid://b2ip5eftk3aij"]
+
+[ext_resource type="PackedScene" uid="uid://ddmt23as1xe6w" path="res://compute_shader_studio_2d.tscn" id="1_puqlp"]
+[ext_resource type="Texture2D" uid="uid://2behgeplwycn" path="res://grid_512x512.png" id="2_tskvc"]
+
+[node name="CompShadStudioEx4" type="Node2D"]
+
+[node name="Label" type="Label" parent="."]
+offset_left = 0.999908
+offset_top = 1.0
+offset_right = 232.0
+offset_bottom = 60.0
+scale = Vector2(1.72, 1.72)
+text = "Compute Shader Studio
+Example 4: BIG Game Of Life"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ComputeShaderStudio2D" parent="." node_paths=PackedStringArray("data") instance=ExtResource("1_puqlp")]
+pause = true
+nb_passes = 2
+WSX = 512
+WSY = 512
+GLSL_code = "// Write your code HERE
+#define ALIVE 0xFFFFFFFF
+#define DEAD 0xFF0000FF
+
+void compute_next_step(uint x, uint y, uint p) {
+		if ( x > 0 && y > 0 && x < WSX-1 && y < WSY - 1) { // in sandbox
+			uint n = 0 ; // Number of living neighbors
+			for (uint i = x-1; i <= x+1; i++) {
+				for (uint j = y-1; j <= y+1; j++) {
+					uint k = i + j * WSX;
+					if (k != p && data_0[k] == ALIVE )
+						n++;
+				}
+			}
+			if (data_0[p] == DEAD) {
+				if ( n == 3)
+					data_1[p] = ALIVE; // Birth
+				else
+					data_1[p] = DEAD ;
+			} else { // ALIVE
+				if (n <=1 || n >= 4) // Under or over population
+					data_1[p] = DEAD;
+				else
+					data_1[p] = ALIVE; // Survive
+			}
+		}
+}
+
+void main() {
+	uint x = gl_GlobalInvocationID.x;
+	uint y = gl_GlobalInvocationID.y;
+	uint p = x + y * WSX;
+	if ( step == 0 ) { // initialisation ************************
+		if ( current_pass == 0 ) {
+			data_1[p] = DEAD ;
+			if (data_0[p] < 0 || x==0 || y==0 || x==WSX-1 || y==WSY-1)
+				data_0[p] = DEAD ;
+			else
+				data_0[p] = ALIVE ;
+		}
+	} else { // in process *********************************
+		if (current_pass == 0)
+			compute_next_step(x, y, p);
+		else
+			data_0[p] = data_1[p]; // The future is now
+	}
+}
+"
+data = [NodePath("../Grid512x512_0"), NodePath("../Grid512x512_1")]
+
+[node name="Button" type="Button" parent="."]
+offset_left = 91.0
+offset_top = 131.0
+offset_right = 182.0
+offset_bottom = 162.0
+scale = Vector2(2.4, 2.4)
+text = "Step"
+
+[node name="Button2" type="Button" parent="."]
+offset_left = 92.0
+offset_top = 219.0
+offset_right = 183.0
+offset_bottom = 250.0
+scale = Vector2(2.4, 2.4)
+text = "Play"
+
+[node name="Label2" type="Label" parent="."]
+offset_left = 76.0
+offset_top = 513.0
+offset_right = 375.0
+offset_bottom = 614.0
+text = "grid_512x512.png from Daniel Maak.
+This image is licensed under the
+Creative Commons Attribution-
+Share Alike 4.0 International license.
+"
+
+[node name="Grid512x512_0" type="Sprite2D" parent="."]
+position = Vector2(762.7, 314.7)
+scale = Vector2(1.2, 1.2)
+texture = ExtResource("2_tskvc")
+
+[node name="Grid512x512_1" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(853, 317)
+scale = Vector2(0.85, 0.85)
+texture = ExtResource("2_tskvc")
+
+[connection signal="pressed" from="Button" to="ComputeShaderStudio2D" method="_on_button_step"]
+[connection signal="pressed" from="Button2" to="ComputeShaderStudio2D" method="_on_button_play"]
