@@ -17,48 +17,56 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="ComputeShaderStudio2D" parent="." node_paths=PackedStringArray("data") instance=ExtResource("1_hxmyd")]
-GLSL_code = "
-// Write your code HERE
+print_step = true
+print_passes = true
+pause = true
+nb_passes = 2
+GLSL_code = "// Write your code HERE
 #define ALIVE 0xFFFFFFFF
-#define DEAD 0x00000000
+#define DEAD 0xFF0000FF
+
+void compute_next_step(uint x, uint y, uint p) {
+		if ( x > 0 && y > 0 && x < WSX-1 && y < WSY - 1) { // in sandbox
+			uint n = 0 ; // Number of living neighbors
+			for (int i = int(x)-1; i <= x+1; i++) {
+				for (int j = int(y)-1; j <= y+1; j++) {
+					uint k = uint(i) + uint(j) * uint(WSX);
+					if (k != p && data_0[k] == ALIVE )
+						n++;
+				}
+			}
+			data_1[p] = data_0[0] ;
+			if (data_0[p] == DEAD) {
+				if ( n == 2 || n == 3)
+					data_1[p] = ALIVE; // Birth
+			} else { // ALIVE
+				data_1[p] = ALIVE;
+				if (n <=1 || n >= 4)
+					data_1[p] = DEAD;
+			}
+		}
+}
 
 void main() {
 	uint x = gl_GlobalInvocationID.x;
 	uint y = gl_GlobalInvocationID.y;
 	uint p = x + y * WSX;
 	if ( step == 0 ) { // initialisation ************************
-		data_1[p] = 0 ;
-		if (data_0[p] < 0 ||  x==0 || y==0 || x==WSX-1 || y==WSY-1)
-			data_0[p] = DEAD ;
-		else
-			data_0[p] = ALIVE ;
+		if ( current_pass == 0 ) {
+			data_1[p] = DEAD ;
+			if (data_0[p] < 0 || x==0 || y==0 || x==WSX-1 || y==WSY-1)
+				data_0[p] = DEAD ;
+			else
+				data_0[p] = ALIVE ;
+		}
 	} else { // in process *********************************
-
+		if (current_pass == 0)
+			compute_next_step(x, y, p);
+		else
+			data_0[p] = data_1[p]; // The future is now
 	}
 }
-
-void compute_next_step(uint x, uint y, uint p) {
-		if ( x > 0 && y > 0 && x < WSX-1 && y < WSY - 1) { // in sandbox
-			uint n = 0 ; // Number of living neighbors
-			for (uint i = x-1; i <= x+1; i++) {
-				for (uint j = y-1; j <= y+1; j++) {
-					uint k = i + j * WSX;
-					if (k != p && data_0[p] == ALIVE )
-						n++;
-				}
-			}
-			if (data_0[p] == DEAD) {
-				if ( n == 2)
-					data_1[p] = ALIVE; // Birth
-				else
-					data_1[p] = DEAD; // Remains dead
-			} else { // ALIVE
-				data_1[p] = ALIVE;
-				if (n <=1 || n >= 3)
-					data_1[p] = DEAD;
-			}
-		}
-}"
+"
 data = [NodePath("../Matrix1"), NodePath("../Matrix2")]
 
 [node name="Matrix1" type="Sprite2D" parent="."]
@@ -70,3 +78,22 @@ texture = ExtResource("2_4iker")
 position = Vector2(843, 317)
 scale = Vector2(3.27344, 3.02344)
 texture = ExtResource("2_4iker")
+
+[node name="Button" type="Button" parent="."]
+offset_left = 348.0
+offset_top = 540.0
+offset_right = 439.0
+offset_bottom = 571.0
+scale = Vector2(2.4, 2.4)
+text = "Step"
+
+[node name="Button2" type="Button" parent="."]
+offset_left = 587.0
+offset_top = 541.0
+offset_right = 678.0
+offset_bottom = 572.0
+scale = Vector2(2.4, 2.4)
+text = "Play"
+
+[connection signal="pressed" from="Button" to="ComputeShaderStudio2D" method="_on_button_step"]
+[connection signal="pressed" from="Button2" to="ComputeShaderStudio2D" method="_on_button_play"]

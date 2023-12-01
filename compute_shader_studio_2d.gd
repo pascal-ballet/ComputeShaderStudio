@@ -238,3 +238,12 @@ func _update_uniforms():
 	# Note: when changing the uniform set, use the same bindings Array (do not create a new Array)
 
 #endregion
+
+func _on_button_step():
+	pause = true
+	compute()
+	display_all_values()
+
+
+func _on_button_play():
+	pause = false # Replace with function body.
