@@ -14,41 +14,6 @@ var current_pass 	: int = 0
 #   uint step    : time step of the execution. Incresed by 1 after nb_passes
 #  uint nb_passes: the number of passes your code needs to work
 #  uint current_pass: which pass is currently executed (one pass per frame)
-var nb_passes		: int = 1
-var GLSL_main = """
-// Write your code HERE
-void main() {
-	uint x = gl_GlobalInvocationID.x;
-	uint y = gl_GlobalInvocationID.y;
-	uint p = x + y * WSX;
-	data_0[p] = 0xFFF00FFF - int(p)*(step+1);
-	data_1[p] = 0xFF0000AA + int( 1.0 + 99999.9*sin(float(x+float(step+y))/1000.0));
-}
-""" 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 #region ComputeShaderStudio
 
@@ -72,8 +37,21 @@ layout(binding = 0) buffer Params {
 ## Print in Output all the generated code.
 ## Can be usefull for debugging.
 @export var print_generated_code:bool = false
-## Do not launch compute shader at launch.
+## Do not execute compute shader at launch.
 @export var pause:bool = false
+## Number of passes (synchronized code) needed.
+@export var nb_passes		: int = 1
+## Write your GLSL code here
+@export_multiline var GLSL_code : String = """
+// Write your code HERE
+void main() {
+	uint x = gl_GlobalInvocationID.x;
+	uint y = gl_GlobalInvocationID.y;
+	uint p = x + y * WSX;
+	data_0[p] = 0xFFF00FFF - int(p)*(step+1);
+	data_1[p] = 0xFF0000AA + int( 1.0 + 99999.9*sin(float(x+float(step+y))/1000.0));
+}
+"""
 ## Drag and drop your Sprite2D here.
 @export var data:Array[Sprite2D]
 
@@ -123,13 +101,13 @@ layout(binding = """+str(i+1)+""") buffer Data"""+str(i)+""" {
 };
 
 """
-	var GLSL_code : String = GLSL_header + GLSL_main
+	var GLSL_all : String = GLSL_header + GLSL_code
 	if print_generated_code == true:
-		print(GLSL_code)
+		print(GLSL_all)
 	
 	# Compile the shader by passing a string
 	var shader_src := RDShaderSource.new()
-	shader_src.set_stage_source(RenderingDevice.SHADER_STAGE_COMPUTE, GLSL_code)
+	shader_src.set_stage_source(RenderingDevice.SHADER_STAGE_COMPUTE, GLSL_all)
 	var shader_spirv := rd.shader_compile_spirv_from_source(shader_src)
 	
 	var err:String=shader_spirv.compile_error_compute
@@ -258,9 +236,5 @@ func _update_uniforms():
 	
 	uniform_set = rd.uniform_set_create(bindings, shader, 0)
 	# Note: when changing the uniform set, use the same bindings Array (do not create a new Array)
-
-func _on_button_pressed():
-	compute()
-	display_all_values()
 
 #endregion

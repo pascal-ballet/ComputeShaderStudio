@@ -1,2 +1,7 @@
 res://comp_shad_studio_ex1.tscn
 res://ComputeShaderStudio.gd
+res://example_2.tscn
+res://compute_shader_studio_2d.tscn
+res://compute_shader_studio_2d.gd
+res://example_1.tscn
+res://example_3.tscn

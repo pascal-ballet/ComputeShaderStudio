@@ -1,0 +1,56 @@
+[gd_scene load_steps=3 format=3 uid="uid://cotswmubn7uvm"]
+
+[ext_resource type="PackedScene" uid="uid://ddmt23as1xe6w" path="res://compute_shader_studio_2d.tscn" id="1_kgtyl"]
+[ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://icon.svg" id="2_dhtca"]
+
+[node name="Example2" type="Node2D"]
+
+[node name="ComputeShaderStudio2D" parent="." node_paths=PackedStringArray("data") instance=ExtResource("1_kgtyl")]
+GLSL_code = "// Write your GLSL code HERE
+void main() {
+    uint x = gl_GlobalInvocationID.x;
+    uint y = gl_GlobalInvocationID.y;
+    uint p = x + y * WSX;
+    int opacity = 0xFF000000 ;
+    int blue = 0x550000;
+    int green = 0x3300;
+    int red = int(y*2) ;
+    data_0[p] = opacity+blue+green+red;
+}
+"
+data = [NodePath("../Sprite2D")]
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(847, 361)
+scale = Vector2(4.42, 4.42)
+texture = ExtResource("2_dhtca")
+
+[node name="Label" type="Label" parent="."]
+offset_left = 371.0
+offset_top = 3.0
+offset_right = 647.0
+offset_bottom = 43.0
+scale = Vector2(1.72, 1.72)
+text = "Compute Shader Studio - Example 2"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Label2" type="Label" parent="."]
+offset_left = 29.0
+offset_top = 113.0
+offset_right = 336.0
+offset_bottom = 420.0
+scale = Vector2(1.72, 1.72)
+text = "// Write your GLSL code HERE
+void main() {
+    uint x = gl_GlobalInvocationID.x;
+    uint y = gl_GlobalInvocationID.y;
+    uint p = x + y * WSX;
+    int opacity = 0xFF000000 ;
+    int blue = 0x550000;
+    int green = 0x3300;
+    int red = int(y*2) ;
+    data_0[p] = opacity+blue+green+red;
+}
+"
+vertical_alignment = 1

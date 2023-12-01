@@ -1,0 +1,72 @@
+[gd_scene load_steps=3 format=3 uid="uid://cmucgsppcoo5e"]
+
+[ext_resource type="PackedScene" uid="uid://ddmt23as1xe6w" path="res://compute_shader_studio_2d.tscn" id="1_hxmyd"]
+[ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://icon.svg" id="2_4iker"]
+
+[node name="CompShadStudioEx3" type="Node2D"]
+
+[node name="Label" type="Label" parent="."]
+offset_left = 395.0
+offset_top = 3.0
+offset_right = 626.0
+offset_bottom = 62.0
+scale = Vector2(1.72, 1.72)
+text = "Compute Shader Studio
+Example 3: Game Of Life"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ComputeShaderStudio2D" parent="." node_paths=PackedStringArray("data") instance=ExtResource("1_hxmyd")]
+GLSL_code = "
+// Write your code HERE
+#define ALIVE 0xFFFFFFFF
+#define DEAD 0x00000000
+
+void main() {
+	uint x = gl_GlobalInvocationID.x;
+	uint y = gl_GlobalInvocationID.y;
+	uint p = x + y * WSX;
+	if ( step == 0 ) { // initialisation ************************
+		data_1[p] = 0 ;
+		if (data_0[p] < 0 ||  x==0 || y==0 || x==WSX-1 || y==WSY-1)
+			data_0[p] = DEAD ;
+		else
+			data_0[p] = ALIVE ;
+	} else { // in process *********************************
+
+	}
+}
+
+void compute_next_step(uint x, uint y, uint p) {
+		if ( x > 0 && y > 0 && x < WSX-1 && y < WSY - 1) { // in sandbox
+			uint n = 0 ; // Number of living neighbors
+			for (uint i = x-1; i <= x+1; i++) {
+				for (uint j = y-1; j <= y+1; j++) {
+					uint k = i + j * WSX;
+					if (k != p && data_0[p] == ALIVE )
+						n++;
+				}
+			}
+			if (data_0[p] == DEAD) {
+				if ( n == 2)
+					data_1[p] = ALIVE; // Birth
+				else
+					data_1[p] = DEAD; // Remains dead
+			} else { // ALIVE
+				data_1[p] = ALIVE;
+				if (n <=1 || n >= 3)
+					data_1[p] = DEAD;
+			}
+		}
+}"
+data = [NodePath("../Matrix1"), NodePath("../Matrix2")]
+
+[node name="Matrix1" type="Sprite2D" parent="."]
+position = Vector2(294, 315)
+scale = Vector2(3.27344, 3.02344)
+texture = ExtResource("2_4iker")
+
+[node name="Matrix2" type="Sprite2D" parent="."]
+position = Vector2(843, 317)
+scale = Vector2(3.27344, 3.02344)
+texture = ExtResource("2_4iker")

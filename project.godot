@@ -11,6 +11,6 @@ config_version=5
 [application]
 
 config/name="compute_shader_studio"
-run/main_scene="res://comp_shad_studio_ex1.tscn"
+run/main_scene="res://example_1.tscn"
 config/features=PackedStringArray("4.2", "Forward Plus")
 config/icon="res://icon.png"
