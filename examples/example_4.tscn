@@ -88,17 +88,6 @@ offset_bottom = 250.0
 scale = Vector2(2.4, 2.4)
 text = "Play"
 
-[node name="Label2" type="Label" parent="."]
-offset_left = 76.0
-offset_top = 513.0
-offset_right = 375.0
-offset_bottom = 614.0
-text = "grid_512x512.png from Daniel Maak.
-This image is licensed under the
-Creative Commons Attribution-
-Share Alike 4.0 International license.
-"
-
 [node name="Grid512x512_0" type="Sprite2D" parent="."]
 position = Vector2(762.7, 314.7)
 scale = Vector2(1.2, 1.2)

@@ -1,0 +1,4 @@
+grid_512x512.png is from Daniel Maak.
+This image is licensed under the
+Creative Commons Attribution-
+Share Alike 4.0 International license.
