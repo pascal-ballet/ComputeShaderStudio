@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://ddmt23as1xe6w"]
 
-[ext_resource type="Script" path="res://compute_shader_studio_2d.gd" id="1_cqcl2"]
+[ext_resource type="Script" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_cqcl2"]
 
 [node name="ComputeShaderStudio2D" type="Node" node_paths=PackedStringArray("data")]
 script = ExtResource("1_cqcl2")

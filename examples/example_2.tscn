@@ -1,11 +1,12 @@
 [gd_scene load_steps=3 format=3 uid="uid://cotswmubn7uvm"]
 
-[ext_resource type="PackedScene" uid="uid://ddmt23as1xe6w" path="res://compute_shader_studio_2d.tscn" id="1_kgtyl"]
-[ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://icon.svg" id="2_dhtca"]
+[ext_resource type="Script" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_2cs40"]
+[ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/icon.svg" id="2_j6qu8"]
 
 [node name="Example2" type="Node2D"]
 
-[node name="ComputeShaderStudio2D" parent="." node_paths=PackedStringArray("data") instance=ExtResource("1_kgtyl")]
+[node name="ComputeShaderStudio2D2" type="Node" parent="." node_paths=PackedStringArray("data")]
+script = ExtResource("1_2cs40")
 GLSL_code = "// Write your GLSL code HERE
 void main() {
     uint x = gl_GlobalInvocationID.x;
@@ -23,7 +24,7 @@ data = [NodePath("../Sprite2D")]
 [node name="Sprite2D" type="Sprite2D" parent="."]
 position = Vector2(847, 361)
 scale = Vector2(4.42, 4.42)
-texture = ExtResource("2_dhtca")
+texture = ExtResource("2_j6qu8")
 
 [node name="Label" type="Label" parent="."]
 offset_left = 371.0

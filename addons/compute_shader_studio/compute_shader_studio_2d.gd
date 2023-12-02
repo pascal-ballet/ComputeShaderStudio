@@ -1,4 +1,5 @@
 extends Node
+class_name ComputeShaderStudio2D
 
 var current_pass 	: int = 0
 

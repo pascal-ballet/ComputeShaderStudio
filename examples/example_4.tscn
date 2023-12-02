@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://b2ip5eftk3aij"]
 
-[ext_resource type="PackedScene" uid="uid://ddmt23as1xe6w" path="res://compute_shader_studio_2d.tscn" id="1_puqlp"]
-[ext_resource type="Texture2D" uid="uid://2behgeplwycn" path="res://grid_512x512.png" id="2_tskvc"]
+[ext_resource type="Script" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_ke3fj"]
+[ext_resource type="Texture2D" uid="uid://2behgeplwycn" path="res://examples/grid_512x512.png" id="2_flqlh"]
 
 [node name="CompShadStudioEx4" type="Node2D"]
 
@@ -16,7 +16,8 @@ Example 4: BIG Game Of Life"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="ComputeShaderStudio2D" parent="." node_paths=PackedStringArray("data") instance=ExtResource("1_puqlp")]
+[node name="ComputeShaderStudio2D2" type="Node" parent="." node_paths=PackedStringArray("data")]
+script = ExtResource("1_ke3fj")
 pause = true
 nb_passes = 2
 WSX = 512
@@ -71,7 +72,7 @@ void main() {
 "
 data = [NodePath("../Grid512x512_0"), NodePath("../Grid512x512_1")]
 
-[node name="Button" type="Button" parent="."]
+[node name="ButtonStep" type="Button" parent="."]
 offset_left = 91.0
 offset_top = 131.0
 offset_right = 182.0
@@ -79,7 +80,7 @@ offset_bottom = 162.0
 scale = Vector2(2.4, 2.4)
 text = "Step"
 
-[node name="Button2" type="Button" parent="."]
+[node name="ButtonPlay" type="Button" parent="."]
 offset_left = 92.0
 offset_top = 219.0
 offset_right = 183.0
@@ -101,13 +102,13 @@ Share Alike 4.0 International license.
 [node name="Grid512x512_0" type="Sprite2D" parent="."]
 position = Vector2(762.7, 314.7)
 scale = Vector2(1.2, 1.2)
-texture = ExtResource("2_tskvc")
+texture = ExtResource("2_flqlh")
 
 [node name="Grid512x512_1" type="Sprite2D" parent="."]
 visible = false
 position = Vector2(853, 317)
 scale = Vector2(0.85, 0.85)
-texture = ExtResource("2_tskvc")
+texture = ExtResource("2_flqlh")
 
-[connection signal="pressed" from="Button" to="ComputeShaderStudio2D" method="_on_button_step"]
-[connection signal="pressed" from="Button2" to="ComputeShaderStudio2D" method="_on_button_play"]
+[connection signal="pressed" from="ButtonStep" to="ComputeShaderStudio2D2" method="_on_button_step"]
+[connection signal="pressed" from="ButtonPlay" to="ComputeShaderStudio2D2" method="_on_button_play"]
