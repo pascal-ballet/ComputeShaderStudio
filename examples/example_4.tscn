@@ -70,7 +70,7 @@ void main() {
 	}
 }
 "
-data = [NodePath("../Grid512x512_0"), NodePath("../Grid512x512_1")]
+data = [NodePath("../Grid512x512_0"), null]
 
 [node name="ButtonStep" type="Button" parent="."]
 offset_left = 91.0
@@ -91,12 +91,6 @@ text = "Play"
 [node name="Grid512x512_0" type="Sprite2D" parent="."]
 position = Vector2(762.7, 314.7)
 scale = Vector2(1.2, 1.2)
-texture = ExtResource("2_flqlh")
-
-[node name="Grid512x512_1" type="Sprite2D" parent="."]
-visible = false
-position = Vector2(853, 317)
-scale = Vector2(0.85, 0.85)
 texture = ExtResource("2_flqlh")
 
 [connection signal="pressed" from="ButtonStep" to="ComputeShaderStudio2D2" method="_on_button_step"]

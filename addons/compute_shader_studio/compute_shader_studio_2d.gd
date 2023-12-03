@@ -140,7 +140,7 @@ layout(binding = """+str(i+1)+""") buffer Data"""+str(i)+""" {
 		for i in range(WSX):
 			for j in range(WSY):
 				input.append(randi())
-		var input_bytes := input.to_byte_array()
+		var input_bytes :PackedByteArray = input.to_byte_array()
 		buffers.append(rd.storage_buffer_create(input_bytes.size(), input_bytes))
 
 	# *********************
@@ -184,7 +184,8 @@ func display_all_values():
 	# Read back the data from the buffers
 	for b in data.size():
 		var output_bytes :   PackedByteArray = rd.buffer_get_data(buffers[b])
-		display_values(data[b], output_bytes)
+		if is_instance_valid(data[b]):
+			display_values(data[b], output_bytes)
 
 func display_values(sprite : Sprite2D, values : PackedByteArray): # PackedInt32Array):
 	var image_format : int = Image.FORMAT_RGBA8
