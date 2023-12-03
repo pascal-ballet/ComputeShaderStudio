@@ -3,8 +3,8 @@
  
 ![logo](addons/compute_shader_studio/icon.png)
 
-**[Compute Shader Studio](https://virtulab.univ-brest.fr) is an addon for Godot Engine that enables you to write Compute Shaders in a minute.**
-
+**[Compute Shader Studio](https://virtulab.univ-brest.fr) is an addon for Godot Engine that enables you to write Compute Shaders in a minute:**
+![doc](screenshots/compute_shader_studio_ex2.png)
 **Add one or more Sprite2D to display the data of your Compute Shaders.**
 
 **Several examples are available: test them to understand how they work and what can be done**
