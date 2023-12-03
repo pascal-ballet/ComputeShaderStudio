@@ -9,8 +9,8 @@
 
 **Add one or more Sprite2D to display the data of your Compute Shaders.**
 
-**Several examples are available: test them to understand how they work and what can be done**
+**Read [the tutorial](doc/ComputeShaderStudio.pdf) or look at the 2 minutes video to make your first Compute Shader in Godot**
 
-**Read the tutorial or look at the 2 minutes video to make your first Compute Shader in Godot**
+**Several examples are available: test them to understand how they work and what can be done**
 
 [![doc](screenshots/BTFG_documentation_front_page.png)](doc/behavior_tree_for_groups.pdf)
