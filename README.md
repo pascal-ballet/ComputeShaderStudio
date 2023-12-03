@@ -1,7 +1,7 @@
 # Compute Shader Studio
  A plugin for Godot to create compute shaders
  
-![logo](screenshots/compute_shader_studio_header.png)
+![logo](screenshots/compute_shader_studio_headline.png)
 
 **[Compute Shader Studio](https://virtulab.univ-brest.fr) is an addon for Godot Engine that enables you to write Compute Shaders in a minute:**
 
