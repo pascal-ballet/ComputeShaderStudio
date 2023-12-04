@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://cmucgsppcoo5e"]
+[gd_scene load_steps=4 format=3 uid="uid://cmucgsppcoo5e"]
 
 [ext_resource type="Script" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_eimw3"]
+[ext_resource type="Script" path="res://examples/LabelStepPass.gd" id="2_4aq4t"]
 [ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/icon.svg" id="2_4upxj"]
 
 [node name="CompShadStudioEx3" type="Node2D"]
@@ -59,16 +60,26 @@ void main() {
 "
 data = [NodePath("../Matrix1"), NodePath("../Matrix2")]
 
-[node name="Label" type="Label" parent="."]
-offset_left = 395.0
+[node name="LabelTitle" type="Label" parent="."]
+offset_left = 56.0
 offset_top = 3.0
-offset_right = 626.0
-offset_bottom = 62.0
+offset_right = 655.0
+offset_bottom = 38.0
 scale = Vector2(1.72, 1.72)
-text = "Compute Shader Studio
-Example 3: Game Of Life"
+text = "Compute Shader Studio - Example 3: Game Of Life"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="LabelStepPass" type="Label" parent="."]
+offset_left = 56.0
+offset_top = 56.0
+offset_right = 659.0
+offset_bottom = 91.0
+scale = Vector2(1.72, 1.72)
+text = "step=0    current_pass=0"
+horizontal_alignment = 1
+vertical_alignment = 1
+script = ExtResource("2_4aq4t")
 
 [node name="Matrix1" type="Sprite2D" parent="."]
 position = Vector2(294, 315)

@@ -8,11 +8,12 @@ var current_pass 	: int = 0
 #   uint x,y     : from GlobalInvocationID.x and .y
 #   uint p       : the position [x][y] in the invocation
 #   uint WSX,WSY : the Global WorkSpace of invocations (generally match the data size)
-#   int* data_0, data_1, etc : are the data displayed by your Sprite2D.
+#   int* data_0, data_1, etc : are the data treated (can be displayed by Sprite2D).
 #                  Access them by data_0[p], data_1[p], etc
-#   uint step    : time step of the execution. Incresed by 1 after nb_passes
-#  uint nb_passes: the number of passes your code needs to work
-#  uint current_pass: which pass is currently executed (one pass per frame)
+#   uint step    : simulation step of the execution. Incresed by 1 after nb_passes
+#   uint nb_passes: the number of passes your code needs (by step).
+# 					There is a barrier between each pass.
+#   uint current_pass: pass currently executed (one pass per frame, nb_passes by step)
 
 #region ComputeShaderStudio
 
