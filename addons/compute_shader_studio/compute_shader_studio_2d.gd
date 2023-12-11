@@ -8,7 +8,7 @@ var current_pass 	: int = 0
 #   uint x,y     : from GlobalInvocationID.x and .y
 #   uint p       : the position [x][y] in the invocation
 #   uint WSX,WSY : the Global WorkSpace of invocations (generally match the data size)
-#   int* data_0, data_1, etc : are the data treated (can be displayed by Sprite2D).
+#   int* data_0, data_1, etc : are the data treated (can be displayed by Sprite2D, TextureRect, etc).
 #                  Access them by data_0[p], data_1[p], etc
 #   uint step    : simulation step of the execution. Incresed by 1 after nb_passes
 #   uint nb_passes: the number of passes your code needs (by step).
@@ -41,9 +41,9 @@ layout(binding = 0) buffer Params {
 @export var pause:bool = false
 ## Number of passes (synchronized code) needed.
 @export var nb_passes		: int = 1
-## Workspace Size X, usually it matches the x size of your Sprite2D image
+## Workspace Size X, usually it matches the x size of your Sprite2D, TextureRect, etc image
 @export var WSX				: int = 128
-## Workspace Size Y, usually it matches the y size of your Sprite2D image
+## Workspace Size Y, usually it matches the y size of your Sprite2D, TextureRect, etc image
 @export var WSY				: int = 128
 
 ## Write your GLSL code here
@@ -58,7 +58,7 @@ void main() {
 }
 """
 ## Drag and drop your Sprite2D here.
-@export var data:Array[Sprite2D]
+@export var data:Array[Node]
 
 var rd 				: RenderingDevice
 var shader 			: RID
@@ -135,7 +135,7 @@ layout(binding = """+str(i+1)+""") buffer Data"""+str(i)+""" {
 	var input_params_bytes := input_params.to_byte_array()
 	buffer_params = rd.storage_buffer_create(input_params_bytes.size(), input_params_bytes)
 	
-	# Buffers from/for data (Sprite2D)
+	# Creation of nb_buffers Buffers of type Int32
 	for b in nb_buffers:
 		var input :PackedInt32Array = PackedInt32Array()
 		for i in range(WSX):
@@ -188,10 +188,10 @@ func display_all_values():
 		if is_instance_valid(data[b]):
 			display_values(data[b], output_bytes)
 
-func display_values(sprite : Sprite2D, values : PackedByteArray): # PackedInt32Array):
+func display_values(disp : Node, values : PackedByteArray): # PackedInt32Array):
 	var image_format : int = Image.FORMAT_RGBA8
 	var image := Image.create_from_data(WSX, WSY, false, image_format, values)
-	sprite.set_texture(ImageTexture.create_from_image(image))
+	disp.set_texture(ImageTexture.create_from_image(image))
 
 var step  : int = 0
 
