@@ -243,6 +243,28 @@ func _update_uniforms():
 	uniform_set = rd.uniform_set_create(bindings, shader, 0)
 	# Note: when changing the uniform set, use the same bindings Array (do not create a new Array)
 
+## Cleaning up the GPU resources
+func _notification(what):
+	# Object destructor, triggered before the engine deletes this Node.
+	if what == NOTIFICATION_PREDELETE:
+		cleanup_gpu()
+		
+func cleanup_gpu():
+	if rd == null:
+		return
+	# All resources must be freed after use to avoid memory leaks.
+	rd.free_rid(pipeline)
+	pipeline = RID()
+
+	rd.free_rid(uniform_set)
+	uniform_set = RID()
+
+	rd.free_rid(shader)
+	shader = RID()
+
+	rd.free()
+	rd = null
+
 #endregion
 
 func _on_button_step():
