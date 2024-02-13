@@ -46,7 +46,9 @@ layout(binding = 0) buffer Params {
 ## Workspace Size Y, usually it matches the y size of your Sprite2D, TextureRect, etc image
 @export var WSY				: int = 128
 
-## Write your GLSL code here
+## Drag & drop your external GLSL file here
+@export_file("*.glsl") var glsl_file: String
+## Write your GLSL code just below or use an external file above
 @export_multiline var GLSL_code : String = """
 // Write your code HERE
 void main() {
