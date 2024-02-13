@@ -46,8 +46,8 @@ layout(binding = 0) buffer Params {
 ## Workspace Size Y, usually it matches the y size of your Sprite2D, TextureRect, etc image
 @export var WSY				: int = 128
 
-## Drag & drop your external GLSL file here
-@export_file("*.glsl") var glsl_file: String
+## Drag & drop your external GLSL file here (use .cpp for your source file extension)
+@export_file("*.cpp") var glsl_file: String
 ## Write your GLSL code just below or use an external file above
 @export_multiline var GLSL_code : String = """
 // Write your code HERE
@@ -108,6 +108,11 @@ layout(binding = """+str(i+1)+""") buffer Data"""+str(i)+""" {
 };
 
 """
+
+	# The external GLSL file is prioritary
+	if glsl_file != "":
+		print("Load the GLSL file:" + glsl_file )
+		GLSL_code = load_glsl_file(glsl_file)
 	var GLSL_all : String = GLSL_header + GLSL_code
 	if print_generated_code == true:
 		print(GLSL_all)
@@ -182,6 +187,11 @@ layout(binding = """+str(i+1)+""") buffer Data"""+str(i)+""" {
 	# Read back the data from the buffer
 	# display_all_values()
 #endregion
+
+func load_glsl_file(file_name:String) -> String:
+	var file = FileAccess.open(file_name, FileAccess.READ)
+	var src_glsl:String = file.get_as_text()
+	return src_glsl
 
 func display_all_values():
 	# Read back the data from the buffers

@@ -1,0 +1,28 @@
+[gd_scene load_steps=3 format=3 uid="uid://cets11mlsd8hb"]
+
+[ext_resource type="Script" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_cogap"]
+[ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/icon.svg" id="2_t6v5l"]
+
+[node name="CompShadStudioEx5" type="Node2D"]
+
+[node name="ComputeShaderStudio2D2" type="Node" parent="." node_paths=PackedStringArray("data")]
+script = ExtResource("1_cogap")
+glsl_file = "res://examples/example_1.cpp"
+GLSL_code = ""
+data = [NodePath("../Matrix1")]
+
+[node name="Matrix1" type="Sprite2D" parent="."]
+position = Vector2(607, 368)
+scale = Vector2(4.34766, 4.03516)
+texture = ExtResource("2_t6v5l")
+
+[node name="Label" type="Label" parent="."]
+offset_left = 395.0
+offset_top = 3.0
+offset_right = 626.0
+offset_bottom = 62.0
+scale = Vector2(1.72, 1.72)
+text = "Compute Shader Studio
+Example 5: external GLSL file"
+horizontal_alignment = 1
+vertical_alignment = 1
