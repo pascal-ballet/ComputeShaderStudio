@@ -7,7 +7,7 @@
 
 [node name="ComputeShaderStudio2D2" type="Node" parent="." node_paths=PackedStringArray("data")]
 script = ExtResource("1_cogap")
-glsl_file = "res://examples/example_1.cpp"
+glsl_file = "res://examples/example_5.cpp"
 GLSL_code = ""
 data = [NodePath("../Matrix1")]
 
