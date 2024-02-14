@@ -86,7 +86,7 @@ func compile():
 	rd = RenderingServer.create_local_rendering_device()
 	if not rd:
 		set_process(false)
-		print("Compute shaders are not available")
+		printerr("Compute shaders are not available")
 		return
 		
 	# *********************
@@ -190,6 +190,9 @@ layout(binding = """+str(i+1)+""") buffer Data"""+str(i)+""" {
 
 func load_glsl_file(file_name:String) -> String:
 	var file = FileAccess.open(file_name, FileAccess.READ)
+	if file == null:
+		printerr("Unable to load GLSL file:" + file_name)
+		return "void main() {}"
 	var src_glsl:String = file.get_as_text()
 	return src_glsl
 
