@@ -7,7 +7,7 @@
 
 [node name="ComputeShaderStudio2D2" type="Node" parent="." node_paths=PackedStringArray("data")]
 script = ExtResource("1_cogap")
-glsl_file = "res://examples/example_5.cpp2"
+glsl_file = "res://examples/example_5.cpp"
 GLSL_code = ""
 data = [NodePath("../Matrix1")]
 
@@ -17,12 +17,12 @@ scale = Vector2(4.34766, 4.03516)
 texture = ExtResource("2_t6v5l")
 
 [node name="Label" type="Label" parent="."]
-offset_left = 395.0
-offset_top = 3.0
-offset_right = 626.0
-offset_bottom = 62.0
+offset_left = 382.0
+offset_top = -1.0
+offset_right = 650.0
+offset_bottom = 58.0
 scale = Vector2(1.72, 1.72)
 text = "Compute Shader Studio
-Example 5: external GLSL file"
+Example 5: using external GLSL file"
 horizontal_alignment = 1
 vertical_alignment = 1
