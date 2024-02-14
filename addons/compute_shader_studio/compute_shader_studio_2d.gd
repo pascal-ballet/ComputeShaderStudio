@@ -109,7 +109,7 @@ layout(binding = """+str(i+1)+""") buffer Data"""+str(i)+""" {
 
 """
 
-	# The external GLSL file is prioritary
+	# The external GLSL file takes priority
 	if glsl_file != "":
 		print("Load the GLSL file:" + glsl_file )
 		GLSL_code = load_glsl_file(glsl_file)
@@ -182,10 +182,6 @@ layout(binding = """+str(i+1)+""") buffer Data"""+str(i)+""" {
 	# Create a compute pipeline
 	pipeline = rd.compute_pipeline_create(shader)
 	
-	# Execute once (should it stay?)
-	# compute()
-	# Read back the data from the buffer
-	# display_all_values()
 #endregion
 
 func load_glsl_file(file_name:String) -> String:
@@ -203,10 +199,32 @@ func display_all_values():
 		if is_instance_valid(data[b]):
 			display_values(data[b], output_bytes)
 
+var rescaled:bool = false
 func display_values(disp : Node, values : PackedByteArray): # PackedInt32Array):
-	var image_format : int = Image.FORMAT_RGBA8
-	var image := Image.create_from_data(WSX, WSY, false, image_format, values)
-	disp.set_texture(ImageTexture.create_from_image(image))
+	if disp is Sprite2D:
+		var image_format : int = Image.FORMAT_RGBA8
+		var old_width:float  = disp.texture.get_width()
+		var old_height:float = disp.texture.get_height()
+		var image := Image.create_from_data(WSX, WSY, false, image_format, values)
+		disp.set_texture(ImageTexture.create_from_image(image))
+		var new_width:float  = disp.texture.get_width()
+		var new_height:float = disp.texture.get_height()
+		# Rescale the disp node2D to maintain the same size
+		if rescaled == false:
+			disp.scale = disp.scale * Vector2(old_width/new_width, old_height/new_height)
+			rescaled = true
+	if disp is TextureRect:
+		var image_format : int = Image.FORMAT_RGBA8
+		#var old_width:float  = disp.texture.get_width()
+		#var old_height:float = disp.texture.get_height()
+		var image := Image.create_from_data(WSX, WSY, false, image_format, values)
+		disp.set_texture(ImageTexture.create_from_image(image))
+		#var new_width:float  = disp.texture.get_width()
+		#var new_height:float = disp.texture.get_height()
+		# Rescale the disp node2D to maintain the same size
+		#if rescaled == false:
+		#	disp.scale = disp.scale * Vector2(old_width/new_width, old_height/new_height)
+		#	rescaled = true
 
 var step  : int = 0
 

@@ -1,28 +1,38 @@
-[gd_scene load_steps=3 format=3 uid="uid://cets11mlsd8hb"]
+[gd_scene load_steps=4 format=3 uid="uid://cets11mlsd8hb"]
 
 [ext_resource type="Script" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_cogap"]
-[ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/icon.svg" id="2_t6v5l"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_pm7bb"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_nxi5j"]
+width = 256
+height = 128
+noise = SubResource("FastNoiseLite_pm7bb")
 
 [node name="CompShadStudioEx5" type="Node2D"]
 
 [node name="ComputeShaderStudio2D2" type="Node" parent="." node_paths=PackedStringArray("data")]
 script = ExtResource("1_cogap")
+WSX = 256
 glsl_file = "res://examples/example_5.cpp"
 GLSL_code = ""
-data = [NodePath("../Matrix1")]
-
-[node name="Matrix1" type="Sprite2D" parent="."]
-position = Vector2(607, 368)
-scale = Vector2(4.34766, 4.03516)
-texture = ExtResource("2_t6v5l")
+data = [NodePath("../TextureRect")]
 
 [node name="Label" type="Label" parent="."]
-offset_left = 382.0
+offset_left = 278.0
 offset_top = -1.0
-offset_right = 650.0
-offset_bottom = 58.0
+offset_right = 679.0
+offset_bottom = 101.0
 scale = Vector2(1.72, 1.72)
 text = "Compute Shader Studio
-Example 5: using external GLSL file"
+Example 5: using an external GLSL file
+and a TextureRect"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="TextureRect" type="TextureRect" parent="."]
+offset_left = 278.0
+offset_top = 192.0
+offset_right = 975.0
+offset_bottom = 629.0
+texture = SubResource("NoiseTexture2D_nxi5j")

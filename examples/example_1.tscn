@@ -1,7 +1,14 @@
-[gd_scene load_steps=3 format=3 uid="uid://ddr6qtwy1pesd"]
+[gd_scene load_steps=5 format=3 uid="uid://ddr6qtwy1pesd"]
 
 [ext_resource type="Script" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_6846p"]
 [ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/icon.svg" id="2_s3fct"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_dmk8h"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_7n3ni"]
+width = 128
+height = 128
+noise = SubResource("FastNoiseLite_dmk8h")
 
 [node name="CompShadStudioEx1" type="Node2D"]
 
@@ -14,10 +21,13 @@ position = Vector2(294, 315)
 scale = Vector2(3.27344, 3.02344)
 texture = ExtResource("2_s3fct")
 
-[node name="Matrix2" type="Sprite2D" parent="."]
-position = Vector2(843, 317)
+[node name="Matrix2" type="TextureRect" parent="."]
+offset_left = 594.0
+offset_top = 119.0
+offset_right = 722.0
+offset_bottom = 247.0
 scale = Vector2(3.27344, 3.02344)
-texture = ExtResource("2_s3fct")
+texture = SubResource("NoiseTexture2D_7n3ni")
 
 [node name="Label" type="Label" parent="."]
 offset_left = 395.0
@@ -27,5 +37,25 @@ offset_bottom = 62.0
 scale = Vector2(1.72, 1.72)
 text = "Compute Shader Studio
 Example 1"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Label2" type="Label" parent="."]
+offset_left = 133.0
+offset_top = 525.0
+offset_right = 321.0
+offset_bottom = 561.0
+scale = Vector2(1.72, 1.72)
+text = "Sprite2D"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Label3" type="Label" parent="."]
+offset_left = 644.0
+offset_top = 522.0
+offset_right = 832.0
+offset_bottom = 558.0
+scale = Vector2(1.72, 1.72)
+text = "TextureRect"
 horizontal_alignment = 1
 vertical_alignment = 1
