@@ -35,7 +35,7 @@ layout(binding = 0) buffer Params {
 ## Print the current pass.
 @export var print_passes:bool = false
 ## Print in Output all the generated code.
-## Can be usefull for debugging.
+## Can be usefull for debugging or to understand all the GLSL code needed.
 @export var print_generated_code:bool = false
 ## Do not execute compute shader at launch.
 @export var pause:bool = false
