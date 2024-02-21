@@ -1,0 +1,70 @@
+[gd_scene load_steps=4 format=3 uid="uid://cljj33x767odp"]
+
+[ext_resource type="Script" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_wci4f"]
+[ext_resource type="Script" path="res://examples/LabelStepPass.gd" id="2_ndkd3"]
+[ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/icon.svg" id="3_orsvs"]
+
+[node name="CompShadStudioEx3" type="Node2D"]
+
+[node name="ComputeShaderStudio2D2" type="Node" parent="." node_paths=PackedStringArray("data")]
+script = ExtResource("1_wci4f")
+pause = true
+nb_passes = 3
+glsl_file = "res://examples/lenia.cpp"
+GLSL_code = ""
+data = [NodePath("../Matrix1"), NodePath("../Matrix2"), NodePath("../Matrix3")]
+
+[node name="LabelTitle" type="Label" parent="."]
+offset_left = 56.0
+offset_top = 3.0
+offset_right = 655.0
+offset_bottom = 38.0
+scale = Vector2(1.72, 1.72)
+text = "Compute Shader Studio - LENIA Example (in progress...)"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="LabelStepPass" type="Label" parent="."]
+offset_left = 56.0
+offset_top = 56.0
+offset_right = 329.0
+offset_bottom = 91.0
+scale = Vector2(1.72, 1.72)
+text = "step=0    current_pass=0"
+horizontal_alignment = 1
+vertical_alignment = 1
+script = ExtResource("2_ndkd3")
+
+[node name="Matrix1" type="Sprite2D" parent="."]
+position = Vector2(407, 247)
+scale = Vector2(2, 2)
+texture = ExtResource("3_orsvs")
+
+[node name="Matrix2" type="Sprite2D" parent="."]
+position = Vector2(406, 511)
+scale = Vector2(2, 2)
+texture = ExtResource("3_orsvs")
+
+[node name="Matrix3" type="Sprite2D" parent="."]
+position = Vector2(859, 369)
+scale = Vector2(4.26563, 4.09375)
+texture = ExtResource("3_orsvs")
+
+[node name="ButtonStep" type="Button" parent="."]
+offset_left = 27.0
+offset_top = 119.0
+offset_right = 118.0
+offset_bottom = 150.0
+scale = Vector2(2.4, 2.4)
+text = "Step"
+
+[node name="ButtonPlay" type="Button" parent="."]
+offset_left = 30.0
+offset_top = 210.0
+offset_right = 121.0
+offset_bottom = 241.0
+scale = Vector2(2.4, 2.4)
+text = "Play"
+
+[connection signal="pressed" from="ButtonStep" to="ComputeShaderStudio2D2" method="_on_button_step"]
+[connection signal="pressed" from="ButtonPlay" to="ComputeShaderStudio2D2" method="_on_button_play"]
