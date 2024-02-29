@@ -199,32 +199,21 @@ func display_all_values():
 		if is_instance_valid(data[b]):
 			display_values(data[b], output_bytes)
 
-var rescaled:bool = false
 func display_values(disp : Node, values : PackedByteArray): # PackedInt32Array):
-	if disp is Sprite2D:
-		var image_format : int = Image.FORMAT_RGBA8
-		var old_width:float  = disp.texture.get_width()
-		var old_height:float = disp.texture.get_height()
-		var image := Image.create_from_data(WSX, WSY, false, image_format, values)
-		disp.set_texture(ImageTexture.create_from_image(image))
-		var new_width:float  = disp.texture.get_width()
-		var new_height:float = disp.texture.get_height()
-		# Rescale the disp node2D to maintain the same size
-		if rescaled == false:
-			disp.scale = disp.scale * Vector2(old_width/new_width, old_height/new_height)
-			rescaled = true
-	if disp is TextureRect:
-		var image_format : int = Image.FORMAT_RGBA8
-		#var old_width:float  = disp.texture.get_width()
-		#var old_height:float = disp.texture.get_height()
-		var image := Image.create_from_data(WSX, WSY, false, image_format, values)
-		disp.set_texture(ImageTexture.create_from_image(image))
-		#var new_width:float  = disp.texture.get_width()
-		#var new_height:float = disp.texture.get_height()
-		# Rescale the disp node2D to maintain the same size
-		#if rescaled == false:
-		#	disp.scale = disp.scale * Vector2(old_width/new_width, old_height/new_height)
-		#	rescaled = true
+	var img : Image = Image.create_from_data(WSX, WSY, false, Image.FORMAT_RGBA8, values)
+	var tex : Texture2D = ImageTexture.create_from_image(img)
+	
+	if disp is Sprite2D :
+		var old_width  : float = disp.texture.get_width()
+		var old_height : float = disp.texture.get_height()
+		disp.set_texture(tex)
+		var new_width  : float = disp.texture.get_width()
+		var new_height : float = disp.texture.get_height()
+		disp.scale *= Vector2(old_width/new_width, old_height/new_height)
+		
+	else :
+		disp.set_texture(tex)
+
 
 var step  : int = 0
 
