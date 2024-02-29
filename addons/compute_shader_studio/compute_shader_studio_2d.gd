@@ -68,10 +68,14 @@ var rd 				: RenderingDevice
 var shader 			: RID
 var buffers 		: Array[RID]
 var buffer_params 	: RID
+var buffer_user 	: RID
 
 var uniforms		: Array[RDUniform]
 #var uniform_2 		: RDUniform
 var uniform_params 	: RDUniform
+var uniform_user 	: RDUniform
+
+var uniform_user_data   : PackedByteArray = []
 
 var bindings		: Array = []
 
@@ -105,7 +109,7 @@ uint WSY="""+str(WSY)+""";
 
 	for i in nb_buffers:
 		GLSL_header += """
-layout(binding = """+str(i+1)+""") buffer Data"""+str(i)+""" {
+layout(binding = """+str(i+2)+""") buffer Data"""+str(i)+""" {
 	int data_"""+str(i)+"""[];
 };
 
@@ -144,6 +148,10 @@ layout(binding = """+str(i+1)+""") buffer Data"""+str(i)+""" {
 	var input_params_bytes := input_params.to_byte_array()
 	buffer_params = rd.storage_buffer_create(input_params_bytes.size(), input_params_bytes)
 	
+	if uniform_user_data.size() == 0 :
+		uniform_user_data.resize(4)
+	buffer_user   = rd.storage_buffer_create(uniform_user_data.size(), uniform_user_data)
+	
 	# Creation of nb_buffers Buffers of type Int32
 	for b in nb_buffers:
 		var input :PackedInt32Array = PackedInt32Array()
@@ -156,23 +164,29 @@ layout(binding = """+str(i+1)+""") buffer Data"""+str(i)+""" {
 	# *********************
 	# * UNIFORMS CREATION *
 	# *********************
-	
+
 	# Create current_pass uniform pass
 	uniform_params = RDUniform.new()
 	uniform_params.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
 	uniform_params.binding = 0 # this needs to match the "binding" in our shader file
 	uniform_params.add_id(buffer_params)
 	
+	# Create current_pass uniform pass
+	uniform_user = RDUniform.new()
+	uniform_user.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
+	uniform_user.binding = 1 # this needs to match the "binding" in our shader file
+	uniform_user.add_id(buffer_user)
+	
 	var nb_uniforms : int = data.size()
 	for b in nb_uniforms:
 		var uniform = RDUniform.new()
 		uniform.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
-		uniform.binding = b+1 # this needs to match the "binding" in our shader file
+		uniform.binding = b+2 # this needs to match the "binding" in our shader file
 		uniform.add_id(buffers[b])
 		uniforms.append(uniform)
 
 	# Create the uniform SET between CPU & GPU
-	bindings = [uniform_params]
+	bindings = [uniform_params, uniform_user]
 	for b in nb_buffers:
 		bindings.append(uniforms[b])
 	
@@ -256,12 +270,13 @@ func _update_uniforms():
 	input_params.append(step)
 	input_params.append(current_pass)
 	
-	var pos : Vector2 = get_viewport().get_mouse_position()
-	var sprite : Sprite2D = data[0]
-	pos.x = (pos.x - sprite.position.x)  / sprite.scale.x + WSX/2
-	pos.y = (pos.y - sprite.position.y)  / sprite.scale.y + WSY/2
-	input_params.append(pos.x)
-	input_params.append(pos.y)
+	if data.size() > 0 :
+		var pos : Vector2 = get_viewport().get_mouse_position()
+		var sprite : Sprite2D = data[0]
+		pos.x = (pos.x - sprite.position.x)  / sprite.scale.x + WSX/2
+		pos.y = (pos.y - sprite.position.y)  / sprite.scale.y + WSY/2
+		input_params.append(pos.x)
+		input_params.append(pos.y)
 	
 	var input_params_bytes := input_params.to_byte_array()
 	buffer_params = rd.storage_buffer_create(input_params_bytes.size(), input_params_bytes)
@@ -270,6 +285,14 @@ func _update_uniforms():
 	uniform_params.binding = 0 # this needs to match the "binding" in our shader file
 	uniform_params.add_id(buffer_params)
 	bindings[0] = uniform_params
+
+	buffer_user = rd.storage_buffer_create(uniform_user_data.size(), uniform_user_data)
+	uniform_user = RDUniform.new()
+	uniform_user.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
+	uniform_user.binding = 1 # this needs to match the "binding" in our shader file
+	uniform_user.add_id(buffer_user)
+	bindings[1] = uniform_user
+	
 	uniform_set = rd.uniform_set_create(bindings, shader, 0)
 	# Note: when changing the uniform set, use the same bindings Array (do not create a new Array)
 
