@@ -75,7 +75,7 @@ var uniforms		: Array[RDUniform]
 var uniform_params 	: RDUniform
 var uniform_user 	: RDUniform
 
-var uniform_user_data   : PackedByteArray = []
+var uniform_user_data   : PackedByteArray = PackedByteArray([0])
 
 var bindings		: Array = []
 
@@ -147,9 +147,6 @@ layout(binding = """+str(i+2)+""") buffer Data"""+str(i)+""" {
 	input_params.append(current_pass)
 	var input_params_bytes := input_params.to_byte_array()
 	buffer_params = rd.storage_buffer_create(input_params_bytes.size(), input_params_bytes)
-	
-	if uniform_user_data.size() == 0 :
-		uniform_user_data.resize(4)
 	buffer_user   = rd.storage_buffer_create(uniform_user_data.size(), uniform_user_data)
 	
 	# Creation of nb_buffers Buffers of type Int32
@@ -223,10 +220,8 @@ func display_values(disp : Node, values : PackedByteArray): # PackedInt32Array):
 		var old_width  : float = disp.texture.get_width()
 		var old_height : float = disp.texture.get_height()
 		disp.set_texture(tex)
-		var new_width  : float = disp.texture.get_width()
-		var new_height : float = disp.texture.get_height()
-		disp.scale *= Vector2(old_width/new_width, old_height/new_height)
-		
+		disp.scale *= Vector2(old_width/WSX, old_height/WSY)
+
 	else :
 		disp.set_texture(tex)
 
@@ -269,14 +264,10 @@ func _update_uniforms():
 	
 	input_params.append(step)
 	input_params.append(current_pass)
-	
-	if data.size() > 0 :
-		var pos : Vector2 = get_viewport().get_mouse_position()
-		var sprite : Sprite2D = data[0]
-		pos.x = (pos.x - sprite.position.x)  / sprite.scale.x + WSX/2
-		pos.y = (pos.y - sprite.position.y)  / sprite.scale.y + WSY/2
-		input_params.append(pos.x)
-		input_params.append(pos.y)
+
+	var pos : Vector2 = screen_to_data0(get_viewport().get_mouse_position())
+	input_params.append(pos.x)
+	input_params.append(pos.y)
 	
 	var input_params_bytes := input_params.to_byte_array()
 	buffer_params = rd.storage_buffer_create(input_params_bytes.size(), input_params_bytes)
@@ -328,3 +319,12 @@ func _on_button_step():
 
 func _on_button_play():
 	pause = false # Replace with function body.
+
+func screen_to_data0(pos : Vector2):
+	if data.size() <= 0 :
+		return Vector2(0, 0)
+
+	var sprite : Sprite2D = data[0]
+	pos.x = (pos.x - sprite.position.x)  / sprite.scale.x + WSX/2
+	pos.y = (pos.y - sprite.position.y)  / sprite.scale.y + WSY/2
+	return pos;
