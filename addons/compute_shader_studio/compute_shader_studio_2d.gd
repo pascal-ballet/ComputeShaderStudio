@@ -27,6 +27,8 @@ layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 layout(binding = 0) buffer Params {
 	int step;
 	int current_pass;
+	int mousex;
+	int mousey;
 };
 
 """
@@ -249,19 +251,25 @@ func _process(_delta):
 
 ## Pass the interesting values from CPU to GPU
 func _update_uniforms():
-	# Buffer for current_pass
-	var input_params :PackedInt32Array = PackedInt32Array()
+	var input_params : PackedInt32Array = PackedInt32Array()
+	
 	input_params.append(step)
 	input_params.append(current_pass)
+	
+	var pos : Vector2 = get_viewport().get_mouse_position()
+	var sprite : Sprite2D = data[0]
+	pos.x = (pos.x - sprite.position.x)  / sprite.scale.x + WSX/2
+	pos.y = (pos.y - sprite.position.y)  / sprite.scale.y + WSY/2
+	input_params.append(pos.x)
+	input_params.append(pos.y)
+	
 	var input_params_bytes := input_params.to_byte_array()
 	buffer_params = rd.storage_buffer_create(input_params_bytes.size(), input_params_bytes)
-	# Create current_pass uniform pass
 	uniform_params = RDUniform.new()
 	uniform_params.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
 	uniform_params.binding = 0 # this needs to match the "binding" in our shader file
 	uniform_params.add_id(buffer_params)
 	bindings[0] = uniform_params
-	
 	uniform_set = rd.uniform_set_create(bindings, shader, 0)
 	# Note: when changing the uniform set, use the same bindings Array (do not create a new Array)
 
