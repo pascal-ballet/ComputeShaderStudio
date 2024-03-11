@@ -27,6 +27,8 @@ layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 layout(binding = 0) buffer Params {
 	int step;
 	int current_pass;
+	int mousex;
+	int mousey;
 };
 
 """
@@ -68,10 +70,14 @@ var rd 				: RenderingDevice
 var shader 			: RID
 var buffers 		: Array[RID]
 var buffer_params 	: RID
+var buffer_user 	: RID
 
 var uniforms		: Array[RDUniform]
 #var uniform_2 		: RDUniform
 var uniform_params 	: RDUniform
+var uniform_user 	: RDUniform
+
+var uniform_user_data   : PackedByteArray = PackedByteArray([0])
 
 var bindings		: Array = []
 
@@ -105,7 +111,7 @@ uint WSY="""+str(WSY)+""";
 
 	for i in nb_buffers:
 		GLSL_header += """
-layout(binding = """+str(i+1)+""") buffer Data"""+str(i)+""" {
+layout(binding = """+str(i+2)+""") buffer Data"""+str(i)+""" {
 	int data_"""+str(i)+"""[];
 };
 
@@ -143,6 +149,7 @@ layout(binding = """+str(i+1)+""") buffer Data"""+str(i)+""" {
 	input_params.append(current_pass)
 	var input_params_bytes := input_params.to_byte_array()
 	buffer_params = rd.storage_buffer_create(input_params_bytes.size(), input_params_bytes)
+	buffer_user   = rd.storage_buffer_create(uniform_user_data.size(), uniform_user_data)
 	
 	# Creation of nb_buffers Buffers of type Int32
 	for b in nb_buffers:
@@ -156,23 +163,29 @@ layout(binding = """+str(i+1)+""") buffer Data"""+str(i)+""" {
 	# *********************
 	# * UNIFORMS CREATION *
 	# *********************
-	
+
 	# Create current_pass uniform pass
 	uniform_params = RDUniform.new()
 	uniform_params.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
 	uniform_params.binding = 0 # this needs to match the "binding" in our shader file
 	uniform_params.add_id(buffer_params)
 	
+	# Create current_pass uniform pass
+	uniform_user = RDUniform.new()
+	uniform_user.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
+	uniform_user.binding = 1 # this needs to match the "binding" in our shader file
+	uniform_user.add_id(buffer_user)
+	
 	var nb_uniforms : int = data.size()
 	for b in nb_uniforms:
 		var uniform = RDUniform.new()
 		uniform.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
-		uniform.binding = b+1 # this needs to match the "binding" in our shader file
+		uniform.binding = b+2 # this needs to match the "binding" in our shader file
 		uniform.add_id(buffers[b])
 		uniforms.append(uniform)
 
 	# Create the uniform SET between CPU & GPU
-	bindings = [uniform_params]
+	bindings = [uniform_params, uniform_user]
 	for b in nb_buffers:
 		bindings.append(uniforms[b])
 	
@@ -201,32 +214,19 @@ func display_all_values():
 		if is_instance_valid(data[b]):
 			display_values(data[b], output_bytes)
 
-var rescaled:bool = false
 func display_values(disp : Node, values : PackedByteArray): # PackedInt32Array):
-	if disp is Sprite2D:
-		var image_format : int = Image.FORMAT_RGBA8
-		var old_width:float  = disp.texture.get_width()
-		var old_height:float = disp.texture.get_height()
-		var image := Image.create_from_data(WSX, WSY, false, image_format, values)
-		disp.set_texture(ImageTexture.create_from_image(image))
-		var new_width:float  = disp.texture.get_width()
-		var new_height:float = disp.texture.get_height()
-		# Rescale the disp node2D to maintain the same size
-		if rescaled == false:
-			disp.scale = disp.scale * Vector2(old_width/new_width, old_height/new_height)
-			rescaled = true
-	if disp is TextureRect:
-		var image_format : int = Image.FORMAT_RGBA8
-		#var old_width:float  = disp.texture.get_width()
-		#var old_height:float = disp.texture.get_height()
-		var image := Image.create_from_data(WSX, WSY, false, image_format, values)
-		disp.set_texture(ImageTexture.create_from_image(image))
-		#var new_width:float  = disp.texture.get_width()
-		#var new_height:float = disp.texture.get_height()
-		# Rescale the disp node2D to maintain the same size
-		#if rescaled == false:
-		#	disp.scale = disp.scale * Vector2(old_width/new_width, old_height/new_height)
-		#	rescaled = true
+	var img : Image = Image.create_from_data(WSX, WSY, false, Image.FORMAT_RGBA8, values)
+	var tex : Texture2D = ImageTexture.create_from_image(img)
+	
+	if disp is Sprite2D :
+		var old_width  : float = disp.texture.get_width()
+		var old_height : float = disp.texture.get_height()
+		disp.set_texture(tex)
+		disp.scale *= Vector2(old_width/WSX, old_height/WSY)
+
+	else :
+		disp.set_texture(tex)
+
 
 var step  : int = 0
 
@@ -262,18 +262,29 @@ func _process(_delta):
 
 ## Pass the interesting values from CPU to GPU
 func _update_uniforms():
-	# Buffer for current_pass
-	var input_params :PackedInt32Array = PackedInt32Array()
+	var input_params : PackedInt32Array = PackedInt32Array()
+	
 	input_params.append(step)
 	input_params.append(current_pass)
+
+	var pos : Vector2 = screen_to_data0(get_viewport().get_mouse_position())
+	input_params.append(pos.x)
+	input_params.append(pos.y)
+	
 	var input_params_bytes := input_params.to_byte_array()
 	buffer_params = rd.storage_buffer_create(input_params_bytes.size(), input_params_bytes)
-	# Create current_pass uniform pass
 	uniform_params = RDUniform.new()
 	uniform_params.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
 	uniform_params.binding = 0 # this needs to match the "binding" in our shader file
 	uniform_params.add_id(buffer_params)
 	bindings[0] = uniform_params
+
+	buffer_user = rd.storage_buffer_create(uniform_user_data.size(), uniform_user_data)
+	uniform_user = RDUniform.new()
+	uniform_user.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
+	uniform_user.binding = 1 # this needs to match the "binding" in our shader file
+	uniform_user.add_id(buffer_user)
+	bindings[1] = uniform_user
 	
 	uniform_set = rd.uniform_set_create(bindings, shader, 0)
 	# Note: when changing the uniform set, use the same bindings Array (do not create a new Array)
@@ -310,3 +321,12 @@ func _on_button_step():
 
 func _on_button_play():
 	pause = false # Replace with function body.
+
+func screen_to_data0(pos : Vector2):
+	if data.size() <= 0 :
+		return Vector2(0, 0)
+
+	var sprite : Sprite2D = data[0]
+	pos.x = (pos.x - sprite.position.x)  / sprite.scale.x + WSX/2
+	pos.y = (pos.y - sprite.position.y)  / sprite.scale.y + WSY/2
+	return pos;

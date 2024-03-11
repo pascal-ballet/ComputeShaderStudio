@@ -1,0 +1,39 @@
+[gd_scene load_steps=4 format=3 uid="uid://c0mt2oesmx768"]
+
+[ext_resource type="Script" path="res://examples/example_mandelbrot.gd" id="1_5gp20"]
+[ext_resource type="Script" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_t5cx1"]
+[ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/icon.svg" id="2_dyrad"]
+
+[node name="example_mandelbrot" type="Node2D"]
+script = ExtResource("1_5gp20")
+
+[node name="ComputeShaderStudio2D" type="Node" parent="." node_paths=PackedStringArray("data")]
+script = ExtResource("1_t5cx1")
+WSX = 512
+WSY = 512
+glsl_file = "res://examples/example_mandelbrot.cpp"
+data = [NodePath("../mandelbrot"), NodePath("../julia")]
+
+[node name="mandelbrot" type="Sprite2D" parent="."]
+position = Vector2(308, 316)
+scale = Vector2(4, 4)
+texture = ExtResource("2_dyrad")
+
+[node name="julia" type="Sprite2D" parent="."]
+position = Vector2(861, 316)
+scale = Vector2(4, 4)
+texture = ExtResource("2_dyrad")
+
+[node name="Label" type="Label" parent="."]
+offset_left = 233.0
+offset_top = 25.0
+offset_right = 353.0
+offset_bottom = 48.0
+text = "Mandelbrot Set"
+
+[node name="Label2" type="Label" parent="."]
+offset_left = 815.0
+offset_top = 25.0
+offset_right = 935.0
+offset_bottom = 48.0
+text = "Julia Set"
