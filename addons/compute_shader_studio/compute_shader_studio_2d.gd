@@ -30,6 +30,7 @@ layout(binding = 0) buffer Params {
 };
 
 """
+
 ## Print the current step.
 @export var print_step:bool = false
 ## Print the current pass.
@@ -39,11 +40,12 @@ layout(binding = 0) buffer Params {
 @export var print_generated_code:bool = false
 ## Do not execute compute shader at launch.
 @export var pause:bool = false
-## Number of passes (synchronized code) needed.
+## Number of passes into each execution step.
+## Between two passes, your GLSL code is synchronized.
 @export var nb_passes		: int = 1
-## Workspace Size X, usually it matches the x size of your Sprite2D, TextureRect, etc image
+## Workspace Size X, usually it matches the x size of your image (Sprite2D or TextureRect)
 @export var WSX				: int = 128
-## Workspace Size Y, usually it matches the y size of your Sprite2D, TextureRect, etc image
+## Workspace Size Y, usually it matches the y size of your image (Sprite2D or TextureRect)
 @export var WSY				: int = 128
 
 ## Drag & drop your external GLSL file here (use .cpp for your source file extension)
@@ -59,7 +61,7 @@ void main() {
 	data_1[p] = 0xFF0000AA + int( 1.0 + 99999.9*sin(float(x+float(step+y))/1000.0));
 }
 """
-## Drag and drop your Sprite2D here.
+## Drag and drop here your Sprite2D or TextureRect.
 @export var data:Array[Node]
 
 var rd 				: RenderingDevice
