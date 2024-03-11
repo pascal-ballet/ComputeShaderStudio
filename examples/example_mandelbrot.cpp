@@ -1,6 +1,7 @@
 /* MANDELBROT 
 	Josselin SCOUARNEC
 	Feb 2024
+    Adapted from https://en.wikipedia.org/wiki/Plotting_algorithms_for_the_Mandelbrot_set
 */
 
 #define MAX_IT 500
