@@ -326,7 +326,10 @@ func screen_to_data0(pos : Vector2):
 	if data.size() <= 0 :
 		return Vector2(0, 0)
 
-	var sprite : Sprite2D = data[0]
-	pos.x = (pos.x - sprite.position.x)  / sprite.scale.x + WSX/2
-	pos.y = (pos.y - sprite.position.y)  / sprite.scale.y + WSY/2
-	return pos;
+	if data[0] is Sprite2D:
+		var sprite : Sprite2D = data[0]
+		pos.x = (pos.x - sprite.position.x)  / sprite.scale.x + WSX/2
+		pos.y = (pos.y - sprite.position.y)  / sprite.scale.y + WSY/2
+		return pos;
+	else:
+		return Vector2(0,0)
