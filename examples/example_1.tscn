@@ -30,13 +30,13 @@ scale = Vector2(3.27344, 3.02344)
 texture = SubResource("NoiseTexture2D_7n3ni")
 
 [node name="Label" type="Label" parent="."]
-offset_left = 395.0
+offset_left = 109.0
 offset_top = 3.0
-offset_right = 626.0
+offset_right = 627.0
 offset_bottom = 62.0
 scale = Vector2(1.72, 1.72)
-text = "Compute Shader Studio
-Example 1"
+text = "Compute Shader Studio - Example 1
+Select the node ComputeShader to write your GLSL code"
 horizontal_alignment = 1
 vertical_alignment = 1
 
