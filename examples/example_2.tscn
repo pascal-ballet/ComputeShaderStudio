@@ -38,11 +38,12 @@ vertical_alignment = 1
 
 [node name="Label2" type="Label" parent="."]
 offset_left = 29.0
-offset_top = 113.0
+offset_top = 76.0
 offset_right = 336.0
-offset_bottom = 420.0
+offset_bottom = 405.0
 scale = Vector2(1.72, 1.72)
-text = "// Write your GLSL code HERE
+text = "// Select the node ComputeShader
+// to write your GLSL code
 void main() {
     uint x = gl_GlobalInvocationID.x;
     uint y = gl_GlobalInvocationID.y;
