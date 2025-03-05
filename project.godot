@@ -11,10 +11,14 @@ config_version=5
 [application]
 
 config/name="compute_shader_studio"
-run/main_scene="res://examples/example_1.tscn"
+run/main_scene="res://examples/exemple_axel_mathéo/exemple.tscn"
 config/features=PackedStringArray("4.3", "Forward Plus")
 config/icon="res://addons/compute_shader_studio/icon.png"
 
+[dotnet]
+
+project/assembly_name="compute_shader_studio"
+
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/compute_shader_studio/plugin.cfg")
+enabled=PackedStringArray()
