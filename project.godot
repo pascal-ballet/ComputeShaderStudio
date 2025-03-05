@@ -17,4 +17,4 @@ config/icon="res://addons/compute_shader_studio/icon.png"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/compute_shader_studio/plugin.cfg")
+enabled=PackedStringArray()
