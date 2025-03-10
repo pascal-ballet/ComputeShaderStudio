@@ -3,17 +3,17 @@
 
 // shared uint incX;
 
-layout(set = 0, binding = 0) buffer incBuffer
+/*layout(set = 0, binding = 0) buffer incBuffer
 {
     uint incX;
     uint incY;
-};
+};*/
 
 struct color
 {
-    uint r;
-    uint g;
-    uint b;
+    int r;
+    int g;
+    int b;
 };
 
 int rgb_to_int(color c)
@@ -38,7 +38,7 @@ void dessinerSphere(uint centerX, uint centerY, float radius, color c)
     // Si le pixel est a l'interieur du cercle
     if (distanceCarre <= radius * radius)
     {
-        data_0[p] = rgb_to_int(c) + step; // ROUGE
+        data_0[p] = rgb_to_int(c); // ROUGE
     }
 }
 
@@ -67,18 +67,13 @@ void main()
 
     // dessinerSphere( uint(mousex), uint(mousey) , rayon, c1);
 
-    if(step == 0)
-        data_0[p] = MORT;
+    data_0[p] = MORT;
 
-
-    /*
     if ((mousex >= 0) || (mousey >= 0))
     {
         dessinerSphere(mousex, mousey, rayon, c1);
     }
-    */
-    if(left_pressed)
-        dessinerSphere(mousex, mousey, rayon, c1);
+
     /*
     if(pos.x < 400 && pos.y < 225)
     {

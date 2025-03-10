@@ -9,9 +9,15 @@ script = ExtResource("1_5gp20")
 
 [node name="ComputeShaderStudio2D" type="Node" parent="." node_paths=PackedStringArray("data")]
 script = ExtResource("1_t5cx1")
+print_step = null
+print_passes = null
+print_generated_code = null
+pause = null
+nb_passes = null
 WSX = 512
 WSY = 512
 glsl_file = "res://examples/example_mandelbrot.cpp"
+GLSL_code = null
 data = [NodePath("../mandelbrot"), NodePath("../julia")]
 
 [node name="mandelbrot" type="Sprite2D" parent="."]
