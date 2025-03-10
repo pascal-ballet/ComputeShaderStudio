@@ -11,8 +11,8 @@ config_version=5
 [application]
 
 config/name="compute_shader_studio"
-run/main_scene="res://examples/exemple_axel_mathéo/exemple.tscn"
-config/features=PackedStringArray("4.3", "Forward Plus")
+run/main_scene="res://examples/exemple_axel_mathéo/exemple_AM.tscn"
+config/features=PackedStringArray("4.2", "Forward Plus")
 config/icon="res://addons/compute_shader_studio/icon.png"
 
 [dotnet]
