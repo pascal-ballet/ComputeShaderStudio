@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://u25v40csc7a8"]
+[gd_scene load_steps=3 format=3 uid="uid://u25v40csc7a8"]
 
 [ext_resource type="Script" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_rt15t"]
+[ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/icon.svg" id="2_dqgei"]
 
 [node name="Node2d" type="Node2D"]
 
@@ -8,11 +9,16 @@
 script = ExtResource("1_rt15t")
 WSX = 800
 WSY = 450
-glsl_file = "res://examples/ProjetAAP/script.cpp"
+glsl_file = "res://examples/Maze/script.cpp"
 GLSL_code = "
 "
-data = [NodePath("../TextureRect")]
+data = [NodePath("../Icon")]
+
+[node name="Icon" type="Sprite2D" parent="."]
+position = Vector2(387, 241)
+texture = ExtResource("2_dqgei")
 
 [node name="TextureRect" type="TextureRect" parent="."]
 offset_right = 800.0
 offset_bottom = 450.0
+mouse_default_cursor_shape = 3
