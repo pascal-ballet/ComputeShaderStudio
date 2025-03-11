@@ -14,7 +14,7 @@ pause = null
 nb_passes = null
 WSX = 800
 WSY = 450
-glsl_file = "res://examples/Maze/script.cpp"
+glsl_file = "res://examples/tron/script.cpp"
 GLSL_code = "
 "
 data = [NodePath("../Icon")]
