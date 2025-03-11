@@ -5,7 +5,7 @@
 #define MAX_VOISINS_SURVIE 2
 #define VOISINS_NAISSANCE 1
 
-// Fonction pseudo-aléatoire basée sur les coordonnées
+
 uint hash(uint x, uint y) {
     uint a = x * 0x6A09E667;
     uint b = y * 0xBB67AE85;
@@ -17,15 +17,12 @@ uint hash(uint x, uint y) {
 }
 
 void main() {
-   // Récupération des coordonnées
    uint x = gl_GlobalInvocationID.x;
    uint y = gl_GlobalInvocationID.y;
    uint p = x + y * WSX;
 
    if (step == 0) {
-       // Initialiser une seule cellule vivante à un emplacement spécifique
        if (data_0[p] < 0) {
-           // Définir une cellule vivante au centre de la grille (par exemple)
            if (x == WSX / 2 && y == WSY / 2) {  // On place une cellule vivante au centre
                data_0[p] = VIVANT;
            } else {
@@ -40,7 +37,7 @@ void main() {
        // Comptage des voisins vivants
        for (int dy = -1; dy <= 1; dy++) {
            for (int dx = -1; dx <= 1; dx++) {
-               if (!(dx == 0 && dy == 0)) {  // Ne pas compter la cellule elle-même
+               if (!(dx == 0 && dy == 0)) {
                    int nx = int(x) + dx;
                    int ny = int(y) + dy;
 
