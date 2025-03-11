@@ -1,8 +1,8 @@
 [gd_scene load_steps=4 format=3 uid="uid://d1hhshnvrt86e"]
 
-[ext_resource type="Script" path="res://examples/example_mandelbrot.gd" id="1_5gp20"]
-[ext_resource type="Script" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_t5cx1"]
-[ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/icon.svg" id="2_dyrad"]
+[ext_resource type="Script" uid="uid://b7q2bfveobmmm" path="res://examples/example_mandelbrot.gd" id="1_5gp20"]
+[ext_resource type="Script" uid="uid://ctdqncychsdep" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_t5cx1"]
+[ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/project_RainFX/icon.svg" id="2_dyrad"]
 
 [node name="example_mandelbrot" type="Node2D"]
 script = ExtResource("1_5gp20")

@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://ddr6qtwy1pesd"]
 
-[ext_resource type="Script" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_6846p"]
-[ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/icon.svg" id="2_s3fct"]
+[ext_resource type="Script" uid="uid://ctdqncychsdep" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_6846p"]
+[ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/project_RainFX/icon.svg" id="2_s3fct"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_dmk8h"]
 

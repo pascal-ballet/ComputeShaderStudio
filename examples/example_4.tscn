@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://b2ip5eftk3aij"]
 
-[ext_resource type="Script" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_ke3fj"]
+[ext_resource type="Script" uid="uid://ctdqncychsdep" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_ke3fj"]
 [ext_resource type="Texture2D" uid="uid://2behgeplwycn" path="res://examples/grid_512x512.png" id="2_flqlh"]
 
 [node name="CompShadStudioEx4" type="Node2D"]
