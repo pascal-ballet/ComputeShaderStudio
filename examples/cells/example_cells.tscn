@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://cutxgtalwsp6q"]
 
-[ext_resource type="Script" path="res://examples/cells/cells.gd" id="1_dw4h8"]
+[ext_resource type="Script" uid="uid://b6tywcya4s4ti" path="res://examples/cells/cells.gd" id="1_dw4h8"]
 [ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/icon.svg" id="2_oji6h"]
 
 [node name="Cells" type="Control" node_paths=PackedStringArray("data")]

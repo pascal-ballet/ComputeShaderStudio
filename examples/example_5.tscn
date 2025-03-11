@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://cets11mlsd8hb"]
 
-[ext_resource type="Script" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_cogap"]
+[ext_resource type="Script" uid="uid://b88ieqj4hfk8r" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_cogap"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_pm7bb"]
 
