@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://c63rtjh0eurgm"]
 
-[ext_resource type="Script" uid="uid://dso2opt580igs" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_rlapi"]
+[ext_resource type="Script" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_rlapi"]
 [ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/icon.svg" id="2_y7slp"]
 
 [node name="SimpleCircle" type="Node2D"]
