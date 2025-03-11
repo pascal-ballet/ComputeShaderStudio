@@ -1,5 +1,5 @@
 extends Node
-class_name ComputeShaderStudio2D
+class_name tron
 
 var current_pass 	: int = 0
 
@@ -29,6 +29,7 @@ layout(binding = 0) buffer Params {
 	int current_pass;
 	int mousex;
 	int mousey;
+	bool left_pressed;
 };
 
 """
@@ -271,6 +272,10 @@ func _update_uniforms():
 	input_params.append(pos.x)
 	input_params.append(pos.y)
 	
+	var left_pressed : bool = Input.is_action_just_pressed("mouse_click")
+	input_params.append(left_pressed)
+
+
 	var input_params_bytes := input_params.to_byte_array()
 	buffer_params = rd.storage_buffer_create(input_params_bytes.size(), input_params_bytes)
 	uniform_params = RDUniform.new()
