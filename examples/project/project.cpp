@@ -52,11 +52,38 @@ void main() {
     float movingCircle3Y = centerY + borderRadius * sin(angle + 4.1888);
     float movingCircle3Distance = sqrt(pow(float(x) - movingCircle3X, 2.0) + pow(float(y) - movingCircle3Y, 2.0));
 
+    // Croissant parameters pour les trois cercles
+    float crescentRadius = 5.0;
+    float crescentOffset = 2.0;
+    
+    // Croissants pour chaque cercle mobile
+    // Croissant 1
+    float crescent1MainDist = sqrt(pow(float(x) - (movingCircleX), 2.0) + 
+                                 pow(float(y) - (movingCircleY - crescentRadius), 2.0));
+    float crescent1SecDist = sqrt(pow(float(x) - (movingCircleX + crescentOffset), 2.0) + 
+                                pow(float(y) - (movingCircleY - crescentRadius), 2.0));
+    
+    // Croissant 2
+    float crescent2MainDist = sqrt(pow(float(x) - (movingCircle2X), 2.0) + 
+                                 pow(float(y) - (movingCircle2Y - crescentRadius), 2.0));
+    float crescent2SecDist = sqrt(pow(float(x) - (movingCircle2X + crescentOffset), 2.0) + 
+                                pow(float(y) - (movingCircle2Y - crescentRadius), 2.0));
+    
+    // Croissant 3
+    float crescent3MainDist = sqrt(pow(float(x) - (movingCircle3X), 2.0) + 
+                                 pow(float(y) - (movingCircle3Y - crescentRadius), 2.0));
+    float crescent3SecDist = sqrt(pow(float(x) - (movingCircle3X + crescentOffset), 2.0) + 
+                                pow(float(y) - (movingCircle3Y - crescentRadius), 2.0));
+
     // Draw circle with line and inner circle
     if (distance < radius) {
-        if (movingCircleDistance < movingCircleRadius || 
-            movingCircle2Distance < movingCircleRadius ||
-            movingCircle3Distance < movingCircleRadius) {
+        if ((crescent1MainDist < crescentRadius && crescent1SecDist > crescentRadius - 1.0) ||
+            (crescent2MainDist < crescentRadius && crescent2SecDist > crescentRadius - 1.0) ||
+            (crescent3MainDist < crescentRadius && crescent3SecDist > crescentRadius - 1.0)) {
+            data_0[p] = 0xFF000000; // Black crescents
+        } else if (movingCircleDistance < movingCircleRadius || 
+                  movingCircle2Distance < movingCircleRadius ||
+                  movingCircle3Distance < movingCircleRadius) {
             data_0[p] = 0xFF000000; // Black moving circles
         } else if (distance < innerRadius) {
             data_0[p] = 0xFF000000; // Black inner circle
