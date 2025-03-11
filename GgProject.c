@@ -23,47 +23,49 @@ void main() {
 	int r = 0;
 	int g = 0;
 	int b = 0;
-
-	//définition de la dimension de chaque case
-	int dimension = 128/2; // dimension minimale pour 8 cases
-
-
-	//on split l'écran en 2 (noir et blanc) sur la verticale
 	
-	if((y<dimension) && (x<dimension)){
-		r = r+255;
-		g = g+255;
-		b = b+255;
-	}
-	else if((y>dimension) && (x>dimension)){
+
+	#if 0
+	{
+
+		//définition de la dimension de chaque case
+		int dimension = 128/4; // dimension minimale pour 4 cases
+
+
+		//on à un damier de 4 cases 
 		
-		r = r+255;
-		g = g+255;
-		b = b+255;
-	
+		if((y<dimension) && (x<dimension)){
+			r = r+255;
+			g = g+255;
+			b = b+255;
+		}
+		else if((y>dimension*2) && (x>dimension)){
+			
+			r = r+255;
+			g = g+255;
+			b = b+255;
+		
+		}
+		else if((y>dimension) && (x>dimension*2)){
+		
+			r = r+255;
+			g = g+255;
+			b = b+255;
+		
+		}
+		else{
+			r = 0;
+			g = 0;
+			b = 0;
+		}
+
+
+
+
+		// La scène prend les valeurs orgb définies
+		data_0[p] = (opacite<<24)+(b<<16)+(g<<8)+r; 
+
 	}
-	else{
-		r = 0;
-		g = 0;
-		b = 0;
-	}
-
-
-	//on split l'écran en 2 (noir et blanc) sur la verticale
-	/*if(x<(128/2)){
-		r = r+255;
-		g = g+255;
-		b = b+255;
-	}
-	else{
-		r = 0;
-		g = 0;
-		b = 0;
-	}*/
-
-
-	// La scène prend les valeurs orgb définies
-	data_0[p] = (opacite<<24)+(b<<16)+(g<<8)+r; 
 
 }
 
@@ -72,8 +74,28 @@ void main() {
 
 
 
+/* cercle vert qui suit la sourie sur fond rouge dégradé
+
+//init
+if(step==0){
+	r=255-y; //fond
+} 
+
+else{
+	float dx = float(mousex) - float(x);
+	float dy= float(mousey) - float(y);
+	float dist=sqrt(dx*dx +dy*dy);
+
+	if(dist<10){
+		g=255;
+	}
+	else{
+		g=0;
+	}
+}
 
 
+*/
 
 
 
