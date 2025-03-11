@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://cmucgsppcoo5e"]
 
-[ext_resource type="Script" uid="uid://c8esqdv0y26yp" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_eimw3"]
-[ext_resource type="Script" uid="uid://jw3o2qu3a0pl" path="res://examples/LabelStepPass.gd" id="2_4aq4t"]
+[ext_resource type="Script" uid="uid://dso2opt580igs" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_eimw3"]
+[ext_resource type="Script" uid="uid://bwwru4dq5vo22" path="res://examples/LabelStepPass.gd" id="2_4aq4t"]
 [ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/icon.svg" id="2_4upxj"]
 
 [node name="CompShadStudioEx3" type="Node2D"]
