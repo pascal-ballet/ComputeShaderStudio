@@ -27,6 +27,6 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="Icon" type="Sprite2D" parent="."]
-position = Vector2(605.5, 411)
+position = Vector2(592, 361)
 scale = Vector2(5.63281, 3.17969)
 texture = ExtResource("2_ntl1q")

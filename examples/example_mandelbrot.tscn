@@ -11,7 +11,7 @@ script = ExtResource("1_5gp20")
 script = ExtResource("1_t5cx1")
 WSX = 512
 WSY = 512
-glsl_file = "res://examples/example_mandelbrot.cpp"
+glsl_file = "res://examples/cube/circles.cpp"
 data = [NodePath("../mandelbrot"), NodePath("../julia")]
 
 [node name="mandelbrot" type="Sprite2D" parent="."]
