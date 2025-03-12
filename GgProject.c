@@ -1,4 +1,3 @@
-
 /*
 * Auteur : Gérald CALVARIN
 * 
@@ -14,6 +13,29 @@
 */
 
 
+/*
+
+	correction du prof pour un damier !
+
+	int case_x=int(floor(x/16.0f));
+	int case_y=int(floor(y/16.0f));
+
+	if((case_x+case_y)%2==0){
+		//case blanche
+	}
+	else{
+		//case noir
+	}
+
+*/
+
+	struct couleur { 
+		int	r;
+		int	g;
+		int	b;
+	};
+
+
 void main() {
 	uint x = gl_GlobalInvocationID.x;
 	uint y = gl_GlobalInvocationID.y;
@@ -25,63 +47,48 @@ void main() {
 	int r = 0;
 	int g = 0;
 	int b = 0;
-	
-
-
+	int i=0;
 
 	//projet principale 
 	#if 1
 	{
 
+
+		couleur plateau[128][128];
+
 		//définition de la dimension de chaque case
-		int dimension = (128/10)/2; // dimension minimale pour 4 cases
+		int dimension = (128/5)/2; // dimension minimale pour 4 cases
 		int debutX = 0; // dimension minimale pour 4 cases
 		int finX = dimension; // dimension minimale pour 4 cases
-		int debutY = dimension*2; // dimension minimale pour 4 cases
+		int debutY = 0; // dimension minimale pour 4 cases
 		int finY = debutY+dimension; // dimension minimale pour 4 cases
 
 		//on à un damier de 4 cases 
 		while(finX<128){
-			if((y<dimension) && (x>=debutX) && (x<finX)){
-				r = 255;
-				g = 255;
-				b = 255;
-			}
-			debutX=finX+dimension;
-			finX=finX+(dimension*2);
-		}
-		
-		debutX=dimension;
-		finX = debutX+dimension; // dimension minimale pour 4 cases
+			//while(finY<128){
 
-		while(finY<128){
 			if((y>=debutY) && (y<finY) && (x>=debutX) &&(x<finX)){
-				r = 255;
-				g = 255;
-				b = 255;
+				plateau[x][y].r=255;
+				plateau[x][y].g=255;
+				plateau[x][y].b=255;
+
+				
+				r=plateau[x][y].r;
+				g=plateau[x][y].g;
+				b=plateau[x][y].b;
 			}
-			debutY=finY+dimension;
-			finY=finY+(dimension*2);
-			debutX=finX+dimension;
-			finX=finX+(dimension*2);
-		}
-		// else if((y>dimension) && (x>dimension)){
+					// debutY=finY+dimension;
+					// finY=finY+(dimension*2);
+
+					debutX=finX+dimension;
+					finX=finX+(dimension*2);
+
+			//}
+
+
 			
-		// 	r = r+255;
-		// 	g = g+255;
-		// 	b = b+255;
+		}
 		
-		// }
-
-		// else{
-		// 	r = 0;
-		// 	g = 0;
-		// 	b = 0;
-		// }
-
-
-
-
 		// La scène prend les valeurs orgb définies
 		data_0[p] = (opacite<<24)+(b<<16)+(g<<8)+r; 
 
