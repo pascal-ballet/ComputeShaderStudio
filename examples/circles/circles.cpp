@@ -16,14 +16,14 @@ void main()
         int pix = data_0[p];
         int col = pix & 0x00FFFFFF ;
         float r = RADIUS + 10*sin(step/10.0f);
-        if( dist < r-1 ) {
+        if( dist < r-1 ) { // interior
             col = col + 0x04 ;
             data_0[p] = 0xFF000000 + col ;
         }
-        if( dist >= r-1 && dist <= r+1 ) {
+        if( dist >= r-1 && dist <= r+1 ) { // perimeter
             data_0[p] = 0xFF0000FF ;
         }
-        if( dist > r + 1) {
+        if( dist > r + 1) { // ouside
             if (col > 0)
                 data_0[p] = pix - 1;
         }
