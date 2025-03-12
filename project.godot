@@ -19,7 +19,6 @@ config/icon="res://addons/compute_shader_studio/icon.png"
 
 window/size/viewport_width=800
 window/size/viewport_height=450
-window/size/initial_position_type=0
 
 [dotnet]
 

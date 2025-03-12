@@ -20,53 +20,19 @@
 #define MOTO_1 0xFF0000FF
 #define MOTO_2 0xFFFF0000
 
-#define Init 0
-#define InitMotorcycles 1
-#define InitBeams 2
-
-#define Speed 30
-
 #define Display data_0
 
 #define Motorcycles data_1
 
 #define Beams data_2
+#define Beams_id data_3
+
+#define Init 0
+#define InitMotorcycles 1
+
+#define Speed 30
 
 const uint dimMoto = 10;
-
-const uint dir_haut = 0;
-const uint dir_droite = 1;
-const uint dir_bas = 2;
-const uint dir_gauche = 3;
-
-const int directions[4] = int[](0, 1, 2, 3);
-
-void moveMotorcyle(int id_moto, uint dir)
-{
-    ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
-    uint p = pos.x + pos.y * WSX;
-
-    if (step % Speed == 0)
-    {
-        if (Motorcycles[p] == id_moto)
-        {
-            Motorcycles[p] = CLEAR;
-            Display[p] = CLEAR;
-            if (dir == dir_haut)
-                Motorcycles[(pos.x) + ((pos.y - dimMoto) * WSX)] = id_moto;
-            if (dir == dir_droite)
-                Motorcycles[(pos.x + dimMoto) + (pos.y * WSX)] = id_moto;
-            if (dir == dir_bas)
-                Motorcycles[(pos.x) + ((pos.y + dimMoto) * WSX)] = id_moto;
-            if (dir == dir_gauche)
-                Motorcycles[(pos.x - dimMoto) + (pos.y * WSX)] = id_moto;
-        }
-    }
-    if (step % Speed == 1)
-    {
-        Display[p] = Motorcycles[p] + Beams[p];
-    }
-}
 
 // fonction random
 float random(vec2 uv)
@@ -74,6 +40,70 @@ float random(vec2 uv)
     return fract(sin(dot(uv.xy,
                          vec2(12.9898f, 78.233f))) *
                  43758.5453123f);
+}
+
+bool isInside(float choix_direction)
+{
+    ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
+    uint p = pos.x + pos.y * WSX;
+    bool res = false;
+
+    if (choix_direction < 0.25) // haut
+    {
+        res = !((pos.y - dimMoto) <= 0 || (pos.y - dimMoto) >= WSY - 2);
+    }
+    else if (choix_direction < 0.50) // droite
+    {
+        res = !((pos.x + dimMoto) <= 0 || (pos.x + dimMoto) >= WSX);
+    }
+    else if (choix_direction < 0.75) // bas
+    {
+        res = !((pos.y + dimMoto) <= 0 || (pos.y + dimMoto) >= WSY - 2);
+    }
+    else if (choix_direction < 1.00) // gauche
+    {
+        res = !((pos.x - dimMoto) <= 0 || (pos.x - dimMoto) >= WSX);
+    }
+
+    if (res)
+    {
+        Motorcycles[p] = CLEAR;
+        Display[p] = CLEAR;
+    }
+    return res;
+}
+
+void moveMotorcyle(int id_moto, float choix_direction)
+{
+    ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
+    uint p = pos.x + pos.y * WSX;
+
+    if (step % Speed == 0)
+    {
+        if (isInside(choix_direction))
+        {
+            if (choix_direction < 0.25) // haut
+            {
+                Motorcycles[(pos.x) + ((pos.y - dimMoto) * WSX)] = id_moto;
+            }
+            else if (choix_direction < 0.50) // droite
+            {
+                Motorcycles[(pos.x + dimMoto) + (pos.y * WSX)] = id_moto;
+            }
+            else if (choix_direction < 0.75) // bas
+            {
+                Motorcycles[(pos.x) + ((pos.y + dimMoto) * WSX)] = id_moto;
+            }
+            else if (choix_direction < 1.00) // gauche
+            {
+                Motorcycles[(pos.x - dimMoto) + (pos.y * WSX)] = id_moto;
+            }
+        }
+    }
+    if (step % Speed == 1)
+    {
+        Display[p] = Motorcycles[p] + Beams[p];
+    }
 }
 
 void main()
@@ -97,26 +127,17 @@ void main()
 
         Display[p] += Motorcycles[p];
     }
-    if (step == InitBeams)
+
+    float choix_direction;
+
+    if (Motorcycles[p] == MOTO_1)
     {
-        /*if (pos.x >= 198 && pos.x < 202 && pos.y >= 180 && pos.y < 195)
-            Beams[p] = 0xFF0055FF; // rouge modifie
-        if (pos.x >= 598 && pos.x < 602 && pos.y >= 180 && pos.y < 195)
-            Beams[p] = 0xFFFF0055; // bleu modifie
-
-        Display[p] += Beams[p];*/
+        choix_direction = random(vec2(float(step), float(MOTO_2 | 55 << 8)));
+        moveMotorcyle(MOTO_1, choix_direction);
     }
-
-    // moveMotorcyle(MOTO_1, directions[int(step * random(vec2(10., 10.))) % 4]);
-
-    float choix_direction = random(vec2(float(step), float(step)));
-
-    if (choix_direction < 0.25)
-        moveMotorcyle(MOTO_1, dir_haut);
-    else if (choix_direction < 0.50)
-        moveMotorcyle(MOTO_1, dir_droite);
-    else if (choix_direction < 0.75)
-        moveMotorcyle(MOTO_1, dir_bas);
-    else
-        moveMotorcyle(MOTO_1, dir_gauche);
+    else if (Motorcycles[p] == MOTO_2)
+    {
+        choix_direction = random(vec2(float(step), float(MOTO_2)));
+        moveMotorcyle(MOTO_2, choix_direction);
+    }
 }

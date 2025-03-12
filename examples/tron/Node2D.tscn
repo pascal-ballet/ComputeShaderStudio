@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://u25v40csc7a8"]
 
 [ext_resource type="Script" path="res://examples/tron/tron.gd" id="1_pd81r"]
-[ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/icon.svg" id="2_gn2m0"]
+[ext_resource type="Texture2D" uid="uid://d4famubcuvx74" path="res://examples/fond noir.jpg" id="2_2x2pa"]
 
 [node name="Node2d" type="Node2D"]
 
@@ -11,9 +11,9 @@ WSX = 800
 WSY = 450
 glsl_file = "res://examples/tron/tron.cpp"
 GLSL_code = ""
-data = [NodePath("../Icon"), null, null]
+data = [NodePath("../FondNoir"), null, null, null]
 
-[node name="Icon" type="Sprite2D" parent="."]
-position = Vector2(400.5, 226)
-scale = Vector2(6.25781, 3.53125)
-texture = ExtResource("2_gn2m0")
+[node name="FondNoir" type="Sprite2D" parent="."]
+position = Vector2(400, 225.775)
+scale = Vector2(1, 1.00544)
+texture = ExtResource("2_2x2pa")
