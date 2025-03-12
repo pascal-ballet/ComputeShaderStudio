@@ -8,7 +8,7 @@
 [node name="Node" type="Node" parent="."]
 
 [node name="Icon" type="Sprite2D" parent="."]
-position = Vector2(559, 336)
+position = Vector2(593, 340)
 scale = Vector2(5.04688, 4.10938)
 texture = ExtResource("1_se6bx")
 

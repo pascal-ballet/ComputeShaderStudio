@@ -29,7 +29,7 @@ void main() {
     float baseInnerRadius = 18.0;
     float pulseAmplitude = 3.0; // Change in radius (20 to 23)
     float pulseFrequency = 1.5; // Réduit de 3.0 à 1.5 pour un pulsage plus lent
-    float innerRadius = baseInnerRadius + pulseAmplitude; //* sin(float(step) * pulseFrequency * 0.1);
+    float innerRadius = baseInnerRadius + pulseAmplitude; //* sin(float(step) * pulseFrequency * 0.1); //PULSAGE
     
     // Border circle parameters
     float borderWidth = 2.0;

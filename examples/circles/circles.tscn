@@ -1,0 +1,32 @@
+[gd_scene load_steps=3 format=3 uid="uid://c1ux4sgouixua"]
+
+[ext_resource type="Script" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_amro2"]
+[ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/icon.svg" id="2_ntl1q"]
+
+[node name="Circles" type="Node2D"]
+
+[node name="ComputeShaderStudio2D" type="Node" parent="." node_paths=PackedStringArray("data")]
+script = ExtResource("1_amro2")
+WSX = 512
+WSY = 256
+glsl_file = "res://examples/circles/circles.cpp"
+GLSL_code = ""
+data = [NodePath("../Icon")]
+metadata/_custom_type_script = "uid://c8esqdv0y26yp"
+
+[node name="Label" type="Label" parent="."]
+offset_left = 278.0
+offset_top = -1.0
+offset_right = 679.0
+offset_bottom = 101.0
+scale = Vector2(1.72, 1.72)
+text = "Compute Shader Studio - Example Circles
+- uses an external GLSL file
+- and a Sprite2D"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Icon" type="Sprite2D" parent="."]
+position = Vector2(605.5, 411)
+scale = Vector2(5.63281, 3.17969)
+texture = ExtResource("2_ntl1q")
