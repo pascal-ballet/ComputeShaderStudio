@@ -11,14 +11,10 @@ config_version=5
 [application]
 
 config/name="compute_shader_studio"
-<<<<<<< Updated upstream
 run/main_scene="res://examples/circles/circles.tscn"
 config/features=PackedStringArray("4.2", "Forward Plus")
-=======
-run/main_scene="uid://bn86hxa8xefmh"
-config/features=PackedStringArray("4.4", "Forward Plus")
->>>>>>> Stashed changes
 config/icon="res://addons/compute_shader_studio/icon.png"
+<<<<<<<Updatedupstreamrun/main_scene="res://examples/circles/circles.tscn"
 
 [editor_plugins]
 
