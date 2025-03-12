@@ -1,4 +1,7 @@
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 #define POINT_COUNT 8
 const float speed = -0.5;
 const float len = 0.25;
