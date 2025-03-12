@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3 uid="uid://dswe7om5osvdk"]
+
+[ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/icon.svg" id="1_7p8dj"]
+[ext_resource type="Script" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="2_pembh"]
+
+[node name="heart_2D" type="Node2D"]
+
+[node name="Icon" type="Sprite2D" parent="."]
+position = Vector2(448, 220)
+scale = Vector2(3.44531, 2.52734)
+texture = ExtResource("1_7p8dj")
+
+[node name="ComputeShaderStudio2D" type="Node" parent="." node_paths=PackedStringArray("data")]
+script = ExtResource("2_pembh")
+glsl_file = "res://examples/heart/heart.cpp"
+GLSL_code = ""
+data = [NodePath("../Icon")]
+metadata/_custom_type_script = "uid://c8esqdv0y26yp"
