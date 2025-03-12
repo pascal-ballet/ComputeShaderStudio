@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://cdtqwwdxs783m"]
 
-[ext_resource type="Script" uid="uid://c8esqdv0y26yp" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_26wk6"]
+[ext_resource type="Script" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_26wk6"]
 [ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/icon.svg" id="2_urrfs"]
 
 [node name="exeample_psycho_seizure" type="Node2D"]
