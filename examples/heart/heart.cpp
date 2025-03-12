@@ -68,7 +68,7 @@ float getGlow(float dist, float radius, float intensity) {
     return pow(radius/dist, intensity);
 }
 
-// comment
+// my comment
 float getSegment(float t, vec2 pos, float offset) {
     vec2 points[POINT_COUNT];
     for(int i = 0; i < POINT_COUNT; i++) {
