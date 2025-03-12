@@ -42,36 +42,6 @@ float random(vec2 uv)
                  43758.5453123f);
 }
 
-bool isInside(float choix_direction)
-{
-    ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
-    uint p = pos.x + pos.y * WSX;
-    bool res = false;
-
-    if (choix_direction < 0.25) // haut
-    {
-        res = !((pos.y - dimMoto) <= 0 || (pos.y - dimMoto) >= WSY - 2);
-    }
-    else if (choix_direction < 0.50) // droite
-    {
-        res = !((pos.x + dimMoto) <= 0 || (pos.x + dimMoto) >= WSX);
-    }
-    else if (choix_direction < 0.75) // bas
-    {
-        res = !((pos.y + dimMoto) <= 0 || (pos.y + dimMoto) >= WSY - 2);
-    }
-    else if (choix_direction < 1.00) // gauche
-    {
-        res = !((pos.x - dimMoto) <= 0 || (pos.x - dimMoto) >= WSX);
-    }
-
-    if (res)
-    {
-        Motorcycles[p] = CLEAR;
-        Display[p] = CLEAR;
-    }
-    return res;
-}
 
 void moveMotorcyle(int id_moto, float choix_direction)
 {
@@ -80,24 +50,36 @@ void moveMotorcyle(int id_moto, float choix_direction)
 
     if (step % Speed == 0)
     {
-        if (isInside(choix_direction))
+
+        bool res = false;
+        if (choix_direction < 0.25) // haut
         {
-            if (choix_direction < 0.25) // haut
-            {
+            res = !((pos.y - dimMoto) <= 0 || (pos.y - dimMoto) >= WSY - 2);
+            if (res)
                 Motorcycles[(pos.x) + ((pos.y - dimMoto) * WSX)] = id_moto;
-            }
-            else if (choix_direction < 0.50) // droite
-            {
+        }
+        else if (choix_direction < 0.50) // droite
+        {
+            res = !((pos.x + dimMoto) <= 0 || (pos.x + dimMoto) >= WSX);
+            if (res)
                 Motorcycles[(pos.x + dimMoto) + (pos.y * WSX)] = id_moto;
-            }
-            else if (choix_direction < 0.75) // bas
-            {
+        }
+        else if (choix_direction < 0.75) // bas
+        {
+            res = !((pos.y + dimMoto) <= 0 || (pos.y + dimMoto) >= WSY - 2);
+            if (res)
                 Motorcycles[(pos.x) + ((pos.y + dimMoto) * WSX)] = id_moto;
-            }
-            else if (choix_direction < 1.00) // gauche
-            {
+        }
+        else if (choix_direction < 1.00) // gauche
+        {
+            res = !((pos.x - dimMoto) <= 0 || (pos.x - dimMoto) >= WSX);
+            if (res)
                 Motorcycles[(pos.x - dimMoto) + (pos.y * WSX)] = id_moto;
-            }
+        }
+        if (res)
+        {
+            Motorcycles[p] = CLEAR;
+            Display[p] = CLEAR;
         }
     }
     if (step % Speed == 1)
