@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://2uk2l8hsinhg"]
 
 [ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/icon.svg" id="1_7p8dj"]
-[ext_resource type="Script" uid="uid://c8esqdv0y26yp" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="2_pembh"]
+[ext_resource type="Script" uid="uid://bxee45ox6kfs2" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="2_pembh"]
 
 [node name="heart_2D" type="Node2D"]
 
@@ -14,4 +14,3 @@ script = ExtResource("2_pembh")
 glsl_file = "res://examples/heart/heart.cpp"
 GLSL_code = ""
 data = [NodePath("../Icon")]
-metadata/_custom_type_script = "uid://c8esqdv0y26yp"
