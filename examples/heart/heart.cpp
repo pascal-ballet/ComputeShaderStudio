@@ -52,15 +52,8 @@ void main() {
     float glow = getGlow(dist, radius, intensity);
     
     vec3 col = vec3(0.0);
-<<<<<<< Updated upstream
     col += 10.0 * vec3(smoothstep(0.006, 0.003, dist)); 
     col += glow * vec3(1.0, 0.5, 0.0);  // bleu clair
-=======
-    
-    // Couleurs : rose et bleu
-    vec3 pinkColor = vec3(0.6, 0.4, 2.0);
-    vec3 blueColor = vec3(1.0, 0.5, 0.0);
->>>>>>> Stashed changes
 
 
 
