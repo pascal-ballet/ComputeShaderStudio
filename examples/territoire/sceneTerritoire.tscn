@@ -1,0 +1,30 @@
+[gd_scene load_steps=3 format=3 uid="uid://cyk1jgtevq1pg"]
+
+[ext_resource type="Script" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_fuy1w"]
+[ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/icon.svg" id="2_otyot"]
+
+[node name="T1" type="Node2D"]
+
+[node name="ComputeShaderStudio2D" type="Node" parent="." node_paths=PackedStringArray("data")]
+script = ExtResource("1_fuy1w")
+glsl_file = "res://examples/territoire/bonbon.cpp"
+data = [NodePath("../Icon")]
+
+[node name="Icon" type="Sprite2D" parent="."]
+position = Vector2(574, 285.5)
+scale = Vector2(8.79688, 4.28906)
+texture = ExtResource("2_otyot")
+
+[node name="Button" type="Button" parent="."]
+offset_left = 255.0
+offset_top = 581.0
+offset_right = 355.0
+offset_bottom = 621.0
+text = "Start"
+
+[node name="Button2" type="Button" parent="."]
+offset_left = 707.0
+offset_top = 582.0
+offset_right = 792.0
+offset_bottom = 622.0
+text = "Pause"
