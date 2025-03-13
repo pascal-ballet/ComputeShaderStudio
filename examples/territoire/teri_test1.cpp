@@ -10,37 +10,6 @@
 #define MAX_VOISINS_SURVIE 2
 #define VOISINS_NAISSANCE 1
 
-   
-void main() {
-   uint x = gl_GlobalInvocationID.x;
-   uint y = gl_GlobalInvocationID.y;
-   uint p = x + y * WSX;
-
-   if (step == 0) {
-       if (data_0[p] < 0) {
-           if (x == WSX / 2 && y == WSY / 2) {  // On place une cellule vivante au centre
-               data_0[p] = VIVANT;
-           } else if (x == 1 && y== 1){
-			data_0[p] = Rouge;
-		   }else if(x == WSX-1 && y== 1){
-			data_0[p] = Vert;
-		   }else if(x == 1 && y== WSY-1){
-			data_0[p] = Bleu;
-		   }else if(x == WSX-1 && y== WSY-1){
-			data_0[p] = Jaune;
-		   } else  {
-               data_0[p] = MORT;
-           }
-       } else {
-           data_0[p] = MORT;
-       }
-   } else {
-	if (current_pass == 0)
-			compute_next_step(x, y, p);
-		else
-			data_0[p] = data_1[p]; // The future is now
-   }
-}
 
 void compute_next_step(uint x, uint y, uint p){
 	
@@ -92,4 +61,36 @@ void compute_next_step(uint x, uint y, uint p){
 		 data_1[p] = Bleu;
 		}
 	}
+}
+
+
+void main() {
+   uint x = gl_GlobalInvocationID.x;
+   uint y = gl_GlobalInvocationID.y;
+   uint p = x + y * WSX;
+
+   if (step == 0) {
+       if (data_0[p] < 0) {
+           if (x == WSX / 2 && y == WSY / 2) {  // On place une cellule vivante au centre
+               data_0[p] = VIVANT;
+           } else if (x == 1 && y== 1){
+			data_0[p] = Rouge;
+		   }else if(x == WSX-1 && y== 1){
+			data_0[p] = Vert;
+		   }else if(x == 1 && y== WSY-1){
+			data_0[p] = Bleu;
+		   }else if(x == WSX-1 && y== WSY-1){
+			data_0[p] = Jaune;
+		   } else  {
+               data_0[p] = MORT;
+           }
+       } else {
+           data_0[p] = MORT;
+       }
+   } else {
+	if (current_pass == 0)
+			compute_next_step(x, y, p);
+		else
+			data_0[p] = data_1[p]; // The future is now
+   }
 }
