@@ -12,7 +12,7 @@
 #define RADIUS 2.0
 
 //layout(binding = 1) buffer UserUniforms {
-    float u_zoom  = 1.0f;
+    float u_zoom  = 1.5f;
     float u_pos_x = -0.75f;
     float u_pos_y = 0.0f;
 //};
@@ -45,9 +45,6 @@ int rgb_to_int(vec3 c) {
 }
 
 vec3 coloring(vec2 z, uint it) {
-
-
-
     if (it >= MAX_IT) {
         return vec3(0.0);
     }
@@ -57,22 +54,15 @@ vec3 coloring(vec2 z, uint it) {
     float nu = log(logz / log(2)) / log(2);
     float smooth_iter = it + 1.0 - nu;
 
-
-
     // Index in palette
     float index = 3 * log(smooth_iter) * PALETTE_SIZE / log(MAX_IT);
 
-
-
     // Linear interpolation
-    vec3 c1 = palette[int(index)];
+    vec3 c1 = palette[int(index) % PALETTE_SIZE];
+    vec3 c2 = palette[(int(index) + 1 + mouse_button) % PALETTE_SIZE];
 
-
-    return vec3(z.x,z.y,1); // Test
-
-
-    vec3 c2 = palette[(int(index) + 1) % PALETTE_SIZE];
-    return mix(c1, c2, fract(index));
+    vec3 col = mix(c1, c2, fract(index));
+    return col;
 }
 
 vec3 fractal(vec2 z, vec2 c) {

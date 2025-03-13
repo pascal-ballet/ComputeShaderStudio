@@ -33,6 +33,13 @@ offset_right = 350.0
 offset_bottom = 59.0
 text = "Mandelbrot Set"
 
+[node name="Label3" type="Label" parent="."]
+offset_left = 388.0
+offset_top = 611.0
+offset_right = 751.0
+offset_bottom = 634.0
+text = "Click the mouse button(s) to change the colors."
+
 [node name="Label2" type="Label" parent="."]
 offset_left = 812.0
 offset_top = 36.0
