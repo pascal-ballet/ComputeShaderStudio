@@ -43,7 +43,12 @@ void main() {
 
 
 	// définition de 4 variables o,r,g,b pour faciliter la gestion des couleurs
+	// + définition du fond marron
 	int opacite =255;
+	// int r = 92;
+	// int g = 64;
+	// int b = 51;
+
 	int r = 0;
 	int g = 0;
 	int b = 0;
@@ -53,47 +58,56 @@ void main() {
 	#if 1
 	{
 
-
-		couleur plateau[128][128];
-
 		//définition de la dimension de chaque case
-		int dimension = (128/5)/2; // dimension minimale pour 4 cases
-		int debutX = 0; // dimension minimale pour 4 cases
-		int finX = dimension; // dimension minimale pour 4 cases
-		int debutY = 0; // dimension minimale pour 4 cases
-		int finY = debutY+dimension; // dimension minimale pour 4 cases
+		int dimension = (130/10);
+		int cx=int(x)+(dimension/2);
+		int cy=int(y)+dimension/2;
 
-		//on à un damier de 4 cases 
-		while(finX<128){
-			//while(finY<128){
+	
+			if (((x / dimension) + (y / dimension)) % 2 == 0) {
+				// Case blanche
 
-			if((y>=debutY) && (y<finY) && (x>=debutX) &&(x<finX)){
-				plateau[x][y].r=255;
-				plateau[x][y].g=255;
-				plateau[x][y].b=255;
+				float dx = float(mousex) - float(x);
+				float dy= float(mousey) - float(y);
+				float dist=sqrt(dx*dx +dy*dy);
 
-				
-				r=plateau[x][y].r;
-				g=plateau[x][y].g;
-				b=plateau[x][y].b;
+				if(dist<(dimension/2)){
+					r = 0;
+					g = 0;
+					b = 0;
+				}
+				else{
+					r = 255;
+					g = 255;
+					b = 255;
+				}
+			}  
+			else {
+				// Case marron
+				float dx = float(mousex) - float(x);
+				float dy= float(mousey) - float(y);
+				float dist=sqrt(dx*dx +dy*dy);
+
+				if(dist<(dimension/2)){
+					r = 0;
+					g = 0;
+					b = 0;
+				}
+				else{
+					r = 92;
+					g = 64;
+					b = 51;
+				}
 			}
-					// debutY=finY+dimension;
-					// finY=finY+(dimension*2);
-
-					debutX=finX+dimension;
-					finX=finX+(dimension*2);
-
-			//}
-
-
-			
-		}
 		
+
 		// La scène prend les valeurs orgb définies
 		data_0[p] = (opacite<<24)+(b<<16)+(g<<8)+r; 
 
 	}
 	#endif
+
+
 
 
 	// base pour les pions 

@@ -6,12 +6,14 @@
 [node name="GgProject" type="Node2D"]
 
 [node name="Icon" type="Sprite2D" parent="."]
-position = Vector2(578, 324)
-scale = Vector2(2.29084, 1.32645)
+position = Vector2(590, 339)
+scale = Vector2(2.33865, 1.38843)
 texture = ExtResource("1_yrdup")
 
 [node name="ComputeShaderStudio2D" type="Node" parent="." node_paths=PackedStringArray("data")]
 script = ExtResource("2_jf41d")
+WSX = 130
+WSY = 130
 glsl_file = "res://GgProject.c"
 GLSL_code = ""
 data = [NodePath("../Icon")]
