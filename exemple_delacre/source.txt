@@ -1,0 +1,42 @@
+// Compute shader de base pour afficher les sprites de Noctunoir et Dracaufeu
+// Compatible avec ComputeShaderStudio2D dans Godot
+
+// Definition des tailles de travail
+global_size_x = 256;
+global_size_y = 256;
+
+// Textures des Pokemon
+layout(binding = 0) uniform sampler2D noctunoir;
+layout(binding = 1) uniform sampler2D dracaufeu;
+
+// Buffer de sortie
+layout(binding = 2) buffer imageBuffer {
+    uint data[];
+};
+
+// Variable pour alterner les tours
+uniform int step;
+
+// Fonction pour encoder une couleur en uint
+uint packColor(vec4 c) {
+    return (uint(c.r * 255) << 24) |
+           (uint(c.g * 255) << 16) |
+           (uint(c.b * 255) << 8)  |
+           (uint(c.a * 255));
+}
+
+void main() {
+    uint x = gl_GlobalInvocationID.x;
+    uint y = gl_GlobalInvocationID.y;
+    if (x >= 256 || y >= 256) return; // Verification des limites
+    
+    uint p = x + y * 256;
+    vec2 uv = (vec2(x, y) + 0.5) / vec2(256.0, 256.0);
+    
+    // Selection du Pokemon en fonction du tour
+    vec4 color = (step % 2 == 0) ? texture(noctunoir, uv)
+                                 : texture(dracaufeu, uv);
+    
+    // Stockage de la couleur dans le buffer
+    data[p] = packColor(color);
+}
