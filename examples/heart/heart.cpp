@@ -70,9 +70,12 @@ void main() {
     // Fond noir
     vec3 col = vec3(0.0);
     
-    // Couleurs : rose et bleu
-    vec3 pinkColor = vec3(1.0, 0.0, 0.6);
-    vec3 blueColor = vec3(0.0, 0.5, 1.0);
+   
+
+    // Couleurs : rose vif et bleu cyan
+vec3 pinkColor = vec3(1.0, 0.2, 0.8);
+vec3 blueColor = vec3(0.0, 0.8, 1.0);
+
 
     // On dessine HEART_COUNT cœurs
     for (int i = 0; i < HEART_COUNT; i++) {
