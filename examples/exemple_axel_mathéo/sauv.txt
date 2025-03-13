@@ -1,6 +1,20 @@
 float rand(uint x, uint y) {
     return fract(sin(float(x) * 12.9898 + float(y) * 78.233) * 43758.5453);
 }
+
+// Fonction pour convertir une couleur RGB en valeur hexadécimale
+int rgb_to_int(int r, int g, int b) {
+    return 0xFF000000 | (r << 16) | (g << 8) | b;
+}
+
+// Fonction pour interpoler entre deux couleurs
+int lerp_color(int c1, int r1, int g1, int b1, int r2, int g2, int b2, float t) {
+    int r = int(float(r1) + t * float(r2 - r1));
+    int g = int(float(g1) + t * float(g2 - g1));
+    int b = int(float(b1) + t * float(b2 - b1));
+    return rgb_to_int(r, g, b);
+}
+
 void main() {
     uint x = gl_GlobalInvocationID.x;
     uint y = gl_GlobalInvocationID.y;
@@ -8,7 +22,12 @@ void main() {
 
     // Definition des couleurs
     int WHITE = 0xFFFFFFFF; // Fond blanc
-    int BLACK = 0xFF000000; // Contour noir
+    
+    // Définir les couleurs pour le dégradé
+    int VIOLET = rgb_to_int(148, 0, 211);  // Violet
+    int BLUE = rgb_to_int(0, 0, 255);      // Bleu
+    int ORANGE = rgb_to_int(255, 165, 0);  // Orange
+    int YELLOW = rgb_to_int(255, 255, 0);  // Jaune
 
     // Definir le centre du cercle et son rayon
     int cx = int(WSX) / 2;
@@ -18,6 +37,7 @@ void main() {
     int dx = int(x) - cx;
     int dy = int(y) - cy;
     int distance_squared = dx * dx + dy * dy;
+    float distance = sqrt(float(distance_squared));
     
     // Calculer l'angle du pixel par rapport au centre
     float angle = atan(float(dy), float(dx));
@@ -106,7 +126,26 @@ void main() {
             
             // Dessiner le cercle si l'angle est dans la plage animée
             if (adjusted_angle >= start_angle && adjusted_angle <= max_angle) {
-                data_0[p] = BLACK;
+                // Calculer la position relative du cercle (0 = extérieur, 1 = intérieur)
+                float circle_position = float(i) / float(safe_num_circles - 1);
+                
+                // Déterminer la couleur en fonction de la position
+                int color;
+                if (circle_position < 0.33) {
+                    // Dégradé de violet à bleu
+                    float t = circle_position / 0.33;
+                    color = lerp_color(0, 148, 0, 211, 0, 0, 255, t);
+                } else if (circle_position < 0.66) {
+                    // Dégradé de bleu à orange
+                    float t = (circle_position - 0.33) / 0.33;
+                    color = lerp_color(0, 0, 0, 255, 255, 165, 0, t);
+                } else {
+                    // Dégradé d'orange à jaune
+                    float t = (circle_position - 0.66) / 0.34;
+                    color = lerp_color(0, 255, 165, 0, 255, 255, 0, t);
+                }
+                
+                data_0[p] = color;
             }
         }
     }
@@ -166,7 +205,26 @@ void main() {
         
         // Si le pixel est assez proche de la ligne, le colorier
         if (dist_sq <= float(thickness * thickness)) {
-            data_0[p] = BLACK;
+            // Calculer la position relative du cercle (0 = extérieur, 1 = intérieur)
+            float circle_position = float(i) / float(safe_num_circles - 1);
+            
+            // Déterminer la couleur en fonction de la position
+            int color;
+            if (circle_position < 0.33) {
+                // Dégradé de violet à bleu
+                float t = circle_position / 0.33;
+                color = lerp_color(0, 148, 0, 211, 0, 0, 255, t);
+            } else if (circle_position < 0.66) {
+                // Dégradé de bleu à orange
+                float t = (circle_position - 0.33) / 0.33;
+                color = lerp_color(0, 0, 0, 255, 255, 165, 0, t);
+            } else {
+                // Dégradé d'orange à jaune
+                float t = (circle_position - 0.66) / 0.34;
+                color = lerp_color(0, 255, 165, 0, 255, 255, 0, t);
+            }
+            
+            data_0[p] = color;
         }
     }
 }
