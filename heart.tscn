@@ -6,8 +6,8 @@
 [node name="heart_2D" type="Node2D"]
 
 [node name="Icon" type="Sprite2D" parent="."]
-position = Vector2(429.5, 207.5)
-scale = Vector2(3.10156, 2.75781)
+position = Vector2(606, 338.5)
+scale = Vector2(5.07813, 4.25781)
 texture = ExtResource("1_7p8dj")
 
 [node name="ComputeShaderStudio2D" type="Node" parent="." node_paths=PackedStringArray("data")]
