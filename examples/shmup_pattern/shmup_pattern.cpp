@@ -1,14 +1,17 @@
-#define RED 0xFFFF0000
+#define RED 0xFF0000FF
 #define GREEN 0xFF00FF00
-#define BLUE 0xFF0000FF
+#define BLUE 0xFFFF0000
 #define BLACK 0xFF000000
 
 // Generation de bullets
 #define PI 3.1415926
 #define TWO_PI 2*PI
-#define SPAWN vec2(127,63)
-#define RAD 5
-#define NB_SPWN 12
+#define SPAWN1 vec2(63,31)
+#define SPAWN2 vec2(191,31)
+#define RAD1 50
+#define RAD2 5
+#define NB_SPWN1 10
+#define NB_SPWN2 3
 #define OFFSET_ROTATION PI/4
 #define SPEED 2.0
 
@@ -31,23 +34,23 @@ void init(uint p)
 	data_3[p] = 0;
 }
 
-vec4 compute_spawn_position_angle(int nb, int r)
+vec4 compute_spawn_position_angle(vec2 spawn, int nb, int nbRot, int rad, int nb_spwn)
 {
 	vec4 position_direction;
 
-	position_direction.x = SPAWN.x + cos(nb * (TWO_PI/NB_SPWN) + r*OFFSET_ROTATION) * RAD;
-	position_direction.y = SPAWN.y + sin(nb * (TWO_PI/NB_SPWN) + r*OFFSET_ROTATION) * RAD;
+	position_direction.x = spawn.x + cos(nb * (TWO_PI/nb_spwn) + nbRot*OFFSET_ROTATION) * rad;
+	position_direction.y = spawn.y + sin(nb * (TWO_PI/nb_spwn) + nbRot*OFFSET_ROTATION) * rad;
 
-	position_direction.z = (position_direction.x - SPAWN.x)*1000;
-	position_direction.w = (position_direction.y - SPAWN.y)*1000;
+	position_direction.z = (position_direction.x - spawn.x)*1000;
+	position_direction.w = (position_direction.y - spawn.y)*1000;
 
 	return position_direction;
 }
 
-void spawn_bullet(uint x, uint y, uint p, vec4 position_direction)
+void spawn_bullet(uint x, uint y, uint p, vec4 position_direction, int bullet_type)
 {
 	if((int(position_direction.x) == int(x)) && (int(position_direction.y) == int(y))){
-		data_1[p] = 1;
+		data_1[p] = bullet_type;
 		data_2[p] = int(position_direction.z);
 		data_3[p] = int(position_direction.w);
 	}
@@ -75,9 +78,9 @@ float random(float seed)
 
 
 // Fonction de calcul du deplacement de la bullet
-void compute_movement(uint x, uint y, uint p)
+void compute_movement(uint x, uint y, uint p, int bullet_type)
 {
-	if(data_1[p] == 1){
+	if(data_1[p] == bullet_type){
 		float random = random(float(int(x)*int(y)+2*step+current_pass));
 		
 		if(random <= RND_MOVE){
@@ -93,7 +96,7 @@ void compute_movement(uint x, uint y, uint p)
 			if((bx>0 && bx<WSX) && (by>0 && by<WSY)){
 				if(data_1[dp] == 0){
 					data_1[p] = 0;
-					data_1[dp] = 1;
+					data_1[dp] = bullet_type;
 
 					data_2[dp] = data_2[p];
 					data_2[p] = 0;
@@ -112,10 +115,18 @@ void compute_movement(uint x, uint y, uint p)
 	}
 }
 
+void compute_global_movement(uint x, uint y, uint p)
+{
+	compute_movement(x,y,p,1);
+	compute_movement(x,y,p,2);
+}
+
 void render(uint x, uint y, uint p)
 {
-	if(data_1[p] == 1 || data_1[p] == -1)
+	if(data_1[p] == 1)
 		data_0[p] = GREEN;
+	if(data_1[p] == 2)
+		data_0[p] = RED;
 }
 
 
@@ -131,11 +142,13 @@ void main()
 		// Initialisation du point d'apparition des bullets
 		init(p);
 	}
-	else{		
-		spawn_bullet(x,y,p,compute_spawn_position_angle(step%NB_SPWN, step));
+	else{
+		// Apparition des bullets
+		spawn_bullet(x,y,p,compute_spawn_position_angle(SPAWN1, step%NB_SPWN1, step, RAD1, NB_SPWN1), 1);
+		spawn_bullet(x,y,p,compute_spawn_position_angle(SPAWN2, step%NB_SPWN2, step, RAD2, NB_SPWN2), 2);
 		// Calcul du deplacement puis affichage du rendu
 		if(step%2 == 0)
-			compute_movement(x,y,p);
+			compute_global_movement(x,y,p);
 		render(x,y,p);
 	}
 }

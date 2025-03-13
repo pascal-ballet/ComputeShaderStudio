@@ -15,5 +15,5 @@ data = [NodePath("../Shader"), null, null, null]
 
 [node name="Shader" type="Sprite2D" parent="."]
 position = Vector2(576, 324)
-scale = Vector2(3, 3)
+scale = Vector2(5, 5)
 texture = ExtResource("2_i6ewd")
