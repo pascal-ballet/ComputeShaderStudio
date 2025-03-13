@@ -7,9 +7,9 @@ const float len = 0.2;
 const float scale = 0.012;
 
 // Ajustements pour éviter la saturation
-float intensity = 1.0;     // Intensité moins élevée
-float radius = 0.015;      // Rayon légèrement réduit
-float lineWidth = 0.004;   // Largeur du trait inchangée
+float intensity = 1.0;     // Intensité du glow
+float radius = 0.015;      // Rayon du halo
+float lineWidth = 0.004;   // Largeur du trait
 
 // Fonction mathématique pour tracer un cœur
 vec2 getHeartPosition(float t) {
@@ -20,13 +20,12 @@ vec2 getHeartPosition(float t) {
     );
 }
 
-// Fonction de glow (inchangée) – on fera surtout attention aux multiplicateurs
+// Fonction de glow
 float getGlow(float dist, float radius, float intensity) {
-    // max(dist, 0.001) pour éviter division par zéro
     return pow(radius / max(dist, 0.001), intensity);
 }
 
-// Calcul de la distance à un segment (pour tracer le “trait” du cœur)
+// Calcul de la distance à un segment
 float distToLine(vec2 p, vec2 a, vec2 b) {
     vec2 pa = p - a;
     vec2 ba = b - a;
@@ -68,13 +67,13 @@ void main() {
     
     float t = float(step) / 60.0;
     
-    // Accumulateur de couleur
+    // Fond noir
     vec3 col = vec3(0.0);
     
-    // Couleurs ajustées pour être clairement roses et bleues
-    vec3 pinkColor = vec3(1.0, 0.0, 0.6);  // Rose plus “pur” (sans jaune)
-    vec3 blueColor = vec3(0.0, 0.5, 1.0); // Bleu clair bien franc
-    
+    // Couleurs : rose et bleu
+    vec3 pinkColor = vec3(1.0, 0.0, 0.6);
+    vec3 blueColor = vec3(0.0, 0.5, 1.0);
+
     // On dessine HEART_COUNT cœurs
     for (int i = 0; i < HEART_COUNT; i++) {
         float offset = float(i) * 3.4;
@@ -91,10 +90,10 @@ void main() {
         // Alterne rose / bleu
         vec3 heartColor = (i % 2 == 0) ? pinkColor : blueColor;
         
-        // Ajout du trait (pas de multiplicateur énorme)
+        // Ajout du trait
         col += line * heartColor;
         
-        // Ajout du halo (pas de *1.5 ici, pour éviter la saturation)
+        // Ajout du halo
         col += glow * heartColor;
     }
     
@@ -111,5 +110,6 @@ void main() {
     int b = int(255.0 * col.b);
     int color = (0xFF << 24) | (r << 16) | (g << 8) | b;
     
+    // On écrit la couleur finale
     data_0[p] = color;
 }
