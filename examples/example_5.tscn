@@ -2,12 +2,12 @@
 
 [ext_resource type="Script" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_cogap"]
 
-[sub_resource type="FastNoiseLite" id="FastNoiseLite_pm7bb"]
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_ynclj"]
 
 [sub_resource type="NoiseTexture2D" id="NoiseTexture2D_nxi5j"]
 width = 256
 height = 128
-noise = SubResource("FastNoiseLite_pm7bb")
+noise = SubResource("FastNoiseLite_ynclj")
 
 [node name="CompShadStudioEx5" type="Node2D"]
 
