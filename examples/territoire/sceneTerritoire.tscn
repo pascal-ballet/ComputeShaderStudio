@@ -11,6 +11,7 @@ glsl_file = "res://examples/territoire/bonbon.cpp"
 data = [NodePath("../Icon")]
 
 [node name="Icon" type="Sprite2D" parent="."]
+texture_filter = 1
 position = Vector2(574, 285.5)
 scale = Vector2(8.79688, 4.28906)
 texture = ExtResource("2_otyot")
@@ -28,6 +29,12 @@ offset_top = 582.0
 offset_right = 792.0
 offset_bottom = 622.0
 text = "Pause"
+
+[node name="HSlider" type="HSlider" parent="."]
+offset_left = 401.0
+offset_top = 592.0
+offset_right = 652.0
+offset_bottom = 608.0
 
 [connection signal="pressed" from="Button" to="ComputeShaderStudio2D" method="_on_button_play"]
 [connection signal="pressed" from="Button2" to="ComputeShaderStudio2D" method="_on_button_step"]

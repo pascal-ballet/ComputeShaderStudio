@@ -1,4 +1,4 @@
-#define NEUTRE 0xFF808080
+#define NEUTRE 0xFF000000
 #define JOUEUR 0xFF0000FF  
 #define IA_1 0xFF00FF00    
 #define IA_2 0xFFFF0000    
@@ -8,7 +8,7 @@
 
 #define CLICK_RADIUS 25        // Rayon d'expansion augmenté
 #define EXPANSION_AMOUNT 30    // Quantité d'expansion lors d'un clic
-#define AI_EXPANSION_RATE 0.03
+#define AI_EXPANSION_RATE 0.02
 
 // Stockage des coordonnees de la souris
 #define MOUSE_STORAGE_X 0
@@ -115,62 +115,30 @@ void main() {
         
         // Interaction joueur - expansion par clic
         if (clicked && mousex >= 0 && mousey >= 0) {
-            // Distance au clic
-            float dist = sqrt(float((x - mousex) * (x - mousex) + (y - mousey) * (y - mousey)));
-            
-            // Zone d'expansion massive autour du clic
-            if (dist < CLICK_RADIUS) {
-                // Verifier si le clic est proche d'un territoire du joueur
-                bool proche_joueur = false;
+
+            if (data_0[p] == JOUEUR && random_event(x, y, step, AI_EXPANSION_RATE * 10000000)) {
+                int direction = hash(x, y, step) % 8;
+                int dx = 0, dy = 0;
                 
-                for (int j = -5; j <= 5; j++) {
-                    for (int i = -5; i <= 5; i++) {
-                        int nx = mousex + i;
-                        int ny = mousey + j;
-                        
-                        if (nx >= 0 && nx < int(WSX) && ny >= 0 && ny < int(WSY)) {
-                            int check_p = nx + ny * int(WSX);
-                            if (data_0[check_p] == JOUEUR) {
-                                proche_joueur = true;
-                                break;
-                            }
-                        }
-                    }
-                    if (proche_joueur) break;
+                switch (direction) {
+                    case 0: dx = -1; dy = 0; break;
+                    case 1: dx = 1; dy = 0; break;
+                    case 2: dx = 0; dy = -1; break;
+                    case 3: dx = 0; dy = 1; break;
+                    case 4: dx = -1; dy = -1; break;
+                    case 5: dx = 1; dy = -1; break;
+                    case 6: dx = -1; dy = 1; break;
+                    case 7: dx = 1; dy = 1; break;
                 }
                 
-                // Si on est pres d'un territoire du joueur, expansion importante
-                if (proche_joueur) {
-                    // Facteur d'expansion qui diminue avec la distance
-                    float expansion_factor = 1.0 - (dist / CLICK_RADIUS);
+                int nx = x + dx;
+                int ny = y + dy;
+                
+                if (nx >= 0 && nx < int(WSX) && ny >= 0 && ny < int(WSY)) {
+                    int voisin_p = nx + ny * int(WSX);
                     
-                    // Conquete facile et deterministe de territoire neutre
-                    if (data_0[p] == NEUTRE) {
-                        data_0[p] = JOUEUR;
-                    }
-                    // Conquete de territoire ennemi avec chance proportionnelle a la distance
-                    else if (data_0[p] != JOUEUR && random_event(x, y, step, expansion_factor * 0.8)) {
-                        data_0[p] = JOUEUR;
-                    }
-                    
-                    // Expansion supplementaire dans un rayon plus petit
-                    if (dist < CLICK_RADIUS * 0.6) {
-                        // Pour chaque pixels voisins dans un petit rayon
-                        for (int j = -2; j <= 2; j++) {
-                            for (int i = -2; i <= 2; i++) {
-                                int nx = x + i;
-                                int ny = y + j;
-                                
-                                if (nx >= 0 && nx < int(WSX) && ny >= 0 && ny < int(WSY)) {
-                                    int voisin_p = nx + ny * int(WSX);
-                                    
-                                    // Convertir les territoires neutres proches
-                                    if (data_0[voisin_p] == NEUTRE) {
-                                        data_0[voisin_p] = JOUEUR;
-                                    }
-                                }
-                            }
-                        }
+                    if (data_0[voisin_p] == NEUTRE || (data_0[voisin_p] != JOUEUR && random_event(x, y, step, 3))) {
+                        data_0[voisin_p] = JOUEUR;
                     }
                 }
             }
