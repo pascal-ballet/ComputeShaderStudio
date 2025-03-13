@@ -35,53 +35,61 @@ void main() {
            data_0[p] = MORT;
        }
    } else {
-       int nb_voisins_V = 0;
-	   int nb_voisins_R = 0;
-	   int nb_voisins_J = 0;
-	   int nb_voisins_B = 0;
-	   int nb_voisins_G = 0;
-
-       // Comptage des voisins vivants
-       for (int dy = -1; dy <= 1; dy++) {
-           for (int dx = -1; dx <= 1; dx++) {
-               if (!(dx == 0 && dy == 0)) {
-                   int nx = int(x) + dx;
-                   int ny = int(y) + dy;
-
-                   if (nx >= 0 && nx < WSX && ny >= 0 && ny < WSY) {
-                       if (data_0[uint(nx + ny * WSX)] == VIVANT) {
-                           nb_voisins_V++;
-                       }
-					   if (data_0[uint(nx + ny * WSX)] == Rouge) {
-						nb_voisins_R++;
-						}
-						if (data_0[uint(nx + ny * WSX)] == Vert) {
-							nb_voisins_G++;
-						}
-						if (data_0[uint(nx + ny * WSX)] == Bleu) {
-							nb_voisins_B++;
-						}
-						if (data_0[uint(nx + ny * WSX)] == Jaune) {
-							nb_voisins_J++;
-						}
-                   }
-               }
-           }
-       }
-
-       // La cellule morte devient vivante si elle a 1 voisin vivant
-       if (data_0[p] == MORT) {
-           if (nb_voisins_V >= 1) {
-               data_0[p] = VIVANT;
-           } else if(nb_voisins_R >= 1){
-			data_0[p] = Rouge;
-		   }else if(nb_voisins_J >= 1){
-			data_0[p] = Jaune;
-		   }else if(nb_voisins_G >= 1){
-			data_0[p] = Vert;
-		   }else if(nb_voisins_B >= 1){
-			data_0[p] = Bleu;
-		   }
-       }
+	if (current_pass == 0)
+			compute_next_step(x, y, p);
+		else
+			data_0[p] = data_1[p]; // The future is now
    }
+}
+
+void compute_next_step(uint x, uint y, uint p){
+	
+	int nb_voisins_V = 0;
+	int nb_voisins_R = 0;
+	int nb_voisins_J = 0;
+	int nb_voisins_B = 0;
+	int nb_voisins_G = 0;
+
+	// Comptage des voisins vivants
+	for (int dy = -1; dy <= 1; dy++) {
+		for (int dx = -1; dx <= 1; dx++) {
+			if (!(dx == 0 && dy == 0)) {
+				int nx = int(x) + dx;
+				int ny = int(y) + dy;
+
+				if (nx >= 0 && nx < WSX && ny >= 0 && ny < WSY) {
+					if (data_0[uint(nx + ny * WSX)] == VIVANT) {
+						nb_voisins_V++;
+					}
+					if (data_0[uint(nx + ny * WSX)] == Rouge) {
+					 nb_voisins_R++;
+					 }
+					 if (data_0[uint(nx + ny * WSX)] == Vert) {
+						 nb_voisins_G++;
+					 }
+					 if (data_0[uint(nx + ny * WSX)] == Bleu) {
+						 nb_voisins_B++;
+					 }
+					 if (data_0[uint(nx + ny * WSX)] == Jaune) {
+						 nb_voisins_J++;
+					 }
+				}
+			}
+		}
+	}
+
+	// La cellule morte devient vivante si elle a 1 voisin vivant
+	if (data_0[p] == MORT) {
+		if (nb_voisins_V >= 1) {
+			data_1[p] = VIVANT;
+		} else if(nb_voisins_R >= 1){
+		 data_1[p] = Rouge;
+		}else if(nb_voisins_J >= 1){
+		 data_1[p] = Jaune;
+		}else if(nb_voisins_G >= 1){
+		 data_1[p] = Vert;
+		}else if(nb_voisins_B >= 1){
+		 data_1[p] = Bleu;
+		}
+	}
 }
