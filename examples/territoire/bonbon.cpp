@@ -16,12 +16,6 @@
 #define MOUSE_STORAGE_CLICKED 2
 #define MOUSE_BUTTON_PRESSED 3
 
-// Configuration de affichage du score
-#define SCORE_Y int(WSY)/2
-#define DIGIT_WIDTH 8 
-#define DIGIT_HEIGHT 12
-#define DIGIT_SPACING 10
-
 int hash(int x, int y, int s) {
     int a = x * 0x6A09E667;
     int b = y * 0xBB67AE85;
@@ -56,96 +50,6 @@ void drawVerticalLine(int x, int start_y, int length, int color) {
         if(x >= 0 && x < int(WSX) && start_y + i >= 0 && start_y + i < int(WSY)) {
             data_0[pos] = color;
         }
-    }
-}
-
-// Dessine un chiffre
-void drawDigit(int digit, int x, int y, int color) {
-    switch(digit) {
-        case 0:
-            drawHorizontalLine(x, y, DIGIT_WIDTH, color);
-            drawHorizontalLine(x, y + DIGIT_HEIGHT - 1, DIGIT_WIDTH, color);
-            drawVerticalLine(x, y, DIGIT_HEIGHT, color);
-            drawVerticalLine(x + DIGIT_WIDTH - 1, y, DIGIT_HEIGHT, color);
-            break;
-        case 1:
-            drawVerticalLine(x + DIGIT_WIDTH - 2, y, DIGIT_HEIGHT, color);
-            break;
-        case 2:
-            drawHorizontalLine(x, y, DIGIT_WIDTH, color);
-            drawHorizontalLine(x, y + DIGIT_HEIGHT/2, DIGIT_WIDTH, color);
-            drawHorizontalLine(x, y + DIGIT_HEIGHT - 1, DIGIT_WIDTH, color);
-            drawVerticalLine(x + DIGIT_WIDTH - 1, y, DIGIT_HEIGHT/2, color);
-            drawVerticalLine(x, y + DIGIT_HEIGHT/2, DIGIT_HEIGHT/2, color);
-            break;
-        case 3:
-            drawHorizontalLine(x, y, DIGIT_WIDTH, color);
-            drawHorizontalLine(x, y + DIGIT_HEIGHT/2, DIGIT_WIDTH, color);
-            drawHorizontalLine(x, y + DIGIT_HEIGHT - 1, DIGIT_WIDTH, color);
-            drawVerticalLine(x + DIGIT_WIDTH - 1, y, DIGIT_HEIGHT, color);
-            break;
-        case 4:
-            drawVerticalLine(x, y, DIGIT_HEIGHT/2, color);
-            drawVerticalLine(x + DIGIT_WIDTH - 1, y, DIGIT_HEIGHT, color);
-            drawHorizontalLine(x, y + DIGIT_HEIGHT/2, DIGIT_WIDTH, color);
-            break;
-        case 5:
-            drawHorizontalLine(x, y, DIGIT_WIDTH, color);
-            drawHorizontalLine(x, y + DIGIT_HEIGHT/2, DIGIT_WIDTH, color);
-            drawHorizontalLine(x, y + DIGIT_HEIGHT - 1, DIGIT_WIDTH, color);
-            drawVerticalLine(x, y, DIGIT_HEIGHT/2, color);
-            drawVerticalLine(x + DIGIT_WIDTH - 1, y + DIGIT_HEIGHT/2, DIGIT_HEIGHT/2, color);
-            break;
-        case 6:
-            drawHorizontalLine(x, y, DIGIT_WIDTH, color);
-            drawHorizontalLine(x, y + DIGIT_HEIGHT/2, DIGIT_WIDTH, color);
-            drawHorizontalLine(x, y + DIGIT_HEIGHT - 1, DIGIT_WIDTH, color);
-            drawVerticalLine(x, y, DIGIT_HEIGHT, color);
-            drawVerticalLine(x + DIGIT_WIDTH - 1, y + DIGIT_HEIGHT/2, DIGIT_HEIGHT/2, color);
-            break;
-        case 7:
-            drawHorizontalLine(x, y, DIGIT_WIDTH, color);
-            drawVerticalLine(x + DIGIT_WIDTH - 1, y, DIGIT_HEIGHT, color);
-            break;
-        case 8:
-            drawHorizontalLine(x, y, DIGIT_WIDTH, color);
-            drawHorizontalLine(x, y + DIGIT_HEIGHT/2, DIGIT_WIDTH, color);
-            drawHorizontalLine(x, y + DIGIT_HEIGHT - 1, DIGIT_WIDTH, color);
-            drawVerticalLine(x, y, DIGIT_HEIGHT, color);
-            drawVerticalLine(x + DIGIT_WIDTH - 1, y, DIGIT_HEIGHT, color);
-            break;
-        case 9:
-            drawHorizontalLine(x, y, DIGIT_WIDTH, color);
-            drawHorizontalLine(x, y + DIGIT_HEIGHT/2, DIGIT_WIDTH, color);
-            drawHorizontalLine(x, y + DIGIT_HEIGHT - 1, DIGIT_WIDTH, color);
-            drawVerticalLine(x, y, DIGIT_HEIGHT/2, color);
-            drawVerticalLine(x + DIGIT_WIDTH - 1, y, DIGIT_HEIGHT, color);
-            break;
-    }
-}
-
-// Dessine un nombre
-void drawNumber(int num, int x, int y, int color) {
-    if(num == 0) {
-        drawDigit(0, x, y, color);
-        return;
-    }
-    
-    int temp = num;
-    int digits = 0;
-    
-    // Compter les chiffres
-    while(temp > 0) {
-        temp /= 10;
-        digits++;
-    }
-    
-    // Dessiner chaque chiffre
-    temp = num;
-    for(int i = 0; i < digits; i++) {
-        int digit = temp % 10;
-        drawDigit(digit, x + (digits-i-1) * DIGIT_SPACING, y, color);
-        temp /= 10;
     }
 }
 
@@ -357,59 +261,6 @@ void main() {
                     }
                 }
             }
-        }
-        
-        // Calcul des scores une seule fois par frame
-        int score_joueur = 0;
-        int score_ia1 = 0;
-        int score_ia2 = 0;
-        int score_ia3 = 0;
-        
-        if (x == 0 && y == 1) {
-            for (int j = 0; j < int(WSY); j++) {
-                for (int i = 0; i < int(WSX); i++) {
-                    int idx = i + j * int(WSX);
-                    if (data_0[idx] == JOUEUR) score_joueur++;
-                    else if (data_0[idx] == IA_1) score_ia1++;
-                    else if (data_0[idx] == IA_2) score_ia2++;
-                    else if (data_0[idx] == IA_3) score_ia3++;
-                }
-            }
-            
-            // Stocker les scores dans les pixels speciaux
-            data_0[int(WSX) - 4] = score_joueur;
-            data_0[int(WSX) - 3] = score_ia1;
-            data_0[int(WSX) - 2] = score_ia2;
-            data_0[int(WSX) - 1] = score_ia3;
-        }
-        
-        // Affichage des scores au milieu de ecran
-        if (y >= SCORE_Y - DIGIT_HEIGHT && y < SCORE_Y + DIGIT_HEIGHT*2) {
-            // Recuperer les scores
-            score_joueur = data_0[int(WSX) - 4];
-            score_ia1 = data_0[int(WSX) - 3];
-            score_ia2 = data_0[int(WSX) - 2];
-            score_ia3 = data_0[int(WSX) - 1];
-            
-            // Fond noir pour le score
-            if (y == SCORE_Y - 5) {
-                if (x > int(WSX)/2 - 50 && x < int(WSX)/2 + 150) {
-                    data_0[p] = NOIR;
-                }
-            }
-            
-            // Afficher les scores
-            if (x == int(WSX)/2 - 45 && y == SCORE_Y) {
-                drawNumber(score_joueur, int(WSX)/2 - 45, SCORE_Y, JOUEUR);
-                drawNumber(score_ia1, int(WSX)/2 + 15, SCORE_Y, IA_1);
-                drawNumber(score_ia2, int(WSX)/2 - 45, SCORE_Y + DIGIT_HEIGHT + 5, IA_2);
-                drawNumber(score_ia3, int(WSX)/2 + 15, SCORE_Y + DIGIT_HEIGHT + 5, IA_3);
-            }
-        }
-        
-        // Highlight du curseur
-        if (x == mousex && y == mousey) {
-            data_0[p] = BLANC;
         }
     }
 }
