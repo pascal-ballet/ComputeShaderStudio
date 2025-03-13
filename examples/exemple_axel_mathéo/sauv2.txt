@@ -46,7 +46,17 @@ void main() {
     
     float radius_step = float(max_radius - min_radius) / float(num_circles - 1);
     
-    int current_step = step % (frames_per_circle * num_circles);
+    int total_frames = frames_per_circle * num_circles * 2;
+    
+    bool is_appearing = (step % total_frames) < (frames_per_circle * num_circles);
+    
+    int current_step;
+    if (is_appearing) {
+        current_step = step % (frames_per_circle * num_circles);
+    } else {
+        current_step = total_frames - 1 - (step % total_frames);
+    }
+    
     int current_circle = current_step / frames_per_circle;
     int circle_progress = current_step % frames_per_circle;
     
@@ -73,7 +83,20 @@ void main() {
     
     data_0[p] = BLACK;
     
-    for (int i = 0; i <= current_circle && i < safe_num_circles; i++) {
+    int visible_circles;
+    if (is_appearing) {
+        visible_circles = current_circle + 1; 
+    } else {
+        visible_circles = current_circle; 
+    }
+    
+    for (int i = 0; i < safe_num_circles; i++) {
+        bool is_circle_visible = i < visible_circles;
+        
+        if (!is_circle_visible) {
+            continue; 
+        }
+        
         float current_radius = float(max_radius) - float(i) * radius_step;
         
         float inner_radius_sq = (current_radius - thickness) * (current_radius - thickness);
@@ -85,7 +108,11 @@ void main() {
             
             if (i == current_circle) {
                 float progress = float(circle_progress) / float(frames_per_circle);
-                max_angle = start_angle + progress * (max_angle - start_angle);
+                if (is_appearing) {
+                    max_angle = start_angle + progress * (max_angle - start_angle);
+                } else {
+                    max_angle = max_angle - progress * (max_angle - start_angle);
+                }
             }
             
             float adjusted_angle;
@@ -115,7 +142,13 @@ void main() {
         }
     }
     
-    for (int i = 0; i < current_circle && i < safe_num_circles - 1; i++) {
+    for (int i = 0; i < safe_num_circles - 1; i++) {
+        bool is_line_visible = i < visible_circles - 1 && (i + 1) < visible_circles;
+        
+        if (!is_line_visible) {
+            continue; 
+        }
+        
         float current_radius = float(max_radius) - float(i) * radius_step;
         float next_radius = float(max_radius) - float(i+1) * radius_step;
         
@@ -131,6 +164,42 @@ void main() {
             next_start_angle = start_angles[i+1] * 2.0 * 3.14159;
         } else {
             next_start_angle = (1.0 - start_angles[i+1]) * 2.0 * 3.14159;
+        }
+        
+        if (i == current_circle || i+1 == current_circle) {
+            float progress = float(circle_progress) / float(frames_per_circle);
+            
+            if (i == current_circle) {
+                if (is_appearing) {
+                    if (i % 2 == 0) {
+                        end_angle = (start_angles[i] + progress * (completion_values[i] - start_angles[i])) * 2.0 * 3.14159;
+                    } else {
+                        end_angle = ((1.0 - start_angles[i]) - progress * ((1.0 - start_angles[i]) - (1.0 - completion_values[i]))) * 2.0 * 3.14159;
+                    }
+                } else {
+                    if (i % 2 == 0) {
+                        end_angle = (completion_values[i] - progress * (completion_values[i] - start_angles[i])) * 2.0 * 3.14159;
+                    } else {
+                        end_angle = ((1.0 - completion_values[i]) + progress * ((1.0 - start_angles[i]) - (1.0 - completion_values[i]))) * 2.0 * 3.14159;
+                    }
+                }
+            }
+            
+            if (i+1 == current_circle) {
+                if (is_appearing) {
+                    if ((i+1) % 2 == 0) {
+                        next_start_angle = (start_angles[i+1] + progress * (completion_values[i+1] - start_angles[i+1])) * 2.0 * 3.14159;
+                    } else {
+                        next_start_angle = ((1.0 - start_angles[i+1]) - progress * ((1.0 - start_angles[i+1]) - (1.0 - completion_values[i+1]))) * 2.0 * 3.14159;
+                    }
+                } else {
+                    if ((i+1) % 2 == 0) {
+                        next_start_angle = (completion_values[i+1] - progress * (completion_values[i+1] - start_angles[i+1])) * 2.0 * 3.14159;
+                    } else {
+                        next_start_angle = ((1.0 - completion_values[i+1]) + progress * ((1.0 - start_angles[i+1]) - (1.0 - completion_values[i+1]))) * 2.0 * 3.14159;
+                    }
+                }
+            }
         }
         
         float end_x = float(cx) + cos(end_angle) * current_radius;
