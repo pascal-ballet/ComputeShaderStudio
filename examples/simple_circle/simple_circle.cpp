@@ -16,7 +16,7 @@ void main() {
         else if(mouse_button == 2)  // Right mouse button
             data_0[p] = 0xFF00FFFF; // Yellow circle
         else if(mouse_button == 3)  // Both mouse button
-            data_0[p] = 0xFF00FFFF; // White circle
+            data_0[p] = 0xFFFFFFFF; // White circle
         else if(mouse_button == 4)  // Middle mouse button
             data_0[p] = 0xFF000000; // Black circle
     } else {
