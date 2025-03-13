@@ -12,14 +12,14 @@ void main()
     
     // Pour le premier frame, initialiser tout en noir
     if (step == 0) {
-        data_0[p] = 0xFF000000;
+        data_0[p] = 0xFF260B42;
     } 
     else {
         // Nombre de cubes
         const int numCubes = 3;
         
         float minDist = 999999.0;
-        int color = 0xFF000000; // Couleur par défaut (noir)
+        int color = 0xFF260B42; // Couleur par défaut (noir)
         bool isOnCube = false; // Indicateur si le pixel est sur un cube
         
         // Paramètres individuels pour chaque cube
@@ -314,7 +314,7 @@ void main()
         if (isOnCube) {
             data_0[p] = color;
         } else {
-            data_0[p] = 0xFF000000; // Noir pour les pixels qui ne sont pas sur un cube
+            data_0[p] = 0xFF641E16; // Noir pour les pixels qui ne sont pas sur un cube
         }
     }
 }
