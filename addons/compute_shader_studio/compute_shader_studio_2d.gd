@@ -29,6 +29,7 @@ layout(binding = 0) buffer Params {
 	int current_pass;
 	int mousex;
 	int mousey;
+	int mouse_button;
 };
 
 """
@@ -54,13 +55,21 @@ layout(binding = 0) buffer Params {
 @export_file("*.cpp") var glsl_file: String
 ## Write your GLSL code just below or use an external file above
 @export_multiline var GLSL_code : String = """
+// Usable variables
+// ****************
+// step: execution step
+// current_pass: pass number in one step
+// mousex: x mouse position, mousey: y mouse position (in pixels)
+// mouse_button: 0=none, 1=left, 2=right, 3=both, 4=middle mouse button
+// WSX: worksize X, WSY: worksize Y
+// data_0[], data_1[], etc: matrices of data. Can be viewed within a Sprite2D or TextureRect2D
+// ****************
 // Write your code HERE
 void main() {
 	uint x = gl_GlobalInvocationID.x;
 	uint y = gl_GlobalInvocationID.y;
 	uint p = x + y * WSX;
 	data_0[p] = 0xFFF00FFF - int(p)*(step+1);
-	data_1[p] = 0xFF0000AA + int( 1.0 + 99999.9*sin(float(x+float(step+y))/1000.0));
 }
 """
 ## Drag and drop here your Sprite2D or TextureRect.
@@ -264,13 +273,20 @@ func _process(_delta):
 func _update_uniforms():
 	var input_params : PackedInt32Array = PackedInt32Array()
 	
+	# Current step
 	input_params.append(step)
+	# Current pass
 	input_params.append(current_pass)
 
+	# Mouse position
 	var pos : Vector2 = screen_to_data0(get_viewport().get_mouse_position())
 	input_params.append(pos.x)
 	input_params.append(pos.y)
 	
+	# Mouse button
+	input_params.append(Input.get_mouse_button_mask())
+	
+	# Binding of input_params (step, current_pass, mousex, mousey and mouse_button)
 	var input_params_bytes := input_params.to_byte_array()
 	buffer_params = rd.storage_buffer_create(input_params_bytes.size(), input_params_bytes)
 	uniform_params = RDUniform.new()
@@ -279,6 +295,7 @@ func _update_uniforms():
 	uniform_params.add_id(buffer_params)
 	bindings[0] = uniform_params
 
+	# Binding of buffer_user (data_0, data_1, etc)
 	buffer_user = rd.storage_buffer_create(uniform_user_data.size(), uniform_user_data)
 	uniform_user = RDUniform.new()
 	uniform_user.uniform_type = RenderingDevice.UNIFORM_TYPE_STORAGE_BUFFER
@@ -286,6 +303,7 @@ func _update_uniforms():
 	uniform_user.add_id(buffer_user)
 	bindings[1] = uniform_user
 	
+	# Uniform set of all the bindings
 	uniform_set = rd.uniform_set_create(bindings, shader, 0)
 	# Note: when changing the uniform set, use the same bindings Array (do not create a new Array)
 
@@ -321,6 +339,7 @@ func _on_button_step():
 
 func _on_button_play():
 	pause = false # Replace with function body.
+
 
 func screen_to_data0(pos : Vector2):
 	if data.size() <= 0 :
