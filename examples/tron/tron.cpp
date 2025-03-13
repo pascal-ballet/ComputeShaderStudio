@@ -32,7 +32,7 @@
 
 #define Speed 30
 
-const uint dimMoto = 10;
+const int dimMoto = 10;
 
 // fonction random
 float random(vec2 uv)
@@ -43,6 +43,20 @@ float random(vec2 uv)
 }
 
 
+
+void drawMotorcyle(int id_moto, ivec2 startPos)
+{
+    // Dessiner un carré de taille dimMoto x dimMoto
+    for (uint i = 0; i < dimMoto; i++)
+    {
+        for (uint j = 0; j < dimMoto; j++)
+        {
+            uint newPos = (startPos.x + i) + ((startPos.y + j) * WSX);
+            Motorcycles[newPos] = id_moto;
+        }
+    }
+}
+
 void moveMotorcyle(int id_moto, float choix_direction)
 {
     ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
@@ -50,42 +64,28 @@ void moveMotorcyle(int id_moto, float choix_direction)
 
     if (step % Speed == 0)
     {
+        ivec2 newPos = pos;
 
-        bool res = false;
         if (choix_direction < 0.25) // haut
-        {
-            res = !((pos.y - dimMoto) <= 0 || (pos.y - dimMoto) >= WSY - 2);
-            if (res)
-                Motorcycles[(pos.x) + ((pos.y - dimMoto) * WSX)] = id_moto;
-        }
+            newPos.y -= dimMoto;
         else if (choix_direction < 0.50) // droite
-        {
-            res = !((pos.x + dimMoto) <= 0 || (pos.x + dimMoto) >= WSX);
-            if (res)
-                Motorcycles[(pos.x + dimMoto) + (pos.y * WSX)] = id_moto;
-        }
+            newPos.x += dimMoto;
         else if (choix_direction < 0.75) // bas
-        {
-            res = !((pos.y + dimMoto) <= 0 || (pos.y + dimMoto) >= WSY - 2);
-            if (res)
-                Motorcycles[(pos.x) + ((pos.y + dimMoto) * WSX)] = id_moto;
-        }
+            newPos.y += dimMoto;
         else if (choix_direction < 1.00) // gauche
-        {
-            res = !((pos.x - dimMoto) <= 0 || (pos.x - dimMoto) >= WSX);
-            if (res)
-                Motorcycles[(pos.x - dimMoto) + (pos.y * WSX)] = id_moto;
-        }
-        if (res)
+            newPos.x -= dimMoto;
+
+        if (newPos.x > 0 && newPos.x < WSX && newPos.y > 0 && newPos.y < WSY)
         {
             Motorcycles[p] = CLEAR;
             Display[p] = CLEAR;
+            uint newP = newPos.x + newPos.y * WSX;
+
+            Motorcycles[newP] = id_moto;
+        
         }
     }
-    if (step % Speed == 1)
-    {
-        Display[p] = Motorcycles[p] + Beams[p];
-    }
+    
 }
 
 void main()
@@ -101,25 +101,31 @@ void main()
     }
     if (step == InitMotorcycles)
     {
-        if (pos.x >= 195 && pos.x < 205 && pos.y >= 195 && pos.y < 205)
-            Motorcycles[p] = MOTO_1; // rouge
-
-        if (pos.x >= 595 && pos.x < 605 && pos.y >= 195 && pos.y < 205)
+        if (pos.x == 200 && pos.y == 190)
+            drawMotorcyle(MOTO_2, ivec2(200, 190));
+/*        if (pos.x >= 600 -dimMoto && pos.x < 590 + dimMoto && pos.y >= 200 - dimMoto && pos.y < 190 + dimMoto)
             Motorcycles[p] = MOTO_2; // bleu
-
+*/
         Display[p] += Motorcycles[p];
     }
 
     float choix_direction;
-
-    if (Motorcycles[p] == MOTO_1)
+    /*
+    if(step > 1 && step%2 == 0)
     {
-        choix_direction = random(vec2(float(step), float(MOTO_2 | 55 << 8)));
-        moveMotorcyle(MOTO_1, choix_direction);
+        if (Motorcycles[p] == MOTO_1)
+        {
+            choix_direction = random(vec2(float(step), float(MOTO_2 | 55 << 8)));
+            moveMotorcyle(MOTO_1, choix_direction);
+        }
+        else if (Motorcycles[p] == MOTO_2)
+        {
+            choix_direction = random(vec2(float(step), float(MOTO_2)));
+            moveMotorcyle(MOTO_2, choix_direction);
+        }
     }
-    else if (Motorcycles[p] == MOTO_2)
+    if(step > 1 && step%2 == 1)
     {
-        choix_direction = random(vec2(float(step), float(MOTO_2)));
-        moveMotorcyle(MOTO_2, choix_direction);
-    }
+        Display[p] = Motorcycles[p] + Beams[p];
+    }*/
 }

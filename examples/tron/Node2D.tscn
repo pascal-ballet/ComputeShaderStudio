@@ -14,6 +14,5 @@ GLSL_code = ""
 data = [NodePath("../FondNoir"), null, null, null]
 
 [node name="FondNoir" type="Sprite2D" parent="."]
-position = Vector2(400, 225.775)
-scale = Vector2(1, 1.00544)
+position = Vector2(400, 225)
 texture = ExtResource("2_2x2pa")
