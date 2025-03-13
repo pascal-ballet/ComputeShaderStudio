@@ -276,13 +276,7 @@ func _update_uniforms():
 	input_params.append(pos.y)
 	
 	# Mouse button
-	var btn : int = 1
-	if ( Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) ):
-		btn += 1
-	if ( Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) ):
-		btn += 2
-	printerr(btn)
-	input_params.append(btn)
+	input_params.append(Input.get_mouse_button_mask())
 	
 	# Binding of input_params (step, current_pass, mousex, mousey and mouse_button)
 	var input_params_bytes := input_params.to_byte_array()
@@ -337,6 +331,7 @@ func _on_button_step():
 
 func _on_button_play():
 	pause = false # Replace with function body.
+
 
 func screen_to_data0(pos : Vector2):
 	if data.size() <= 0 :
