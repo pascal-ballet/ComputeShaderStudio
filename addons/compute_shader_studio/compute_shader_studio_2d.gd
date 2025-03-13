@@ -333,3 +333,7 @@ func screen_to_data0(pos : Vector2):
 		return pos;
 	else:
 		return Vector2(0,0)
+
+
+func _on_check_button_button_up() -> void:
+	pass # Replace with function body.

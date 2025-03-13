@@ -15,3 +15,9 @@ metadata/_custom_type_script = "uid://c8esqdv0y26yp"
 position = Vector2(685, 320)
 scale = Vector2(5.3125, 5.03125)
 texture = ExtResource("2_gpcd8")
+
+[node name="Button" type="Button" parent="."]
+offset_left = 17.0
+offset_top = 36.0
+offset_right = 87.0
+offset_bottom = 58.0
