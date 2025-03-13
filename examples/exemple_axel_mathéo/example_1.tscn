@@ -20,7 +20,7 @@ void main() {
 	data_1[p] = 0xFF0000AA;//s + int( 1.0 + 99999.9*sin(float(x+float(step+y))/1000.0));
 }
 "
-data = [NodePath("../Matrix1"), NodePath("")]
+data = [NodePath("../Matrix1"), null]
 
 [node name="Matrix1" type="Sprite2D" parent="."]
 position = Vector2(651, 322)
