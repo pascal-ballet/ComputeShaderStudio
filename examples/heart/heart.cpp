@@ -1,19 +1,19 @@
-// Shader Compute 2D - Godot 4.4 - Effet de cœurs lumineux inspiré de Shadertoy
-
 #define POINT_COUNT 8
 
 vec2 points[POINT_COUNT];
 const float speed = -0.5;
-const float len = 0.25;
+const float len   = 0.25;
 const float scale = 0.012;
-float intensity = 1.3;
-float radius = 0.015;
+float intensity   = 1.3;
+float radius      = 0.015;
 
 // Fonction mathématique pour tracer un cœur inversé
 vec2 getHeartPosition(float t) {
-    return vec2(16.0 * sin(t) * sin(t) * sin(t),
-                (13.0 * cos(t) - 5.0 * cos(2.0*t)
-                - 2.0 * cos(3.0*t) - cos(4.0*t))); // Inversion du signe pour inverser le cœur
+    return vec2(
+        16.0 * sin(t) * sin(t) * sin(t),
+        (13.0 * cos(t) - 5.0 * cos(2.0 * t)
+         - 2.0 * cos(3.0 * t) - cos(4.0 * t))
+    ); // Inversion du signe pour inverser le cœur
 }
 
 float getGlow(float dist, float radius, float intensity) {
@@ -22,7 +22,9 @@ float getGlow(float dist, float radius, float intensity) {
 
 float getSegment(float t, vec2 pos, float offset) {
     for (int i = 0; i < POINT_COUNT; i++) {
-        points[i] = getHeartPosition(offset + float(i) * len + fract(speed * t) * 6.28);
+        points[i] = getHeartPosition(
+            offset + float(i) * len + fract(speed * t) * 6.28
+        );
     }
 
     vec2 c = (points[0] + points[1]) / 2.0;
@@ -50,18 +52,28 @@ void main() {
     pos.y += 0.03;
 
     float t = float(step) / 60.0;
+    
+    // Premier segment
     float dist = getSegment(t, pos, 0.0);
     float glow = getGlow(dist, radius, intensity);
-    
-    vec3 col = vec3(0.0);
-    col += 10.0 * vec3(smoothstep(0.006, 0.003, dist)); // Cœur lumineux blanc
-    col += glow * vec3(1.0, 0.05, 0.3); // Halo rose
 
+    // Couleur accumulée
+    vec3 col = vec3(0.0);
+
+    // Cœur lumineux (noyau blanc un peu plus fort)
+    col += 12.0 * vec3(smoothstep(0.006, 0.003, dist));
+    // Halo rose plus vif
+    col += glow * vec3(1.0, 0.3, 0.7);
+
+    // Second segment (décalé de 3.4)
     dist = getSegment(t, pos, 3.4);
     glow = getGlow(dist, radius, intensity);
-    col += 10.0 * vec3(smoothstep(0.006, 0.003, dist));
-    col += glow * vec3(0.1, 0.4, 1.0); // Effet bleu secondaire
 
+    col += 12.0 * vec3(smoothstep(0.006, 0.003, dist));
+    // Teinte bleue plus pastel et éclatante
+    col += glow * vec3(0.2, 0.8, 1.0);
+
+    // Tone mapping et correction gamma
     col = 1.0 - exp(-col);
     col = pow(col, vec3(0.4545));
 
