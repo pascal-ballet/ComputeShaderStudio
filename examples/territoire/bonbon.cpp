@@ -6,13 +6,15 @@
 #define BLANC 0xFFFFFFFF
 #define NOIR 0xFF000000
 
-#define CLICK_RADIUS 15
+#define CLICK_RADIUS 25        // Rayon d'expansion augmenté
+#define EXPANSION_AMOUNT 30    // Quantité d'expansion lors d'un clic
 #define AI_EXPANSION_RATE 0.03
 
 // Stockage des coordonnees de la souris
 #define MOUSE_STORAGE_X 0
 #define MOUSE_STORAGE_Y 1
 #define MOUSE_STORAGE_CLICKED 2
+#define MOUSE_BUTTON_PRESSED 3
 
 // Configuration de affichage du score
 #define SCORE_Y int(WSY)/2
@@ -185,35 +187,40 @@ void main() {
         bool clicked = false;
         
         // Verifier si c est un nouveau clic seulement au debut de la frame
-        if (y == 0 && x == 0 && mousex >= 0 && mousey >= 0) {
+        if (y == 0 && x == 0) {
             int lastX = data_0[MOUSE_STORAGE_X];
             int lastY = data_0[MOUSE_STORAGE_Y];
+            bool lastButtonState = data_0[MOUSE_BUTTON_PRESSED] > 0;
+            bool currentButtonState = mouse_button > 0;
             
-            // Si la position a change c est un nouveau clic
-            if (lastX != mousex || lastY != mousey) {
+            // Detecter un clic seulement quand le bouton vient d'etre presse
+            if (currentButtonState && !lastButtonState) {
                 clicked = true;
-                data_0[MOUSE_STORAGE_X] = mousex;
-                data_0[MOUSE_STORAGE_Y] = mousey;
                 data_0[MOUSE_STORAGE_CLICKED] = 1;
             } else {
                 data_0[MOUSE_STORAGE_CLICKED] = 0;
             }
+            
+            // Sauvegarder la position et l'etat du bouton
+            data_0[MOUSE_STORAGE_X] = mousex;
+            data_0[MOUSE_STORAGE_Y] = mousey;
+            data_0[MOUSE_BUTTON_PRESSED] = currentButtonState ? 1 : 0;
         }
         
         clicked = data_0[MOUSE_STORAGE_CLICKED] == 1;
         
-        // Interaction joueur expansion par clic
+        // Interaction joueur - expansion par clic
         if (clicked && mousex >= 0 && mousey >= 0) {
             // Distance au clic
             float dist = sqrt(float((x - mousex) * (x - mousex) + (y - mousey) * (y - mousey)));
             
-            // Zone expansion autour du clic
+            // Zone d'expansion massive autour du clic
             if (dist < CLICK_RADIUS) {
-                // Verifier si le clic est proche d un territoire du joueur
+                // Verifier si le clic est proche d'un territoire du joueur
                 bool proche_joueur = false;
                 
-                for (int j = -3; j <= 3; j++) {
-                    for (int i = -3; i <= 3; i++) {
+                for (int j = -5; j <= 5; j++) {
+                    for (int i = -5; i <= 5; i++) {
                         int nx = mousex + i;
                         int ny = mousey + j;
                         
@@ -228,26 +235,44 @@ void main() {
                     if (proche_joueur) break;
                 }
                 
-                // Si on est pres d un territoire du joueur on peut conquerir
+                // Si on est pres d'un territoire du joueur, expansion importante
                 if (proche_joueur) {
-                    // Probabilite de conquete qui diminue avec la distance
-                    float proba = 1.0 - (dist / CLICK_RADIUS);
+                    // Facteur d'expansion qui diminue avec la distance
+                    float expansion_factor = 1.0 - (dist / CLICK_RADIUS);
                     
-                    if (random_event(x, y, step, proba)) {
-                        // Conquete facile de territoire neutre
-                        if (data_0[p] == NEUTRE) {
-                            data_0[p] = JOUEUR;
-                        }
-                        // Conquete plus difficile de territoire ennemi
-                        else if (data_0[p] != JOUEUR && random_event(x, y, step, proba * 0.5)) {
-                            data_0[p] = JOUEUR;
+                    // Conquete facile et deterministe de territoire neutre
+                    if (data_0[p] == NEUTRE) {
+                        data_0[p] = JOUEUR;
+                    }
+                    // Conquete de territoire ennemi avec chance proportionnelle a la distance
+                    else if (data_0[p] != JOUEUR && random_event(x, y, step, expansion_factor * 0.8)) {
+                        data_0[p] = JOUEUR;
+                    }
+                    
+                    // Expansion supplementaire dans un rayon plus petit
+                    if (dist < CLICK_RADIUS * 0.6) {
+                        // Pour chaque pixels voisins dans un petit rayon
+                        for (int j = -2; j <= 2; j++) {
+                            for (int i = -2; i <= 2; i++) {
+                                int nx = x + i;
+                                int ny = y + j;
+                                
+                                if (nx >= 0 && nx < int(WSX) && ny >= 0 && ny < int(WSY)) {
+                                    int voisin_p = nx + ny * int(WSX);
+                                    
+                                    // Convertir les territoires neutres proches
+                                    if (data_0[voisin_p] == NEUTRE) {
+                                        data_0[voisin_p] = JOUEUR;
+                                    }
+                                }
+                            }
                         }
                     }
                 }
             }
         }
         
-        // IA expansion automatique
+        // IA expansion automatique - garde ce comportement pour équilibrer le jeu
         if (step % 3 == 0) { // Ralentir IA pour equilibrer
             // IA 1 Plus agressive
             if (data_0[p] == IA_1 && random_event(x, y, step, AI_EXPANSION_RATE * 1.5)) {
