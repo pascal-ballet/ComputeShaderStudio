@@ -46,7 +46,6 @@ int rgb_to_int(vec3 c) {
 
 vec3 coloring(vec2 z, uint it) {
 
-    return vec3(z.x,z.y,1); // Test
 
 
     if (it >= MAX_IT) {
@@ -58,11 +57,20 @@ vec3 coloring(vec2 z, uint it) {
     float nu = log(logz / log(2)) / log(2);
     float smooth_iter = it + 1.0 - nu;
 
+
+
     // Index in palette
     float index = 3 * log(smooth_iter) * PALETTE_SIZE / log(MAX_IT);
 
+
+
     // Linear interpolation
     vec3 c1 = palette[int(index)];
+
+
+    return vec3(z.x,z.y,1); // Test
+
+
     vec3 c2 = palette[(int(index) + 1) % PALETTE_SIZE];
     return mix(c1, c2, fract(index));
 }
