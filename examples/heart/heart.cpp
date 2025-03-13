@@ -48,23 +48,24 @@ void main() {
     pos.y += 0.03;
 
     float t = float(step) / 60.0;
+    
+    vec3 col = vec3(0.0); // Fond noir propre
+
     float dist = getSegment(t, pos, 0.0);
     float glow = getGlow(dist, radius, intensity);
-    
-    vec3 col = vec3(0.0);
     col += 10.0 * vec3(smoothstep(0.006, 0.003, dist)); 
-    col += glow * vec3(1.0, 0.5, 0.0);  // bleu clair
-
-
-
+    col += glow * vec3(1.0, 0.5, 0.0);  // Bleu clair
 
     dist = getSegment(t, pos, 3.4);
     glow = getGlow(dist, radius, intensity);
     col += 10.0 * vec3(smoothstep(0.006, 0.003, dist));
-    col += glow * vec3(0.6, 0.4, 2.0); // rose 
+    col += glow * vec3(0.6, 0.4, 2.0); // Rose
 
     col = 1.0 - exp(-col);
     col = pow(col, vec3(0.4545));
+
+    // Ajout d'un fond noir plus contrasté
+    col = mix(vec3(0.0), col, smoothstep(0.02, 0.04, length(col)));
 
     int r = int(255.0 * col.r);
     int g = int(255.0 * col.g);
