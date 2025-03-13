@@ -12,10 +12,12 @@ void main() {
         float dist = sqrt( dx*dx + dy*dy );
 
         if (dist < 10) {
-            if(mouse_button == 0)
+            if(mouse_button == 0) // No mouse button
                 data_0[p] = 0xFF00FF00; // Green circle
-            else
+            else if(mouse_button == 1) // Left mouse button
                 data_0[p] = 0xFFFFFF00; // Cyan circle
+            else if(mouse_button == 2) // Right mouse button
+                data_0[p] = 0xFF00FFFF; // Yellow circle
         } else {
             data_0[p] = int(0xFF0000FF - y) ; // Fond
         }
