@@ -1,5 +1,3 @@
-// Shader Compute 2D - Godot 4.4 - Effet de cœurs lumineux inspiré de Shadertoy
-
 #define POINT_COUNT 8
 
 vec2 points[POINT_COUNT];
@@ -55,12 +53,15 @@ void main() {
     
     vec3 col = vec3(0.0);
     col += 10.0 * vec3(smoothstep(0.006, 0.003, dist)); 
-    col += glow * vec3(1.0, 0.05, 0.3);
+    col += glow * vec3(1.0, 0.5, 0.0);  // bleu clair
+
+
+
 
     dist = getSegment(t, pos, 3.4);
     glow = getGlow(dist, radius, intensity);
     col += 10.0 * vec3(smoothstep(0.006, 0.003, dist));
-    col += glow * vec3(0.6, 0.4, 2.0); 
+    col += glow * vec3(0.6, 0.4, 2.0); // rose 
 
     col = 1.0 - exp(-col);
     col = pow(col, vec3(0.4545));
