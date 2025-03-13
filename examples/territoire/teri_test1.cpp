@@ -71,7 +71,7 @@ void main() {
 
    if (step == 0) {
 	if ( current_pass == 0 ) {
-		data_1[p] = DEAD ;
+		data_0[p] = MORT ;
            if (x == WSX / 2 && y == WSY / 2) {  // On place une cellule vivante au centre
                data_0[p] = VIVANT;
            } else if (x == 1 && y== 1){
@@ -86,7 +86,7 @@ void main() {
                data_0[p] = MORT;
            }
        }
-    }
+    
    } else {
 	if (current_pass == 0)
 			compute_next_step(x, y, p);
