@@ -55,13 +55,21 @@ layout(binding = 0) buffer Params {
 @export_file("*.cpp") var glsl_file: String
 ## Write your GLSL code just below or use an external file above
 @export_multiline var GLSL_code : String = """
+// Usable variables
+// ****************
+// step: execution step
+// current_pass: pass number in one step
+// mousex: x mouse position, mousey: y mouse position (in pixels)
+// mouse_button: 0=none, 1=left, 2=right, 3=both, 4=middle mouse button
+// WSX: worksize X, WSY: worksize Y
+// data_0[], data_1[], etc: matrices of data. Can be viewed within a Sprite2D or TextureRect2D
+// ****************
 // Write your code HERE
 void main() {
 	uint x = gl_GlobalInvocationID.x;
 	uint y = gl_GlobalInvocationID.y;
 	uint p = x + y * WSX;
 	data_0[p] = 0xFFF00FFF - int(p)*(step+1);
-	data_1[p] = 0xFF0000AA + int( 1.0 + 99999.9*sin(float(x+float(step+y))/1000.0));
 }
 """
 ## Drag and drop here your Sprite2D or TextureRect.
