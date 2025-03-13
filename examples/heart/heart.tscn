@@ -6,8 +6,8 @@
 [node name="heart_2D" type="Node2D"]
 
 [node name="Icon" type="Sprite2D" parent="."]
-position = Vector2(448, 220)
-scale = Vector2(3.44531, 2.52734)
+position = Vector2(465, 261)
+scale = Vector2(4.36719, 3.64844)
 texture = ExtResource("1_7p8dj")
 
 [node name="ComputeShaderStudio2D" type="Node" parent="." node_paths=PackedStringArray("data")]
@@ -15,4 +15,3 @@ script = ExtResource("2_pembh")
 glsl_file = "res://examples/heart/heart.cpp"
 GLSL_code = ""
 data = [NodePath("../Icon")]
-metadata/_custom_type_script = "uid://c8esqdv0y26yp"
