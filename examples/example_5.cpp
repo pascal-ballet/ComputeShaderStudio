@@ -7,17 +7,23 @@ void main() {
     int dy = int(WSY) / 2 - int(y);
     
     int d = dx * dx + dy * dy;
-    int r = int(64.0 * sin(float(step) / 100.0));
 
     // Condition : après 5 secondes (ajuste la valeur selon ton framerate)
     if (step > 300) { // Après 5 secondes -> Afficher les cercles
 
-        int d = int(sqrt(float(dx * dx + dy * dy))); // Distance au centre
-        int spacing = 30; // Espacement des cercles (réduit)
-        
+        float d = sqrt(float(dx * dx + dy * dy)); // Distance au centre
+
+        // Animation des cercles (pulsation)
+        float amplitude = 10.0;  // Amplitude de la pulsation
+        float vitesse = 0.08;    // Vitesse de l'effet
+        float animatedD = d + amplitude * sin(float(step) * vitesse);
+
+        // Espacement animé des cercles
+        float spacing = 30.0 + 10.0 * sin(float(step) * 0.1);
+
         // Calcul des cercles noirs avec un motif en anneaux
-        float rings = mod(float(d), float(spacing));
-        bool isBlack = rings < 6.0; // Réduction de l'épaisseur des anneaux noirs
+        float rings = mod(animatedD, spacing);
+        bool isBlack = rings < 6.0; // Épaisseur des anneaux noirs
 
         if (isBlack) {
             data_0[p] = 0xFF000000; // Noir
@@ -30,3 +36,4 @@ void main() {
         data_0[p] = 0xFF000000 | (0xFFFFFF - value); // Rendu normal
     }
 }
+
