@@ -3,12 +3,8 @@
 #define IA_1 0xFF00FF00    
 #define IA_2 0xFFFF0000    
 #define IA_3 0xFFFFFF00    
-#define BLANC 0xFFFFFFFF
-#define NOIR 0xFF000000
 
-#define CLICK_RADIUS 25        // Rayon d'expansion augmenté
-#define EXPANSION_AMOUNT 30    // Quantité d'expansion lors d'un clic
-#define AI_EXPANSION_RATE 0.02
+#define AI_EXPANSION_RATE 0.2
 
 // Stockage des coordonnees de la souris
 #define MOUSE_STORAGE_X 0
@@ -196,7 +192,7 @@ void main() {
                 if (nx >= 0 && nx < int(WSX) && ny >= 0 && ny < int(WSY)) {
                     int voisin_p = nx + ny * int(WSX);
                     
-                    if (data_0[voisin_p] == NEUTRE) {
+                    if (data_0[voisin_p] == NEUTRE || (data_0[voisin_p] != IA_2 && random_event(x, y, step, 0.2))) {
                         data_0[voisin_p] = IA_2;
                     }
                 }
@@ -224,7 +220,7 @@ void main() {
                 if (nx >= 0 && nx < int(WSX) && ny >= 0 && ny < int(WSY)) {
                     int voisin_p = nx + ny * int(WSX);
                     
-                    if (data_0[voisin_p] == NEUTRE) {
+                    if (data_0[voisin_p] == NEUTRE || (data_0[voisin_p] != IA_3 && random_event(x, y, step, 0.2))) {
                         data_0[voisin_p] = IA_3;
                     }
                 }
