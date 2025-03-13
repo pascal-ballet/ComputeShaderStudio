@@ -7,11 +7,25 @@
 
 [node name="ComputeShaderStudio2D" type="Node" parent="." node_paths=PackedStringArray("data")]
 script = ExtResource("1_rlapi")
+WSX = 256
 glsl_file = "res://examples/simple_circle/simple_circle.cpp"
 data = [NodePath("../Icon")]
 metadata/_custom_type_script = "uid://c8esqdv0y26yp"
 
 [node name="Icon" type="Sprite2D" parent="."]
-position = Vector2(465.5, 268.5)
-scale = Vector2(3.99219, 3.52344)
+position = Vector2(622, 407)
+scale = Vector2(5.89063, 3.52344)
 texture = ExtResource("2_y7slp")
+
+[node name="Label" type="Label" parent="."]
+offset_left = 278.0
+offset_top = -1.0
+offset_right = 679.0
+offset_bottom = 101.0
+scale = Vector2(1.72, 1.72)
+text = "Compute Shader Studio - Simple Circle
+- move the mouse to move the circle
+- click the mouse buttons to change the circle color
+(left, right, both, middle mouse button)"
+horizontal_alignment = 1
+vertical_alignment = 1
