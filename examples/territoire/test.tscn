@@ -1,8 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://blnvvmlx5sccd"]
+[gd_scene load_steps=3 format=3 uid="uid://blnvvmlx5sccd"]
 
 [ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/icon.svg" id="1_85kph"]
 [ext_resource type="Script" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_lxh3h"]
-[ext_resource type="Script" path="res://examples/territoire/Button.gd" id="3_pvsff"]
 
 [node name="Test" type="Node2D"]
 
@@ -11,7 +10,6 @@ script = ExtResource("1_lxh3h")
 WSX = 256
 glsl_file = "res://examples/territoire/teri_test1.cpp"
 GLSL_code = ""
-data = [NodePath("../Icon")]
 
 [node name="Icon" type="Sprite2D" parent="."]
 position = Vector2(576.313, 332.812)
@@ -24,4 +22,3 @@ offset_top = 575.0
 offset_right = 435.0
 offset_bottom = 606.0
 text = "Start"
-script = ExtResource("3_pvsff")
