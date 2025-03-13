@@ -1,15 +1,15 @@
-[gd_scene load_steps=3 format=3 uid="uid://c1ux4sgouixua"]
+[gd_scene load_steps=3 format=3 uid="uid://e5gixrwap30u"]
 
-[ext_resource type="Script" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_amro2"]
-[ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/icon.svg" id="2_ntl1q"]
+[ext_resource type="Script" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_t2x41"]
+[ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/icon.svg" id="2_woahi"]
 
-[node name="Circles2" type="Node2D"]
+[node name="Circles" type="Node2D"]
 
 [node name="ComputeShaderStudio2D" type="Node" parent="." node_paths=PackedStringArray("data")]
-script = ExtResource("1_amro2")
+script = ExtResource("1_t2x41")
 WSX = 512
 WSY = 256
-glsl_file = "res://examples/circles/circles.cpp"
+glsl_file = "res://examples/cube3/cube.cpp"
 GLSL_code = ""
 data = [NodePath("../Icon")]
 metadata/_custom_type_script = "uid://c8esqdv0y26yp"
@@ -29,4 +29,4 @@ vertical_alignment = 1
 [node name="Icon" type="Sprite2D" parent="."]
 position = Vector2(592, 361)
 scale = Vector2(5.63281, 3.17969)
-texture = ExtResource("2_ntl1q")
+texture = ExtResource("2_woahi")
