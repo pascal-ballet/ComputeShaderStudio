@@ -11,7 +11,7 @@ WSX = 800
 WSY = 450
 glsl_file = "res://examples/tron/tron.cpp"
 GLSL_code = ""
-data = [NodePath("../FondNoir"), null, null, null]
+data = [NodePath("../FondNoir"), null, null, null, null]
 
 [node name="FondNoir" type="Sprite2D" parent="."]
 position = Vector2(400, 225)
