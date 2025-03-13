@@ -1,4 +1,4 @@
-// Shader Compute 2D - Godot 4.4 - Effet de cœurs lumineux avec étoiles et fond spatial dynamique
+// Shader Compute 2D - Godot 4.4 - Effet de cœurs lumineux inspiré de Shadertoy
 
 #define POINT_COUNT 8
 
@@ -37,21 +37,6 @@ float getSegment(float t, vec2 pos, float offset) {
     return max(0.0, dist);
 }
 
-// Fonction pour générer des étoiles scintillantes et fond spatial
-float starField(vec2 uv, float time) {
-    vec2 seed = floor(uv * 100.0);
-    float star = fract(sin(dot(seed, vec2(12.9898, 78.233))) * 43758.5453);
-    float twinkle = 0.5 + 0.5 * sin(time + star * 10.0);
-    return step(0.98, star) * twinkle;
-}
-
-// Fond spatial dynamique inspiré du code de champ d'étoiles
-float nebulaField(vec2 uv, float time) {
-    float noise = fract(sin(dot(uv * 5.0, vec2(12.9898, 78.233))) * 43758.5453);
-    float colorVariation = 0.5 + 0.5 * sin(time * 0.5 + noise * 10.0);
-    return smoothstep(0.3, 1.0, colorVariation * noise);
-}
-
 void main() {
     uint x = gl_GlobalInvocationID.x;
     uint y = gl_GlobalInvocationID.y;
@@ -69,19 +54,13 @@ void main() {
     float glow = getGlow(dist, radius, intensity);
     
     vec3 col = vec3(0.0);
-    col += 10.0 * vec3(smoothstep(0.006, 0.003, dist)); // Cœur lumineux blanc
-    col += glow * vec3(0.1, 0.4, 1.0); // Halo bleu
+    col += 10.0 * vec3(smoothstep(0.006, 0.003, dist)); 
+    col += glow * vec3(1.0, 0.05, 0.3);
 
     dist = getSegment(t, pos, 3.4);
     glow = getGlow(dist, radius, intensity);
     col += 10.0 * vec3(smoothstep(0.006, 0.003, dist));
-    col += glow * vec3(1.0, 0.05, 0.3); // Effet rose
-
-    // Ajout d'un ciel étoilé scintillant et d'un fond spatial
-    float stars = starField(uv, float(step) / 20.0);
-    float nebula = nebulaField(uv, float(step) / 15.0);
-    col += stars * vec3(1.0, 1.0, 1.0); // Étoiles blanches scintillantes
-    col += nebula * vec3(0.2, 0.1, 0.5); // Effet spatial violet-bleu
+    col += glow * vec3(0.6, 0.4, 2.0); 
 
     col = 1.0 - exp(-col);
     col = pow(col, vec3(0.4545));
