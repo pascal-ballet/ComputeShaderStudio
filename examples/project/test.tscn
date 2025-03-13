@@ -12,6 +12,6 @@ data = [NodePath("../Icon")]
 metadata/_custom_type_script = "uid://c8esqdv0y26yp"
 
 [node name="Icon" type="Sprite2D" parent="."]
-position = Vector2(570, 331)
+position = Vector2(685, 320)
 scale = Vector2(5.3125, 5.03125)
 texture = ExtResource("2_gpcd8")

@@ -6,6 +6,8 @@
 #define PI 3.14159265359  // Ajout de la définition de PI
 #define SMALL_DOT_RADIUS 2.0  // Rayon du petit point
 #define SMALL_DOT_OFFSET 1.0  // Distance du point par rapport au croissant
+#define IRIS_BORDER 0.5  // Épaisseur de la bordure de l'iris
+#define LIGHT_INTENSITY 0.4  // Intensité de la lumière directionnelle
 
 void main()
 {
@@ -20,6 +22,13 @@ void main()
         float dx = float(mousex - x);
         float dy = float(mousey - y);
         float dist = sqrt(dx*dx + dy*dy);
+        
+        // Calcul de la lumière directionnelle
+        float lightDirX = 1.0; // Direction X de la lumière (vers la gauche)
+        float lightDirY = 1.0; // Direction Y de la lumière (vers le haut)
+        float normalX = dx/dist;
+        float normalY = dy/dist;
+        float lightAngle = (lightDirX * normalX + lightDirY * normalY) * 0.5 + 0.5;
         
         // Position des points tournants
         float angle = float(step) * 0.05f; // Vitesse de rotation
@@ -72,7 +81,8 @@ void main()
             float z = sqrt(RADIUS*RADIUS - dist*dist);
             float normal_z = z/RADIUS;
             float light = normal_z;
-            light = clamp(light, 0.2f, 1.0f);
+            // Combine la lumière ambiante avec la lumière directionnelle
+            light = clamp(light * (0.7 + lightAngle * LIGHT_INTENSITY), 0.2f, 1.0f);
             
             if (dist < PUPIL_RADIUS) {
                 data_0[p] = 0xFF000000;
@@ -85,6 +95,9 @@ void main()
                     small_dot2_dist < SMALL_DOT_RADIUS ||
                     small_dot3_dist < SMALL_DOT_RADIUS) {
                     data_0[p] = 0xFF000000;
+                } else if (dist > IRIS_RADIUS - IRIS_BORDER) {
+                    // Bordure de l'iris en noir léger
+                    data_0[p] = 0xFF404040;
                 } else {
                     // Iris rouge avec ombrage
                     int red = int(200.0f * light);
@@ -92,7 +105,11 @@ void main()
                 }
             } else {
                 int value = int(255.0f * light);
-                data_0[p] = 0xFF000000 | (value << 16) | (value << 8) | value;
+                // Ajoute une teinte légèrement jaune à la lumière
+                int red = value;
+                int green = int(value * 0.95);
+                int blue = int(value * 0.9);
+                data_0[p] = 0xFF000000 | (red << 16) | (green << 8) | blue;
             }
         } else {
             data_0[p] = 0xFF000000;
