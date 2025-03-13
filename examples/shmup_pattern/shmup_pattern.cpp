@@ -9,32 +9,11 @@
 #define SPAWN vec2(127,63)
 #define RAD 5
 #define NB_SPWN 12
-#define OFFSET_ROTATION PI/20
+#define OFFSET_ROTATION PI/4
 #define SPEED 2.0
 
 // Aleatoire pour le deplacement des bullets
-#define PHI 1.61803398874989484820459
-#define RND_MOVE 0.5
-
-float compute_seed()
-{
-	float seed = 0.0;
-	int mult = 10;
-	int tmp = step;
-	while(true)
-	{
-		if(tmp == 0) break;
-		seed += (tmp%10)/mult;
-		tmp = tmp/10;
-		mult *= 10;
-	}
-	return seed;
-}
-
-float gold_noise(vec2 xy, float seed)
-{
-  return fract(tan(distance(xy*PHI, xy)*seed)*xy.x);
-}
+#define RND_MOVE 0.9
 
 /* Layers :
  * data_0 : render
@@ -74,12 +53,34 @@ void spawn_bullet(uint x, uint y, uint p, vec4 position_direction)
 	}
 }
 
+
+float compute_seed()
+{
+	int mult = 1;
+	int tmp = 2*step+current_pass;
+	bool loop = true;
+	while(loop)
+	{
+		if(tmp == 0) loop = false;
+		mult *= 10;
+		tmp = tmp/10;
+	}
+	return step/mult;
+}
+
+float random(float seed)
+{
+  return fract(sin(seed)*2.85/cos(seed)*3.75);
+}
+
+
 // Fonction de calcul du deplacement de la bullet
 void compute_movement(uint x, uint y, uint p)
 {
 	if(data_1[p] == 1){
-		float seed = fract(compute_seed());
-		if(gold_noise(vec2(int(x), int(y)), seed) <= RND_MOVE){
+		float random = random(float(int(x)*int(y)+2*step+current_pass));
+		
+		if(random <= RND_MOVE){
 			// New position 
 			// Current position + movement based on vec2
 			vec2 dir = vec2(float(data_2[p])/1000, float(data_3[p])/1000);
@@ -90,14 +91,16 @@ void compute_movement(uint x, uint y, uint p)
 
 			uint dp = uint(bx) + uint(by)*WSX;
 			if((bx>0 && bx<WSX) && (by>0 && by<WSY)){
-				data_1[p] = 0;
-				data_1[dp] = 1;
+				if(data_1[dp] == 0){
+					data_1[p] = 0;
+					data_1[dp] = 1;
 
-				data_2[dp] = data_2[p];
-				data_2[p] = 0;
+					data_2[dp] = data_2[p];
+					data_2[p] = 0;
 
-				data_3[dp] = data_3[p];
-				data_3[p] = 0;
+					data_3[dp] = data_3[p];
+					data_3[p] = 0;
+				}
 			}
 			else{
 				data_1[p] = 0;
@@ -105,6 +108,7 @@ void compute_movement(uint x, uint y, uint p)
 				data_3[p] = 0;
 			}
 		}
+
 	}
 }
 
@@ -126,10 +130,9 @@ void main()
 	if(step == 0){
 		// Initialisation du point d'apparition des bullets
 		init(p);
-		
 	}
 	else{		
-		spawn_bullet(x,y,p,compute_spawn_position_angle(step%NB_SPWN, 1));
+		spawn_bullet(x,y,p,compute_spawn_position_angle(step%NB_SPWN, step));
 		// Calcul du deplacement puis affichage du rendu
 		if(step%2 == 0)
 			compute_movement(x,y,p);
