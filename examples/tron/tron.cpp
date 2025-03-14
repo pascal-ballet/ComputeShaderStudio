@@ -19,7 +19,9 @@
 #define CLEAR 0xFF000000
 #define MOTO_1 0xFF0000FF
 #define MOTO_2 0xFFFF0000
-#define BEAM 0xFF00FF00
+#define BEAM_1 0xFF0055FF
+#define BEAM_2 0xFF55FF00
+
 
 #define Display data_0
 
@@ -30,7 +32,7 @@
 #define Init 0
 #define InitMotorcycles 1
 
-#define Speed 1
+#define Speed 10
 
 const int dimMoto = 10;
 
@@ -41,8 +43,6 @@ float random(vec2 uv)
                          vec2(12.9898f, 78.233f))) *
                  43758.5453123f);
 }
-
-
 
 
 
@@ -78,11 +78,11 @@ ivec2 getNewPosition(ivec2 pos, int id_moto)
     float choix_direction;
     if (id_moto == MOTO_1)
     {
-        choix_direction = random(vec2(float(step),float(step * current_pass)));
+        choix_direction = random(vec2(float(step) * 0.12345f,step));
     }
     else if (id_moto == MOTO_2)
     {
-        choix_direction = random(vec2(float(step * current_pass),float(step)));
+        choix_direction = random(vec2(float(step) * 0.6789f ,step));
     }
 
     if (choix_direction < 0.25) // haut
@@ -105,34 +105,36 @@ void moveMotorcyle(int id_moto)
     if (step % Speed == 0)
     {
         ivec2 newPos = getNewPosition(pos, id_moto);
+        int beamColor = id_moto == MOTO_1 ? BEAM_1: BEAM_2;
 
         if (newPos.x >= 0 && newPos.x < WSX && newPos.y >= 0 && newPos.y < WSY - 2)
         {
             if (Motorcycles[newPos.x + newPos.y * WSX] == CLEAR)
             {
-                Motorcycles[p] = BEAM;
+                Motorcycles[p] = beamColor;
                 Display[p] += Motorcycles[p];
 
                 Motorcycles[newPos.x + newPos.y * WSX] = id_moto;
             }
-            else if (Motorcycles[newPos.x + newPos.y * WSX] == BEAM)
+            else if (Motorcycles[newPos.x + newPos.y * WSX] == beamColor)
             {
                 if(isEnd(newPos))
                 {
                     return;
                 }
                 ivec2 finPos = getNewPosition(pos, id_moto);
-                int l = 0;
-                while ( Motorcycles[finPos.x + finPos.y * WSX] == BEAM)
+
+                
+                for (int l = 0; l < 100000; ++l)
                 {
+                    if (Motorcycles[finPos.x + finPos.y * WSX] != beamColor)
+                    {
+                        break; 
+                    }
                     finPos = getNewPosition(pos, id_moto);
-                    l++;
-                    if(l == 20)
-                        return;
                 }
 
-
-                Motorcycles[p] = BEAM;
+                Motorcycles[p] = beamColor;
                 Display[p] += Motorcycles[p];
 
                 Motorcycles[finPos.x + finPos.y * WSX] = id_moto;
@@ -154,10 +156,10 @@ void main()
     {
 
         if (pos.x >= 300 - dimMoto && pos.x < 290 + dimMoto && pos.y >= 200 - dimMoto && pos.y < 190 + dimMoto)
-            Motorcycles[p] = MOTO_1; // bleu
+            Motorcycles[p] = MOTO_1; 
 
         if (pos.x >= 600 - dimMoto && pos.x < 590 + dimMoto && pos.y >= 200 - dimMoto && pos.y < 190 + dimMoto)
-            Motorcycles[p] = MOTO_2; // bleu
+            Motorcycles[p] = MOTO_2; 
 
         Display[p] += Motorcycles[p];
     }
