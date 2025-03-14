@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://ddr6qtwy1pesd"]
 
-[ext_resource type="Script" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_6846p"]
+[ext_resource type="Script" uid="uid://c8esqdv0y26yp" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_6846p"]
 [ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/icon.svg" id="2_s3fct"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_dmk8h"]
@@ -14,6 +14,25 @@ noise = SubResource("FastNoiseLite_dmk8h")
 
 [node name="ComputeShaderStudio2D2" type="Node" parent="." node_paths=PackedStringArray("data")]
 script = ExtResource("1_6846p")
+GLSL_code = "
+// Usable variables
+// ****************
+// step: execution step
+// current_pass: pass number in one step
+// mousex: x mouse position, mousey: y mouse position (in pixels)
+// mouse_button: 0=none, 1=left, 2=right, 3=both, 4=middle mouse button
+// WSX: worksize X, WSY: worksize Y
+// data_0[], data_1[], etc: matrices of data. Can be viewed within a Sprite2D or TextureRect2D
+// ****************
+// Write your code HERE
+void main() {
+	uint x = gl_GlobalInvocationID.x;
+	uint y = gl_GlobalInvocationID.y;
+	uint p = x + y * WSX;
+	data_0[p] = 0xFFF00FFF - int(p)*(step+1);
+	data_1[p] = 0xFFF0FF00 + step +10 * int(y*(1.0f+sin((step+y)/30.0f)));
+}
+"
 data = [NodePath("../Matrix1"), NodePath("../Matrix2")]
 
 [node name="Matrix1" type="Sprite2D" parent="."]
