@@ -30,7 +30,7 @@
 #define Init 0
 #define InitMotorcycles 1
 
-#define Speed 5
+#define Speed 1
 
 const int dimMoto = 10;
 
@@ -43,14 +43,33 @@ float random(vec2 uv)
 }
 
 
-void InitGame()
+
+
+
+void InitGame(ivec2 pos)
 {
-    ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
     uint p = pos.x + pos.y * WSX;
     Display[p] = CLEAR;
     Motorcycles[p] = CLEAR;
     Beams[p] = CLEAR;
 }
+
+bool isEnd(ivec2 pos)
+{
+
+    ivec2 vecHaut = ivec2(pos.x, pos.y - dimMoto);
+    ivec2 vecDroit = ivec2(pos.x + dimMoto, pos.y);
+    ivec2 vecBas = ivec2(pos.x, pos.y + dimMoto);
+    ivec2 vecGauche = ivec2(pos.x - dimMoto, pos.y);
+
+    if (vecHaut.y < 0 || vecDroit.x >= WSX || vecBas.y >= WSY || vecGauche.x < 0) {
+        return true; 
+    }
+    return false; 
+
+}
+
+
 
 ivec2 getNewPosition(ivec2 pos, int id_moto)
 {
@@ -59,11 +78,11 @@ ivec2 getNewPosition(ivec2 pos, int id_moto)
     float choix_direction;
     if (id_moto == MOTO_1)
     {
-        choix_direction = random(vec2(float(step), float(current_pass * sin(MOTO_1))));
+        choix_direction = random(vec2(float(step),float(step * current_pass)));
     }
     else if (id_moto == MOTO_2)
     {
-        choix_direction = random(vec2(float(step), float(current_pass * sin(MOTO_2))));
+        choix_direction = random(vec2(float(step * current_pass),float(step)));
     }
 
     if (choix_direction < 0.25) // haut
@@ -98,23 +117,25 @@ void moveMotorcyle(int id_moto)
             }
             else if (Motorcycles[newPos.x + newPos.y * WSX] == BEAM)
             {
-                
-                uint cpt_beam = 0;
-                ivec2 finPos = getNewPosition(pos, id_moto);
-                if (finPos == newPos || Motorcycles[finPos.x + finPos.y * WSX] == BEAM)
+                if(isEnd(newPos))
                 {
-                    cpt_beam++;
-                    if (cpt_beam == 4)
-                    {
-                        InitGame();
-                    }
-                    finPos = getNewPosition(pos, id_moto);
+                    return;
                 }
+                ivec2 finPos = getNewPosition(pos, id_moto);
+                int l = 0;
+                while ( Motorcycles[finPos.x + finPos.y * WSX] == BEAM)
+                {
+                    finPos = getNewPosition(pos, id_moto);
+                    l++;
+                    if(l == 20)
+                        return;
+                }
+
 
                 Motorcycles[p] = BEAM;
                 Display[p] += Motorcycles[p];
 
-                Motorcycles[newPos.x + newPos.y * WSX] = id_moto;
+                Motorcycles[finPos.x + finPos.y * WSX] = id_moto;
             }
         }
     }
@@ -127,7 +148,7 @@ void main()
 
     if (step == Init)
     {
-        InitGame();
+        InitGame(pos);
     }
     if (step == InitMotorcycles)
     {
