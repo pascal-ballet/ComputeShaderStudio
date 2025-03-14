@@ -7,12 +7,14 @@
 
 [node name="ComputeShaderStudio2D" type="Node" parent="." node_paths=PackedStringArray("data")]
 script = ExtResource("1_7dugu")
+WSX = 512
+WSY = 256
 glsl_file = "res://examples/board/board.cpp"
 GLSL_code = ""
 data = [NodePath("../Icon")]
 metadata/_custom_type_script = "uid://c8esqdv0y26yp"
 
 [node name="Icon" type="Sprite2D" parent="."]
-position = Vector2(465.5, 268.5)
-scale = Vector2(3.99219, 3.52344)
+position = Vector2(584, 323)
+scale = Vector2(8.58594, 4.46875)
 texture = ExtResource("2_1fg0d")
