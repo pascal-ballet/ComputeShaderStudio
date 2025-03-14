@@ -333,3 +333,11 @@ func screen_to_data0(pos : Vector2):
 		return pos;
 	else:
 		return Vector2(0,0)
+
+
+func _on_button_pressed() -> void:
+	$ComputeShaderStudio2D2.pause = !$ComputeShaderStudio2D2.pause
+	if $ComputeShaderStudio2D2.pause:
+		$Button.text = "Play"
+	else:
+		$Button.text = "Pause" # Replace with function body.
