@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://ctdqncychsdep" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_eimw3"]
 [ext_resource type="Script" uid="uid://0ax0xb1gbjof" path="res://examples/LabelStepPass.gd" id="2_4aq4t"]
-[ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/project_RainFX/icon.svg" id="2_4upxj"]
+[ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/circle_project/icon.svg" id="2_4upxj"]
 
 [node name="CompShadStudioEx3" type="Node2D"]
 
