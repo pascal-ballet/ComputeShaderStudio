@@ -1,0 +1,12 @@
+[gd_scene load_steps=3 format=3 uid="uid://83u4ieqetk01"]
+
+[ext_resource type="Script" uid="uid://c8nr7akmktfg8" path="res://node_2d.gd" id="1_0ilx8"]
+[ext_resource type="Script" uid="uid://cbg6f5ekjjg3t" path="res://examples/projet/ShaderQuad.gd" id="2_h2mvu"]
+
+[node name="Node2D" type="Node2D"]
+script = ExtResource("1_0ilx8")
+
+[node name="ShaderQuad" type="TextureRect" parent="."]
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("2_h2mvu")
