@@ -3,7 +3,7 @@ float PI = 3.14159;
 float sdSphere(vec3 p, float s) {
     return length(p) - s;
 }
-
+//hamza
 int packARGB(vec3 c) {
     int R = int(clamp(c.x, 0.0, 1.0) * 255.0);
     int G = int(clamp(c.y, 0.0, 1.0) * 255.0);
