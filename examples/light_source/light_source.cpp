@@ -62,30 +62,30 @@ void main()
         float angle = atan(p.y, p.x);
         uv += 0.01 * vec2(cos(angle + time), sin(angle + time)) * sin(time + l * 5.0);
 
-        // Calculate cellular-like pattern with enhanced effects
-        vec2 cellCoord = mod(uv, 1.0) - 0.5;
+        // Calculate lightular-like pattern with enhanced effects
+        vec2 lightCoord = mod(uv, 1.0) - 0.5;
 
-        // Create multiple cellular layers
-        float cellPattern = 0.01 / length(cellCoord);
+        // Create multiple lightular layers
+        float lightPattern = 0.01 / length(lightCoord);
 
-        // Add fine details to cells
-        cellPattern += 0.005 / length(mod(uv * 2.0, 1.0) - 0.5) * (0.5 + 0.5 * sin(l * 20.0 + time));
+        // Add fine details to lights
+        lightPattern += 0.005 / length(mod(uv * 2.0, 1.0) - 0.5) * (0.5 + 0.5 * sin(l * 20.0 + time));
 
         // Store color with channel-specific effects
         if (i == 0)
         {
             // Red channel - warmer pattern
-            c[i] = cellPattern * (0.9 + 0.3 * sin(time + l * 3.0));
+            c[i] = lightPattern * (0.9 + 0.3 * sin(time + l * 3.0));
         }
         else if (i == 1)
         {
             // Green channel - phase shifted
-            c[i] = cellPattern * (0.8 + 0.3 * sin(time * 1.1 + l * 3.5));
+            c[i] = lightPattern * (0.8 + 0.3 * sin(time * 1.1 + l * 3.5));
         }
         else
         {
             // Blue channel - different phase
-            c[i] = cellPattern * (0.7 + 0.4 * sin(time * 0.9 + l * 4.0));
+            c[i] = lightPattern * (0.7 + 0.4 * sin(time * 0.9 + l * 4.0));
         }
     }
 
