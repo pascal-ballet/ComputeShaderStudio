@@ -22,7 +22,6 @@
 #define BEAM_1 0xFF0055FF
 #define BEAM_2 0xFF55FF00
 
-
 #define Display data_0
 
 #define Motorcycles data_1
@@ -30,21 +29,15 @@
 #define Beams data_2
 
 #define Init 0
-#define InitMotorcycles 1
-
-#define Speed 10
 
 const int dimMoto = 10;
-
 // fonction random
 float random(vec2 uv)
 {
-    return fract(sin(dot(uv.xy,
+    return fract(sin(dot(uv.xy + random_time * 0.00001,
                          vec2(12.9898f, 78.233f))) *
                  43758.5453123f);
 }
-
-
 
 void InitGame(ivec2 pos)
 {
@@ -52,49 +45,82 @@ void InitGame(ivec2 pos)
     Display[p] = CLEAR;
     Motorcycles[p] = CLEAR;
     Beams[p] = CLEAR;
+
+    if (pos.x >= 300 - dimMoto && pos.x < 290 + dimMoto && pos.y >= 200 - dimMoto && pos.y < 190 + dimMoto)
+        Motorcycles[p] = MOTO_1;
+
+    if (pos.x >= 600 - dimMoto && pos.x < 590 + dimMoto && pos.y >= 200 - dimMoto && pos.y < 190 + dimMoto)
+        Motorcycles[p] = MOTO_2;
+
+    Display[p] += Motorcycles[p];
+}
+bool isDirectionClear(ivec2 basePos, int direction)
+{
+    ivec2 nextPos = basePos;
+
+    switch (direction)
+    {
+    case 0:
+        nextPos.y -= dimMoto;
+        break; // haut
+    case 1:
+        nextPos.x += dimMoto;
+        break; // droite
+    case 2:
+        nextPos.y += dimMoto;
+        break; // bas
+    case 3:
+        nextPos.x -= dimMoto;
+        break; // gauche
+    }
+
+    // check limites
+    if (nextPos.x < 0 || nextPos.x + dimMoto > WSX ||
+        nextPos.y < 0 || nextPos.y + dimMoto > WSY - 2)
+    {
+        return false;
+    }
+
+    // check si prochain emplacement déja rempli
+    for (int j = 0; j < dimMoto; j++)
+    {
+        for (int i = 0; i < dimMoto; i++)
+        {
+            ivec2 checkPos = nextPos + ivec2(i, j);
+            uint checkP = checkPos.x + checkPos.y * WSX;
+
+            if (Motorcycles[checkP] != CLEAR || Beams[checkP] != CLEAR)
+            {
+                return false;
+            }
+        }
+    }
+
+    return true;
 }
 
-bool isEnd(ivec2 pos)
+int chooseDirection(ivec2 basePos, int id_moto, int randomDir)
 {
-
-    ivec2 vecHaut = ivec2(pos.x, pos.y - dimMoto);
-    ivec2 vecDroit = ivec2(pos.x + dimMoto, pos.y);
-    ivec2 vecBas = ivec2(pos.x, pos.y + dimMoto);
-    ivec2 vecGauche = ivec2(pos.x - dimMoto, pos.y);
-
-    if (vecHaut.y < 0 || vecDroit.x >= WSX || vecBas.y >= WSY || vecGauche.x < 0) {
-        return true; 
-    }
-    return false; 
-
-}
-
-
-
-ivec2 getNewPosition(ivec2 pos, int id_moto)
-{
-    ivec2 newPos = pos;
-
-    float choix_direction;
-    if (id_moto == MOTO_1)
+    // si direction aléatoire disponible alors go
+    if (isDirectionClear(basePos, randomDir))
     {
-        choix_direction = random(vec2(float(step) * 0.12345f,step));
+        return randomDir;
     }
-    else if (id_moto == MOTO_2)
+
+    // si direction aléatoire non disponible alors tenter toutes les autres
+    float seed = random(vec2(float(step) * 0.5678f + float(id_moto), step));
+    int startDir = int(seed * 4.0);
+
+    for (int i = 0; i < 4; i++)
     {
-        choix_direction = random(vec2(float(step) * 0.6789f ,step));
+        int dir = (startDir + i) % 4;
+        if (dir != randomDir && isDirectionClear(basePos, dir))
+        {
+            return dir;
+        }
     }
-
-    if (choix_direction < 0.25) // haut
-        newPos.y -= dimMoto;
-    else if (choix_direction < 0.50) // droite
-        newPos.x += dimMoto;
-    else if (choix_direction < 0.75) // bas
-        newPos.y += dimMoto;
-    else if (choix_direction < 1.00) // gauche
-        newPos.x -= dimMoto;
-
-    return newPos;
+    // si on trouve pas une direction valide
+    return -1;
 }
 
 void moveMotorcyle(int id_moto)
@@ -102,42 +128,60 @@ void moveMotorcyle(int id_moto)
     ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
     uint p = pos.x + pos.y * WSX;
 
-    if (step % Speed == 0)
+    if (Motorcycles[p] != id_moto)
+        return;
+
+    ivec2 basePos = ivec2((pos.x / dimMoto) * dimMoto, (pos.y / dimMoto) * dimMoto);
+    if (pos.x != basePos.x || pos.y != basePos.y)
+        return; // check coin supérieur gauche
+
+    // choix direction aléatoire
+    float seed = random(vec2(float(step) * (id_moto == MOTO_1 ? 0.125445f : 0.68419f), step)); // choix arbitraire des valeurs, peut largement mieux faire
+    int randomDir = int(seed * 4.0f); // 0: haut, 1: droite, 2: bas, 3: gauche
+
+    int direction = chooseDirection(basePos, id_moto, randomDir);
+
+    // si on trouve une direction valide
+    if (direction >= 0)
     {
-        ivec2 newPos = getNewPosition(pos, id_moto);
-        int beamColor = id_moto == MOTO_1 ? BEAM_1: BEAM_2;
-
-        if (newPos.x >= 0 && newPos.x < WSX && newPos.y >= 0 && newPos.y < WSY - 2)
+        // calcul nouvelle position
+        ivec2 newPos = basePos;
+        switch (direction)
         {
-            if (Motorcycles[newPos.x + newPos.y * WSX] == CLEAR)
-            {
-                Motorcycles[p] = beamColor;
-                Display[p] += Motorcycles[p];
+        case 0:
+            newPos.y -= dimMoto;
+            break; // haut
+        case 1:
+            newPos.x += dimMoto;
+            break; // droite
+        case 2:
+            newPos.y += dimMoto;
+            break; // bas
+        case 3:
+            newPos.x -= dimMoto;
+            break; // gauche
+        }
 
-                Motorcycles[newPos.x + newPos.y * WSX] = id_moto;
+        // efface avant d'avancer
+        for (int j = 0; j < dimMoto; j++)
+        {
+            for (int i = 0; i < dimMoto; i++)
+            {
+                ivec2 oldPos = basePos + ivec2(i, j);
+                uint oldP = oldPos.x + oldPos.y * WSX;
+                Motorcycles[oldP] = CLEAR;
+                Beams[oldP] = (id_moto == MOTO_1) ? BEAM_1 : BEAM_2;
             }
-            else if (Motorcycles[newPos.x + newPos.y * WSX] == beamColor)
+        }
+
+        // la moto avance
+        for (int j = 0; j < dimMoto; j++)
+        {
+            for (int i = 0; i < dimMoto; i++)
             {
-                if(isEnd(newPos))
-                {
-                    return;
-                }
-                ivec2 finPos = getNewPosition(pos, id_moto);
-
-                
-                for (int l = 0; l < 100000; ++l)
-                {
-                    if (Motorcycles[finPos.x + finPos.y * WSX] != beamColor)
-                    {
-                        break; 
-                    }
-                    finPos = getNewPosition(pos, id_moto);
-                }
-
-                Motorcycles[p] = beamColor;
-                Display[p] += Motorcycles[p];
-
-                Motorcycles[finPos.x + finPos.y * WSX] = id_moto;
+                ivec2 newPixelPos = newPos + ivec2(i, j);
+                uint newP = newPixelPos.x + newPixelPos.y * WSX;
+                Motorcycles[newP] = id_moto;
             }
         }
     }
@@ -148,25 +192,14 @@ void main()
     ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
     uint p = pos.x + pos.y * WSX;
 
+    int slowFactor = 10;
+
     if (step == Init)
     {
         InitGame(pos);
     }
-    if (step == InitMotorcycles)
-    {
 
-        if (pos.x >= 300 - dimMoto && pos.x < 290 + dimMoto && pos.y >= 200 - dimMoto && pos.y < 190 + dimMoto)
-            Motorcycles[p] = MOTO_1; 
-
-        if (pos.x >= 600 - dimMoto && pos.x < 590 + dimMoto && pos.y >= 200 - dimMoto && pos.y < 190 + dimMoto)
-            Motorcycles[p] = MOTO_2; 
-
-        Display[p] += Motorcycles[p];
-    }
-
-    float choix_direction;
-
-    if (step > 1 && step % 2 == 0)
+    if (step > 1 && step % slowFactor == 0)
     {
         if (Motorcycles[p] == MOTO_1)
         {
@@ -177,7 +210,7 @@ void main()
             moveMotorcyle(MOTO_2);
         }
     }
-    if (step > 1 && step % 2 == 1)
+    if (step > 1 && step % slowFactor == 1)
     {
         Display[p] = Motorcycles[p] + Beams[p];
     }

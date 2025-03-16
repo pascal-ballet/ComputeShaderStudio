@@ -30,7 +30,7 @@ layout(binding = 0) buffer Params {
 	int mousex;
 	int mousey;
 	bool left_pressed;
-	int epoch_time;
+	int random_time;
 };
 
 """
@@ -277,7 +277,7 @@ func _update_uniforms():
 	
 	var left_pressed : bool = Input.is_action_just_pressed("mouse_click")
 	input_params.append(left_pressed)
-	var time : int =Time.get_unix_time_from_system()
+	var time : int =Time.get_ticks_usec()
 	input_params.append(time)
 
 
