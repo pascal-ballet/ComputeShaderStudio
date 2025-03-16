@@ -9,7 +9,6 @@ void main()
     int x = int(gl_GlobalInvocationID.x);
     int y = int(gl_GlobalInvocationID.y);
     int idx = x + y * int(WSX);
-
     // Normalized coordinates
     vec2 fragCoord = vec2(float(x), float(y));
     vec2 resolution = vec2(float(WSX), float(WSY));
@@ -104,7 +103,6 @@ void main()
     finalColor.r = rawColor.r * (1.0 + 0.3 * temp);
     finalColor.g = rawColor.g * (1.0 + 0.2 * (1.0 - temp));
     finalColor.b = rawColor.b * (1.0 + 0.3 * sin(temp * 3.14159));
-
     // Add subtle vignette effect
     vec2 vignettePos = fragCoord / resolution - 0.5;
     float vignette = 1.0 - dot(vignettePos, vignettePos) * 0.8;
@@ -120,7 +118,6 @@ void main()
     int r = int(clamp(finalColor.r * 255.0, 0.0, 255.0));
     int g = int(clamp(finalColor.g * 255.0, 0.0, 255.0));
     int b = int(clamp(finalColor.b * 255.0, 0.0, 255.0));
-
     // Store the final color
     data_0[idx] = 0xFF000000 | (r << 16) | (g << 8) | b;
 }
