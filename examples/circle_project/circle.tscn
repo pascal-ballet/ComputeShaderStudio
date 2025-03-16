@@ -4,6 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/circle_project/icon.svg" id="2_l2oj0"]
 
 [node name="Rainfx" type="Node2D"]
+position = Vector2(-1608, -548)
 
 [node name="ComputeShaderStudio2D" type="Node" parent="." node_paths=PackedStringArray("data")]
 script = ExtResource("1_htga1")
@@ -12,6 +13,6 @@ GLSL_code = ""
 data = [NodePath("../Icon")]
 
 [node name="Icon" type="Sprite2D" parent="."]
-position = Vector2(558, 313)
-scale = Vector2(5.07129, 4.26807)
+position = Vector2(2205, 906)
+scale = Vector2(3.56448, 3.25)
 texture = ExtResource("2_l2oj0")
