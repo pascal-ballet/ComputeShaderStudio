@@ -12,6 +12,6 @@ GLSL_code = ""
 data = [NodePath("../Icon")]
 
 [node name="Icon" type="Sprite2D" parent="."]
-position = Vector2(600, 325)
-scale = Vector2(3.58008, 3.17676)
+position = Vector2(558, 313)
+scale = Vector2(5.07129, 4.26807)
 texture = ExtResource("2_l2oj0")
