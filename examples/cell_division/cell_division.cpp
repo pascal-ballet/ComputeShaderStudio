@@ -1,6 +1,9 @@
 // Enhanced artistic shader - Prismatic Flow
 // Inspired by Danilo Guanabara with artistic extensions
 
+
+
+//AUTHORS: NASSIM & YASSER
 void main()
 {
     int x = int(gl_GlobalInvocationID.x);
