@@ -20,20 +20,20 @@ void circle(uint cx, uint cy, uint rayon, int epaisseur) {
     
 }
 
-void TEST(uint cx, uint cy, uint rayon, int epaisseur) {
-    uint x = gl_GlobalInvocationID.x;
-    uint y = gl_GlobalInvocationID.y;
-    uint p = x + y * WSX;
+// void TEST(uint cx, uint cy, uint rayon, int epaisseur) {
+//     uint x = gl_GlobalInvocationID.x;
+//     uint y = gl_GlobalInvocationID.y;
+//     uint p = x + y * WSX;
 
-    if ((x - cx) * (x - cx) + (y - cy) * (y - cy) >= (rayon - epaisseur) * (rayon - epaisseur) &&
-        (x - cx) * (x - cx) + (y - cy) * (y - cy) <= rayon * rayon) {
-            data_0[p] = RED;
-    }
-
-    
+//     if ((x - cx) * (x - cx) + (y - cy) * (y - cy) >= (rayon - epaisseur) * (rayon - epaisseur) &&
+//         (x - cx) * (x - cx) + (y - cy) * (y - cy) <= rayon * rayon) {
+//             data_0[p] = RED;
+//     }
 
     
-}
+
+    
+// }
 
 void circleFull(uint cx, uint cy, uint rayon) {
     uint x = gl_GlobalInvocationID.x;
@@ -79,7 +79,7 @@ void circleFull(uint cx, uint cy, uint rayon) {
 // }
 
 
-bool checkCollision(uint cx, uint cy, uint radius, String couleur) {
+bool checkCollision(uint cx, uint cy, uint radius, uint couleur) {
     for (int angle = 0; angle < 360; angle += 15) {
         float radians = float(angle) * 3.14159 / 180.0;
         uint checkX = cx + uint(float(radius) * cos(radians));
@@ -107,14 +107,12 @@ void main() {
     uint centerX = 540;
     uint centerY = step + 540;
     
-    bool collision = checkCollision(centerX, centerY, movingCircleRadius);
+    bool collision = checkCollision(centerX, centerY, movingCircleRadius, RED);
     
     if (!collision) {
         circleFull(centerX, centerY, movingCircleRadius);
     } else {
-        if (!collision) {
         circleFull(centerX, (step*-1)+540, movingCircleRadius);
-        }
     }
 }
 
