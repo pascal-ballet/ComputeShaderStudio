@@ -29,10 +29,9 @@
 
 */
 
-	struct couleur { 
-		int	r;
-		int	g;
-		int	b;
+	struct position { 
+		float	x;
+		float	y;
 	};
 
 
@@ -45,9 +44,6 @@ void main() {
 	// définition de 4 variables o,r,g,b pour faciliter la gestion des couleurs
 	// + définition du fond marron
 	int opacite =255;
-	// int r = 92;
-	// int g = 64;
-	// int b = 51;
 
 	int r = 0;
 	int g = 0;
@@ -81,25 +77,33 @@ void main() {
 
 				//définition des pions noirs
 				if( (dist<(dimension/2)) && ( (y / dimension) < 3 )){
+					
 					r = 0;
 					g = 0;
 					b = 0;
-
-					if( ((dist<(dimension/2)) && ( (y / dimension) < 3 )) && mouse_button == 1){
+				
+					if( int(mousex / dimension) == int(x / dimension) && int(mousey / dimension) == int(y / dimension) && mouse_button == 1){
 						r=255;
 						g=0;
 						b=0;
+						//bouge();
+
 					}
+
 				}
 				//définition des pions blanc
 				else if( (dist<(dimension/2)) && (  (y / dimension) >= 7 ) ){
+					
 					r = 255;
 					g = 255;
 					b = 255;
-					if(((dist<(dimension/2)) && ( (y / dimension) >= 7 )) && mouse_button == 1){
+
+					if( int(mousex / dimension) == int(x / dimension) && int(mousey / dimension) == int(y / dimension) && mouse_button == 1){
 						r=255;
 						g=0;
 						b=0;
+						//bouge();
+
 					}
 				}
 				else{
@@ -111,7 +115,6 @@ void main() {
 			}
 
 
-		
 
 		// La scène prend les valeurs orgb définies
 		data_0[p] = (opacite<<24)+(b<<16)+(g<<8)+r; 
