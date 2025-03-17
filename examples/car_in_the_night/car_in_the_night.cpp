@@ -347,10 +347,51 @@ void main() {
         if (float(x) >= carPosX && float(x) < carPosX + CAR_WIDTH && 
             float(y) >= carPosY && float(y) < carPosY + CAR_HEIGHT) {
             
-            // Couleur de la voiture - variée selon l'index
-            vec3 carColor = vec3(0.1 + hash(float(carIdx) * 42.0) * 0.2, 
-                                0.1 + hash(float(carIdx) * 17.0) * 0.1, 
-                                0.2 + hash(float(carIdx) * 29.0) * 0.3);
+// Couleur de la voiture - couleurs de voitures de sport
+vec3 carColor;
+// Ajouter un effet de reflet selon la position sur la carrosserie
+float normalizedX = (float(x) - carPosX) / CAR_WIDTH;
+float normalizedY = (float(y) - carPosY) / CAR_HEIGHT;
+float reflectionIntensity = 0.15 * pow(sin(normalizedX * 3.14), 2.0) * pow(sin(normalizedY * 3.14), 2.0);
+carColor = carColor + vec3(reflectionIntensity);
+
+// Limiter les valeurs de couleur pour éviter qu'elles ne dépassent 1.0
+carColor = min(carColor, vec3(1.0));
+
+float carType = hash(float(carIdx) * 42.0); // Valeur aléatoire entre 0 et 1
+
+if (carType < 0.15) {
+    // Rouge Ferrari
+    carColor = vec3(0.8, 0.1, 0.0);
+} else if (carType < 0.3) {
+    // Jaune Lamborghini
+    carColor = vec3(0.95, 0.8, 0.0);
+} else if (carType < 0.45) {
+    // Bleu Bugatti
+    carColor = vec3(0.0, 0.1, 0.6);
+} else if (carType < 0.55) {
+    // Vert Jaguar Racing
+    carColor = vec3(0.0, 0.55, 0.27);
+} else if (carType < 0.65) {
+    // Orange McLaren
+    carColor = vec3(1.0, 0.3, 0.0);
+} else if (carType < 0.75) {
+    // Gris Aston Martin
+    carColor = vec3(0.4, 0.4, 0.45);
+} else if (carType < 0.85) {
+    // Blanc nacré Porsche
+    carColor = vec3(0.95, 0.95, 0.97);
+} else if (carType < 0.92) {
+    // Noir brillant Mercedes AMG
+    carColor = vec3(0.05, 0.05, 0.05);
+} else {
+    // Violet Koenigsegg
+    carColor = vec3(0.35, 0.0, 0.35);
+}
+
+// Ajout d'un effet métallisé léger
+float metallic = 0.05 + hash(float(carIdx) * 29.0) * 0.1;
+carColor = carColor + vec3(metallic);
             
             // Vitres
             if (float(x) >= carPosX + CAR_WIDTH * 0.25 && float(x) < carPosX + CAR_WIDTH * 0.75 && 
@@ -358,7 +399,7 @@ void main() {
                 carColor = vec3(0.2, 0.2, 0.3); // Vitres teintées
             }
             
-            data_0[p] = 0xFF000000 | (int(carColor.r * 255.0) << 16) | (int(carColor.g * 255.0) << 8) | int(carColor.b * 255.0);
+            data_0[p] = 0xFF000000 | (int(carColor.b * 255.0) << 16) | (int(carColor.g * 255.0) << 8) | int(carColor.r * 255.0);
         }
         
         // Positions des phares et feux arrière selon la direction
