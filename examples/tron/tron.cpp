@@ -30,7 +30,12 @@
 
 #define Init 0
 
+
 const int dimMoto = 10;
+
+
+
+
 // fonction random
 float random(vec2 uv)
 {
@@ -39,7 +44,7 @@ float random(vec2 uv)
                  43758.5453123f);
 }
 
-void InitGame(ivec2 pos)
+void initGame(ivec2 pos)
 {
     uint p = pos.x + pos.y * WSX;
     Display[p] = CLEAR;
@@ -54,6 +59,24 @@ void InitGame(ivec2 pos)
 
     Display[p] += Motorcycles[p];
 }
+
+void restartGame()
+{
+    ivec2 clearPos;
+    for (int i = 0; i < WSX; i++)
+    {
+        for (int j = 0; j < WSY; j++)
+        {
+            clearPos = ivec2(i, j);
+            uint p = clearPos.x + clearPos.y * WSX;
+
+            Display[p] = CLEAR;
+            Motorcycles[p] = CLEAR;
+            Beams[p] = CLEAR;
+        }
+    }
+}
+
 bool isDirectionClear(ivec2 basePos, int direction)
 {
     ivec2 nextPos = basePos;
@@ -81,7 +104,7 @@ bool isDirectionClear(ivec2 basePos, int direction)
         return false;
     }
 
-    // check si prochain emplacement déja rempli
+    // check si prochain emplacement deja rempli
     for (int j = 0; j < dimMoto; j++)
     {
         for (int i = 0; i < dimMoto; i++)
@@ -101,13 +124,13 @@ bool isDirectionClear(ivec2 basePos, int direction)
 
 int chooseDirection(ivec2 basePos, int id_moto, int randomDir)
 {
-    // si direction aléatoire disponible alors go
+    // si direction aleatoire disponible alors go
     if (isDirectionClear(basePos, randomDir))
     {
         return randomDir;
     }
 
-    // si direction aléatoire non disponible alors tenter toutes les autres
+    // si direction aleatoire non disponible alors tenter toutes les autres
     float seed = random(vec2(float(step) * 0.5678f + float(id_moto), step));
     int startDir = int(seed * 4.0);
 
@@ -133,11 +156,11 @@ void moveMotorcyle(int id_moto)
 
     ivec2 basePos = ivec2((pos.x / dimMoto) * dimMoto, (pos.y / dimMoto) * dimMoto);
     if (pos.x != basePos.x || pos.y != basePos.y)
-        return; // check coin supérieur gauche
+        return; // check coin superieur gauche
 
-    // choix direction aléatoire
+    // choix direction aleatoire
     float seed = random(vec2(float(step) * (id_moto == MOTO_1 ? 0.125445f : 0.68419f), step)); // choix arbitraire des valeurs, peut largement mieux faire
-    int randomDir = int(seed * 4.0f); // 0: haut, 1: droite, 2: bas, 3: gauche
+    int randomDir = int(seed * 4.0f);                                                          // 0: haut, 1: droite, 2: bas, 3: gauche
 
     int direction = chooseDirection(basePos, id_moto, randomDir);
 
@@ -196,7 +219,7 @@ void main()
 
     if (step == Init)
     {
-        InitGame(pos);
+        initGame(pos);
     }
 
     if (step > 1 && step % slowFactor == 0)
@@ -213,5 +236,13 @@ void main()
     if (step > 1 && step % slowFactor == 1)
     {
         Display[p] = Motorcycles[p] + Beams[p];
+    }
+    if (left_pressed && step % 2 == 0)
+    {
+        restartGame();
+    }
+    if (left_pressed && step % 2 == 1)
+    {
+        initGame(pos);
     }
 }
