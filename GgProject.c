@@ -68,27 +68,10 @@ void main() {
 			if (((x / dimension) + (y / dimension)) % 2 == 0) {
 				// Case blanche
 
-				float dx = cx - float(x);
-				float dy= cy - float(y);
-				float dist=sqrt(dx*dx +dy*dy);
-
-				//définition des pions noirs
-				if( (dist<(dimension/2)) && ( (y / dimension) < 3 )){
-					r = 0;
-					g = 0;
-					b = 0;
-				}
-				//définition des pions blanc
-				else if( (dist<(dimension/2)) && (  (y / dimension) >= 7 ) ){
-					r = 128;
-					g = 128;
-					b = 128;
-				}
-				else{
-					r = 255;
-					g = 255;
-					b = 255;
-				}
+					r = 240;
+					g = 240;
+					b = 240;
+				
 			}  
 			else {
 				// Case marron
@@ -101,21 +84,33 @@ void main() {
 					r = 0;
 					g = 0;
 					b = 0;
+
+					if( ((dist<(dimension/2)) && ( (y / dimension) < 3 )) && mouse_button == 1){
+						r=255;
+						g=0;
+						b=0;
+					}
 				}
 				//définition des pions blanc
 				else if( (dist<(dimension/2)) && (  (y / dimension) >= 7 ) ){
-					r = 128;
-					g = 128;
-					b = 128;
+					r = 255;
+					g = 255;
+					b = 255;
+					if(((dist<(dimension/2)) && ( (y / dimension) >= 7 )) && mouse_button == 1){
+						r=255;
+						g=0;
+						b=0;
+					}
 				}
 				else{
-					r = 92;
-					g = 64;
-					b = 51;
+					r = 210;
+					g = 180;
+					b = 140;
 				}
+
 			}
 
-			if(mouse_button == 1){}
+
 		
 
 		// La scène prend les valeurs orgb définies
