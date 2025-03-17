@@ -60,7 +60,7 @@ void main()
 
         // Add rotational flow
         float angle = atan(p.y, p.x);
-        uv += 0.01 * vec2(cos(angle + time), sin(angle + time)) * sin(time + l * 5.0);
+        uv += (5.0f*mousex/float(WSX)) * vec2(cos(angle + time), sin(angle + time)) * sin(time + l * 5.0);
 
         // Calculate lightular-like pattern with enhanced effects
         vec2 lightCoord = mod(uv, 1.0) - 0.5;
@@ -109,7 +109,7 @@ void main()
     finalColor *= vignette;
 
     // Add subtle pulsing
-    finalColor *= 0.8 + 0.2 * sin(time * 0.5);
+    finalColor *= 0.8 + (mousey/float(WSY)) * sin(time * 0.5);
 
     // Enhance contrast
     finalColor = pow(finalColor, vec3(0.9, 0.9, 0.9));
