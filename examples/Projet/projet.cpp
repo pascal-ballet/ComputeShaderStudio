@@ -1,7 +1,8 @@
 #define BLACK 0xFF000000
-#define RED 0xFFFF0000
+#define RED 0xFF0000FF
 #define GREEN 0xFF00FF00
-#define BLUE 0xFF0000FF
+#define BLUE 0xFFFF0000
+#define COLLISION_MARKER 0xFFFF00FF 
 
 void circle(uint cx, uint cy, uint rayon, int epaisseur) {
     uint x = gl_GlobalInvocationID.x;
@@ -14,23 +15,18 @@ void circle(uint cx, uint cy, uint rayon, int epaisseur) {
     }
 }
 
-void circleFull1(uint cx, uint cy, uint rayon) {
+void circleFull(uint cx, uint cy, uint rayon, uint indice) {
     uint x = gl_GlobalInvocationID.x;
     uint y = gl_GlobalInvocationID.y;
     uint p = x + y * WSX;
-
-    if ((x - cx) * (x - cx) + (y - cy) * (y - cy) <= rayon * rayon) {
-        data_0[p] = BLUE; 
-    }
-}
-
-void circleFull2(uint cx, uint cy, uint rayon) {
-    uint x = gl_GlobalInvocationID.x;
-    uint y = gl_GlobalInvocationID.y;
-    uint p = x + y * WSX;
-
-    if ((x - cx) * (x - cx) + (y - cy) * (y - cy) <= rayon * rayon) {
-        data_0[p] = RED; 
+    if(indice == 1){
+        if ((x - cx) * (x - cx) + (y - cy) * (y - cy) <= rayon * rayon) {
+            data_0[p] = BLUE; 
+        }
+    } else if(indice == 2){
+        if ((x - cx) * (x - cx) + (y - cy) * (y - cy) <= rayon * rayon) {
+            data_0[p] = RED; 
+        } 
     }
 }
 
@@ -56,24 +52,37 @@ void main() {
     uint y = gl_GlobalInvocationID.y;
     uint p = x + y * WSX;
     
-    // Dessiner le cercle fixe
-    circle(540, 540, 200, 10);
+    bool hasCollided = (data_0[0] == COLLISION_MARKER);
+    
+    if (p != 0) {
+        data_0[p] = BLACK;
+    }
+    
+    circle(540, 540, 200, 20);
     
     uint movingCircleRadius = 30;
+    uint centerX = 540;
     
-    // Mouvement en oscillation
-    float amplitudeX = 100.0; // Amplitude du mouvement en X
-    float amplitudeY = 150.0; // Amplitude du mouvement en Y
-    float frequency = 0.01;   // Fréquence de l'oscillation
-
-    uint centerX = uint(540.0 + amplitudeX * cos(float(step) * frequency));
-    uint centerY = uint(540.0 + amplitudeY * sin(float(step) * frequency));
-
-    bool collision = checkCollision(centerX, centerY, movingCircleRadius, RED);
-
-    if (!collision) {
-        circleFull1(centerX, centerY, movingCircleRadius);
+    float amplitude = 160.0;
+    float frequency = 0.01; 
+    uint normalY = uint(540.0 + amplitude * sin(float(step) * frequency));
+    uint invertedY = uint(540.0 - amplitude * sin(float(step) * frequency));
+    
+    if (!hasCollided) {
+        bool collision = checkCollision(centerX, normalY, movingCircleRadius, RED);
+        if (collision) {
+            data_0[0] = COLLISION_MARKER;
+            hasCollided = true;
+        }
+    }
+    
+    uint newcolor;
+    
+    if (!hasCollided) {
+        newcolor = 1; // BLUE
+        circleFull(centerX, normalY, movingCircleRadius, newcolor);
     } else {
-        circleFull2(centerX, centerY, movingCircleRadius);
+        newcolor = 2; // RED
+        circleFull(centerX, invertedY, movingCircleRadius, newcolor);
     }
 }
