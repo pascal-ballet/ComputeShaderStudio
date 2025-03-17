@@ -6,12 +6,6 @@
 
 #define AI_EXPANSION_RATE 0.2
 
-// Stockage des coordonnees de la souris
-#define MOUSE_STORAGE_X 0
-#define MOUSE_STORAGE_Y 1
-#define MOUSE_STORAGE_CLICKED 2
-#define MOUSE_BUTTON_PRESSED 3
-
 int hash(int x, int y, int s) {
     int a = x * 0x6A09E667;
     int b = y * 0xBB67AE85;
@@ -29,26 +23,6 @@ bool random_event(int x, int y, int step, float probability) {
     return (normalized > 0.0 ? normalized : -normalized) < probability;
 }
 
-// Dessine un segment horizontal
-void drawHorizontalLine(int start_x, int y, int length, int color) {
-    for(int i = 0; i < length; i++) {
-        int pos = (start_x + i) + y * int(WSX);
-        if(start_x + i >= 0 && start_x + i < int(WSX) && y >= 0 && y < int(WSY)) {
-            data_0[pos] = color;
-        }
-    }
-}
-
-// Dessine un segment vertical
-void drawVerticalLine(int x, int start_y, int length, int color) {
-    for(int i = 0; i < length; i++) {
-        int pos = x + (start_y + i) * int(WSX);
-        if(x >= 0 && x < int(WSX) && start_y + i >= 0 && start_y + i < int(WSY)) {
-            data_0[pos] = color;
-        }
-    }
-}
-
 void main() {
     int x = int(gl_GlobalInvocationID.x);
     int y = int(gl_GlobalInvocationID.y);
@@ -56,12 +30,7 @@ void main() {
     
     // Initialisation
     if (step == 0) {
-        // Premiere rangee pour stocker les infos de la souris
-        if (y == 0 && x < 10) {
-            data_0[p] = -1; // Initialiser a -1
-        }
-        // Territoire du joueur en haut a gauche
-        else if (x < int(WSX)/8 && y < int(WSY)/8) {
+        if (x < int(WSX)/8 && y < int(WSY)/8) {
             data_0[p] = JOUEUR;
         } 
         // IA 1 en haut a droite
