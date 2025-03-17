@@ -22,23 +22,45 @@ int lerp_color(int c1, int r1, int g1, int b1, int r2, int g2, int b2, float t) 
 }
 
 float water_height(float x, float time) {
-    float wave1 = sin(x * 0.02 + time * 0.5) * 10.0;
-    float wave2 = sin(x * 0.05 + time * 0.3) * 5.0;
-    float wave3 = sin(x * 0.1 + time * 0.7) * 3.0;
-    return wave1 + wave2 + wave3;
+    float wave1 = sin(x * 0.02 + time * 0.5) * 15.0; 
+    float wave2 = sin(x * 0.05 + time * 0.3) * 8.0;  
+    float wave3 = sin(x * 0.1 + time * 0.7) * 5.0;   
+    float wave4 = sin(x * 0.2 + time * 0.9) * 2.0;
+    return wave1 + wave2 + wave3 + wave4;
 }
 
-bool is_water(uint x, uint y, uint time, int screen_height, bool is_inside_circle) {
+float water_height_with_circle_effect(float x, float time, float circle_dist, float circle_angle) {
+    float base_height = water_height(x, time);
+    
+    if (circle_dist > 0.0 && circle_dist < 40.0) { 
+        float normalized_dist = 1.0 - (circle_dist / 40.0);
+        
+        float wave_time = time * 0.8;
+        float vertical_wave = sin(wave_time + circle_dist * 0.3) * 25.0 * normalized_dist; 
+        
+        float horizontal_wave = sin(circle_angle * 5.0 + wave_time * 1.2) * 15.0 * normalized_dist; 
+        
+        float splash = sin(wave_time * 1.5 + circle_dist * 0.5) * cos(circle_angle * 3.0 + wave_time) * 20.0 * normalized_dist * normalized_dist; 
+        
+        float secondary_waves = sin(circle_angle * 12.0 + wave_time * 2.0) * sin(circle_dist * 0.8) * 10.0 * normalized_dist;
+        
+        return base_height + vertical_wave + horizontal_wave + splash + secondary_waves;
+    }
+    
+    return base_height;
+}
+
+bool is_water(uint x, uint y, uint time, int screen_height, bool is_inside_circle, float circle_dist, float circle_angle) {
     if (is_inside_circle) {
         return false;
     }
     
     int water_start_y = int(screen_height * 0.7);
-    if (int(y) < water_start_y) {
+    if (int(y) < water_start_y - 50) { 
         return false;
     }
     float base_height = float(water_start_y);
-    float wave_height = water_height(float(x), float(time) * 0.05);
+    float wave_height = water_height_with_circle_effect(float(x), float(time) * 0.05, circle_dist, circle_angle);
     float surface_height = base_height + wave_height;
     return float(y) >= surface_height;
 }
@@ -50,47 +72,55 @@ bool is_inside_circle(uint x, uint y, float cx, float cy, float radius) {
     return dist_sq <= radius * radius;
 }
 
-int water_color(uint x, uint y, uint time, int screen_height, float circle_dist) {
-    int base_r = 200;
-    int base_g = 150;
-    int base_b = 255;
+int water_color(uint x, uint y, uint time, int screen_height, float circle_dist, float circle_angle) {
+    int base_r = 255; 
+    int base_g = 165; 
+    int base_b = 0;   
     
     int water_start_y = int(screen_height * 0.7);
     float depth = float(y - water_start_y) / float(screen_height - water_start_y);
     depth = min(1.0, max(0.0, depth));
     
-    base_b = int(float(base_b) * (1.0 - depth * 0.5));
-    base_g = int(float(base_g) * (1.0 - depth * 0.7));
+    base_r = int(float(base_r) * (1.0 - depth * 0.2)); 
+    base_g = int(float(base_g) * (1.0 - depth * 0.2)); 
+    base_b = int(float(base_b) + depth * 20.0); 
     
-    float wave_height = water_height(float(x), float(time) * 0.05);
+    float wave_height = water_height_with_circle_effect(float(x), float(time) * 0.05, circle_dist, circle_angle);
     float surface_height = float(water_start_y) + wave_height;
     float surface_dist = float(y) - surface_height;
     
     if (surface_dist >= -2.0 && surface_dist <= 2.0) {
-        float wave_slope = water_height(float(x) + 1.0, float(time) * 0.05) - 
-                           water_height(float(x) - 1.0, float(time) * 0.05);
-        float foam_intensity = abs(wave_slope) * 0.2;
+        float wave_slope = water_height_with_circle_effect(float(x) + 1.0, float(time) * 0.05, circle_dist, circle_angle) - 
+                           water_height_with_circle_effect(float(x) - 1.0, float(time) * 0.05, circle_dist, circle_angle);
+        float foam_intensity = abs(wave_slope) * 0.15;
         
-        base_r = int(mix(float(base_r), 255.0, foam_intensity));
-        base_g = int(mix(float(base_g), 255.0, foam_intensity));
-        base_b = int(mix(float(base_b), 255.0, foam_intensity));
+        int foam_r = min(255, base_r + 40);
+        int foam_g = min(255, base_g + 40);
+        int foam_b = min(255, base_b); 
+        
+        base_r = int(mix(float(base_r), float(foam_r), foam_intensity));
+        base_g = int(mix(float(base_g), float(foam_g), foam_intensity));
+        base_b = int(mix(float(base_b), float(foam_b), foam_intensity));
     }
     
-    if (circle_dist > 0.0) {
-        float wave_effect = sin(float(time) * 0.2 + circle_dist * 10.0) * 0.5 + 0.5;
-        float collision_foam = 0.7 + wave_effect * 0.3;
-        
-        collision_foam *= circle_dist;
-        
-        base_r = int(mix(float(base_r), 255.0, collision_foam));
-        base_g = int(mix(float(base_g), 255.0, collision_foam));
-        base_b = int(mix(float(base_b), 255.0, collision_foam));
+    if (circle_dist > 0.0 && circle_dist < 30.0) {
+        float normalized_dist = 1.0 - (circle_dist / 30.0);
+        float wave_time = float(time) * 0.2;
+        float wave_effect = sin(wave_time + circle_dist * 0.3) * 0.5 + 0.5;
+        float splash_pattern = sin(circle_angle * 8.0 + wave_time * 2.0) * 0.5 + 0.5;
+        float collision_foam = normalized_dist * (0.3 + wave_effect * 0.2 + splash_pattern * 0.2);
+        int splash_r = min(255, base_r + 30);
+        int splash_g = min(255, base_g + 30);
+        int splash_b = min(255, base_b);
+        base_r = int(mix(float(base_r), float(splash_r), collision_foam));
+        base_g = int(mix(float(base_g), float(splash_g), collision_foam));
+        base_b = int(mix(float(base_b), float(splash_b), collision_foam));
     }
     
-    float shimmer = sin(float(x) * 0.1 + float(y) * 0.1 + float(time) * 0.2) * 0.1 + 0.1;
-    base_r = min(255, base_r + int(shimmer * 20.0));
-    base_g = min(255, base_g + int(shimmer * 30.0));
-    base_b = min(255, base_b + int(shimmer * 40.0));
+    float shimmer = sin(float(x) * 0.1 + float(y) * 0.1 + float(time) * 0.2) * 0.08 + 0.08;
+    base_r = min(255, base_r + int(shimmer * 30.0)); 
+    base_g = min(255, base_g + int(shimmer * 25.0)); 
+    base_b = min(255, base_b + int(shimmer * 5.0)); 
     
     return rgb_to_int(base_r, base_g, base_b);
 }
@@ -218,6 +248,8 @@ void main() {
     float circle_radii[20];
     int num_active_circles = 0;
     
+    float min_circle_distance = 1000000.0;
+    
     for (int i = 0; i <= current_circle && i < safe_num_circles; i++) {
         float current_radius = float(max_radius) - float(i) * radius_step;
         
@@ -228,6 +260,13 @@ void main() {
         
         if (is_inside_circle(x, y, float(cx), float(cy), current_radius + thickness)) {
             is_inside_any_circle = true;
+        }
+        
+        float dx = float(x) - float(cx);
+        float dy = float(y) - float(cy);
+        float dist_to_circle = abs(sqrt(dx * dx + dy * dy) - current_radius);
+        if (dist_to_circle < min_circle_distance) {
+            min_circle_distance = dist_to_circle;
         }
     }
     
@@ -282,7 +321,14 @@ void main() {
         if (dist_sq <= float(thickness * thickness)) {
             is_inside_any_circle = true;
         }
+        
+        float dist_to_line = sqrt(dist_sq);
+        if (dist_to_line < min_circle_distance) {
+            min_circle_distance = dist_to_line;
+        }
     }
+    
+    circle_distance = min_circle_distance;
     
     for (int i = 0; i <= current_circle && i < safe_num_circles; i++) {
         float current_radius = float(max_radius) - float(i) * radius_step;
@@ -385,17 +431,45 @@ void main() {
         }
     }
     
-    if (is_water(x, y, step, int(WSY), is_inside_any_circle)) {
-        int water_col = water_color(x, y, step, int(WSY), circle_distance);
+    float closest_circle_angle = 0.0;
+    if (circle_distance > 0.0 && circle_distance < 100.0) {
+        float min_dist = 1000000.0;
+        int closest_circle_idx = -1;
+        
+        for (int i = 0; i < num_active_circles; i++) {
+            float dx = float(x) - circle_centers_x[i];
+            float dy = float(y) - circle_centers_y[i];
+            float dist = sqrt(dx * dx + dy * dy) - circle_radii[i];
+            
+            if (dist < min_dist) {
+                min_dist = dist;
+                closest_circle_idx = i;
+            }
+        }
+        
+        if (closest_circle_idx >= 0) {
+            float dx = float(x) - circle_centers_x[closest_circle_idx];
+            float dy = float(y) - circle_centers_y[closest_circle_idx];
+            closest_circle_angle = atan(dy, dx);
+            if (closest_circle_angle < 0.0) closest_circle_angle += 2.0 * 3.14159;
+        }
+    }
+    
+    if (is_water(x, y, step, int(WSY), is_inside_any_circle, circle_distance, closest_circle_angle)) {
+        int water_col = water_color(x, y, step, int(WSY), circle_distance, closest_circle_angle);
         
         if (circle_drawn) {
             int r = (water_col >> 16) & 0xFF;
             int g = (water_col >> 8) & 0xFF;
             int b = water_col & 0xFF;
             
-            r = min(255, r + 150);
-            g = min(255, g + 150);
-            b = min(255, b + 150);
+            float brighten_factor_r = 1.4; 
+            float brighten_factor_g = 1.3; 
+            float brighten_factor_b = 1.0; 
+            
+            r = min(255, int(float(r) * brighten_factor_r));
+            g = min(255, int(float(g) * brighten_factor_g));
+            b = min(255, int(float(b) * brighten_factor_b));
             
             water_col = rgb_to_int(r, g, b);
         }
@@ -403,7 +477,7 @@ void main() {
         data_0[p] = water_col;
     }
     
-    if (!circle_drawn && !is_water(x, y, step, int(WSY), is_inside_any_circle) && is_shooting_star(x, y, step, 50)) {
+    if (!circle_drawn && !is_water(x, y, step, int(WSY), is_inside_any_circle, circle_distance, closest_circle_angle) && is_shooting_star(x, y, step, 50)) {
         data_0[p] = WHITE;
     }
 }
