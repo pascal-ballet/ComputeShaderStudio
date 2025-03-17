@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": false,
-      "cwd": "/media/clem/Transcend/master/m1/s8/AAP/godot/ComputeShaderStudio/examples/exampleClement",
-      "program": "/media/clem/Transcend/master/m1/s8/AAP/godot/ComputeShaderStudio/examples/exampleClement/build/Debug/outDebug",
+      "cwd": "/media/clem/SSD-Clem/master/m1/s8/AAP/godot/ComputeShaderStudio/examples/backgroundClement",
+      "program": "/media/clem/SSD-Clem/master/m1/s8/AAP/godot/ComputeShaderStudio/examples/backgroundClement/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [
