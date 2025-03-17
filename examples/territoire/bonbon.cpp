@@ -6,6 +6,12 @@
 
 #define AI_EXPANSION_RATE 0.2
 
+// Stockage des coordonnees de la souris
+#define MOUSE_STORAGE_X 0
+#define MOUSE_STORAGE_Y 1
+#define MOUSE_STORAGE_CLICKED 2
+#define MOUSE_BUTTON_PRESSED 3
+
 int hash(int x, int y, int s) {
     int a = x * 0x6A09E667;
     int b = y * 0xBB67AE85;
