@@ -5,6 +5,7 @@
 #define RAIN_DROPS 500
 #define SPLASH_PARTICLES 20
 #define CAR_COUNT 8  // Plus de voitures pour remplir les 4 voies
+#define STAR_COUNT 200  // Nombre d'étoiles dans le ciel
 
 float hash(float n) { return fract(sin(n) * 43758.5453123); }
 
@@ -38,14 +39,96 @@ void main() {
     int y = int(gl_GlobalInvocationID.y);
     int p = x + y * int(WSX);
     
-    // Nuit - fond noir avec leger bleu
-    vec3 nightColor = vec3(0.05, 0.1, 0.25);
-
-    // Route mouillée - gris fonce avec reflets
-    vec3 roadColor = vec3(0.08, 0.08, 0.07);
+    // Définir les limites des différentes zones
+    float skyLimit = float(WSX) / 4.0 - 10.0;  // Limite entre ciel et route
+    float laneY1 = float(WSX) / 4.0;         // Voie du haut (voitures vers la droite - lente)
+    float laneY4 = float(WSX) / 4.0 + 115;    // Voie du bas (voitures vers la gauche - lente)
+    float grassStart = laneY4 + 30.0;         // Début de l'herbe après la route
     
-    // Couleur de base - nuit
-    data_0[p] = 0xFF000000 | (int(nightColor.r * 255.0) << 16) | (int(nightColor.g * 255.0) << 8) | int(nightColor.b * 255.0);
+    // Ciel nocturne avec étoiles
+    if (y < int(skyLimit)) {
+        // Dégradé pour le ciel nocturne (plus foncé en haut, plus clair vers l'horizon)
+        float skyGradient = float(y) / skyLimit;
+        vec3 skyColor = mix(
+            vec3(0.02, 0.03, 0.15),  // Bleu nuit très foncé (haut)
+            vec3(0.05, 0.07, 0.2),   // Bleu nuit un peu plus clair (vers l'horizon)
+            skyGradient
+        );
+        
+        // Appliquer la couleur de base du ciel
+        data_0[p] = 0xFF000000 | (int(skyColor.r * 255.0) << 16) | (int(skyColor.g * 255.0) << 8) | int(skyColor.b * 255.0);
+        
+        // Ajouter des étoiles
+        for (int i = 0; i < STAR_COUNT; i++) {
+            float starSeed = float(i) * 42.758;
+            float starX = hash(starSeed) * float(WSX);
+            float starY = hash(starSeed + 7.3219) * skyLimit;
+            
+            // Distance à l'étoile
+            float distToStar = length(vec2(float(x) - starX, float(y) - starY));
+            
+            // Taille variable des étoiles
+            float starRadius = 0.5 + hash(starSeed + 13.7) * 1.5;
+            
+            // Luminosité variable des étoiles
+            float starBrightness = 0.5 + hash(starSeed + 21.13) * 0.5;
+            
+            // Faire scintiller les étoiles avec le temps
+            float flicker = 0.7 + 0.3 * sin(float(step) * 0.05 + hash(starSeed) * 6.28);
+            starBrightness *= flicker;
+            
+            // Dessiner l'étoile avec un dégradé doux
+            if (distToStar < starRadius) {
+                float starIntensity = (1.0 - distToStar / starRadius) * starBrightness;
+                vec3 starColor = vec3(0.9, 0.95, 1.0) * starIntensity; // Blanc légèrement bleuté
+                
+                // Pour quelques étoiles, ajouter une teinte colorée
+                if (hash(starSeed + 33.97) > 0.85) {
+                    // Rouge, bleu ou jaune selon le hash
+                    float colorType = hash(starSeed + 50.31);
+                    if (colorType < 0.33) {
+                        starColor = mix(starColor, vec3(1.0, 0.7, 0.7), 0.4); // Rougeâtre
+                    } else if (colorType < 0.66) {
+                        starColor = mix(starColor, vec3(0.7, 0.7, 1.0), 0.4); // Bleuâtre
+                    } else {
+                        starColor = mix(starColor, vec3(1.0, 1.0, 0.7), 0.4); // Jaunâtre
+                    }
+                }
+                
+                // Mélanger avec la couleur existante
+                vec3 existingColor = vec3(
+                    float((data_0[p] >> 16) & 0xFF) / 255.0,
+                    float((data_0[p] >> 8) & 0xFF) / 255.0,
+                    float(data_0[p] & 0xFF) / 255.0
+                );
+                
+                vec3 finalColor = existingColor + starColor;
+                finalColor = min(finalColor, vec3(1.0)); // Limiter à 1.0
+                
+                data_0[p] = 0xFF000000 | (int(finalColor.r * 255.0) << 16) | (int(finalColor.g * 255.0) << 8) | int(finalColor.b * 255.0);
+            }
+        }
+    }
+    
+    // Zone d'herbe en bas
+    else if (y >= int(grassStart)) {
+        // Utiliser fbm pour créer une texture d'herbe
+        float grassNoise = fbm(vec2(float(x) * 0.05, float(y) * 0.05 + float(step) * 0.001));
+        
+        // Couleur de base de l'herbe avec variation
+        vec3 grassColor = vec3(0.05 + grassNoise * 0.04, 0.2 + grassNoise * 0.1, 0.05 + grassNoise * 0.02);
+        
+        // Assombrir progressivement l'herbe en s'éloignant de la route
+        float distFromRoad = (float(y) - grassStart) / (float(WSX) - grassStart);
+        grassColor = mix(grassColor, vec3(0.02, 0.08, 0.02), distFromRoad * 0.7);
+        
+        // Ajouter quelques brins d'herbe plus clairs
+        if (hash(float(x) + float(y) * 73.1) > 0.97) {
+            grassColor = mix(grassColor, vec3(0.15, 0.3, 0.1), 0.5);
+        }
+        
+        data_0[p] = 0xFF000000 | (int(grassColor.r * 255.0) << 16) | (int(grassColor.g * 255.0) << 8) | int(grassColor.b * 255.0);
+    }
     
     // Lune améliorée
     float moonX = float(WSX) * 0.85;
@@ -97,8 +180,15 @@ void main() {
         // Mélanger entre les couleurs intérieures et extérieures du halo
         vec3 haloColor = mix(outerHaloColor, innerHaloColor, 1.0 - haloDistance);
         
+        // Récupérer la couleur existante (ciel ou étoiles)
+        vec3 existingColor = vec3(
+            float((data_0[p] >> 16) & 0xFF) / 255.0,
+            float((data_0[p] >> 8) & 0xFF) / 255.0,
+            float(data_0[p] & 0xFF) / 255.0
+        );
+        
         // Mélanger avec la couleur de fond selon l'intensité
-        vec3 finalHaloColor = mix(nightColor, haloColor, haloIntensity);
+        vec3 finalHaloColor = mix(existingColor, haloColor, haloIntensity);
         
         data_0[p] = 0xFF000000 | (int(finalHaloColor.r * 255.0) << 16) | (int(finalHaloColor.g * 255.0) << 8) | int(finalHaloColor.b * 255.0);
     }
@@ -144,16 +234,19 @@ void main() {
     }
 
     // Délimiter les voies
-    float laneY1 = float(WSX) / 4.0;      // Voie du haut (voitures vers la droite - lente)
     float laneY2 = float(WSX) / 4.0 + 35; // Voie du haut (voitures vers la droite - rapide)
     float laneY3 = float(WSX) / 4.0 + 80; // Voie du bas (voitures vers la gauche - rapide)
-    float laneY4 = float(WSX) / 4.0 + 115; // Voie du bas (voitures vers la gauche - lente)
     
     // Route mouillée
-    if (y > int(laneY1) - 10 && y < int(laneY4) + 30) {
+    if (y >= int(skyLimit) && y < int(grassStart)) {
         // Effet de route mouillée avec reflets
-        vec3 finalRoadColor = roadColor;
-        data_0[p] = 0xFF000000 | (int(finalRoadColor.r * 255.0) << 16) | (int(finalRoadColor.g * 255.0) << 8) | int(finalRoadColor.b * 255.0);
+        vec3 roadColor = vec3(0.08, 0.08, 0.07);
+        
+        // Ajouter un peu de reflet pour la route mouillée
+        float reflectFactor = noise(vec2(float(x) * 0.02, float(y) * 0.02)) * 0.03;
+        roadColor = roadColor + vec3(reflectFactor);
+        
+        data_0[p] = 0xFF000000 | (int(roadColor.r * 255.0) << 16) | (int(roadColor.g * 255.0) << 8) | int(roadColor.b * 255.0);
         
         // Ligne entre les voies allant dans le même sens
         if (y > int(laneY1) + 30 && y < int(laneY1) + 33) {
