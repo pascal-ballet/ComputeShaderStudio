@@ -3,14 +3,17 @@
 [ext_resource type="Script" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_osmo3"]
 [ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/icon.svg" id="2_ec1t8"]
 
-[node name="NeuralPulse" type="Node2D"]
+[node name="car_in_the_night" type="Node2D"]
 
 [node name="ComputeShaderStudio2D" type="Node" parent="." node_paths=PackedStringArray("data")]
 script = ExtResource("1_osmo3")
-glsl_file = "res://examples/neural pulse/neural_pulse.cpp"
-data = [NodePath("../Icon")]
+WSX = 1920
+WSY = 1080
+glsl_file = "res://examples/car_in_the_night/car_in_the_night.cpp"
+data = [NodePath("Icon")]
+metadata/_custom_type_script = "uid://c8esqdv0y26yp"
 
-[node name="Icon" type="Sprite2D" parent="."]
-position = Vector2(579, 326)
-scale = Vector2(8.75, 4.79688)
+[node name="Icon" type="Sprite2D" parent="ComputeShaderStudio2D"]
+position = Vector2(576, 324.5)
+scale = Vector2(9, 5.05469)
 texture = ExtResource("2_ec1t8")
