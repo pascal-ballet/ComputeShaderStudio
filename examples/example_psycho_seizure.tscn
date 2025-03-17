@@ -1,0 +1,80 @@
+[gd_scene load_steps=3 format=3 uid="uid://l25d0xyxbx72"]
+
+[ext_resource type="Script" uid="uid://c8esqdv0y26yp" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_26wk6"]
+[ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/icon.svg" id="2_urrfs"]
+
+[node name="exeample_psycho_seizure" type="Node2D"]
+
+[node name="ComputeShaderStudio2D" type="Node" parent="." node_paths=PackedStringArray("data")]
+script = ExtResource("1_26wk6")
+WSX = 2000
+WSY = 2000
+GLSL_code = "#define red  0xFF0000FF
+#define blue 0x000088FF
+#define purple 0x880088FF
+#define black 0xFF000000
+
+
+
+float perlinNoise(vec2 p) {
+    return sin(p.x * 10.0) * sin(p.y * 10.0);  
+}
+
+/**
+ * Calculates the variation in shape based on the given angle, radius, and time.
+ * Uses Perlin noise to generate random values.
+ *
+ * @param angle The angle in radians.
+ * @param radius The radius of the shape.
+ * @param time The current time.
+ * @return The variation in shape.
+ */
+float shapeVariation(float angle, float radius, float time) {
+    float n = perlinNoise(vec2(cos(angle), sin(angle)) * time * 0.2);
+    float n2 = perlinNoise(vec2(sin(angle * 2.0), cos(angle * 2.0)) * time * 0.1);
+    return radius * (1.0 + 0.3 * n + 0.1 * n2);
+}
+
+
+/* Note  that if you play with different  WSX and WSY you might have nice results.
+    as a general rule try to play with every parameter to see the effect, it's quite fun!
+*/
+void main() {
+    uint x = gl_GlobalInvocationID.x;
+    uint y = gl_GlobalInvocationID.y;
+    uint p = x + y * WSX;
+
+    float time = float(step); 
+    float angle, radius;
+
+    // Center of the matrix
+    float centerX = float(WSX) / 2.0;
+    float centerY = float(WSY) / 2.0;
+
+    //Converts the coordinates to polar coordinates.
+    float dx = float(x) - centerX;
+    float dy = float(y) - centerY;
+    angle = atan(dy, dx);
+    radius = sqrt(dx * dx + dy * dy);
+
+    //create a dynamic shape
+    float variableRadius = shapeVariation(angle, radius, time);
+
+
+    if (radius <= variableRadius) {
+        data_0[p] = red;
+        /* if you want to blend colors use uncomment
+            float blend = (sin(time) + 1.0) / 2.0;  
+            int(mix(float(blue), float(purple), blend))
+        */
+    } else {
+        //if you want to update the background color (here it's black)
+        data_0[p] = black;;
+    }
+}"
+data = [NodePath("../Icon")]
+
+[node name="Icon" type="Sprite2D" parent="."]
+position = Vector2(580, 333)
+scale = Vector2(4.5625, 3.83594)
+texture = ExtResource("2_urrfs")
