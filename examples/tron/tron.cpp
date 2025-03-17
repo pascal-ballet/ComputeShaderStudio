@@ -19,7 +19,7 @@
 #define CLEAR 0xFF000000
 #define MOTO_1 0xFF0000FF
 #define MOTO_2 0xFFFF0000
-#define BEAM_1 0xFF0055FF
+#define BEAM_1 0xFF00FFFF
 #define BEAM_2 0xFF55FF00
 
 #define Display data_0
@@ -30,11 +30,7 @@
 
 #define Init 0
 
-
 const int dimMoto = 10;
-
-
-
 
 // fonction random
 float random(vec2 uv)
@@ -51,32 +47,35 @@ void initGame(ivec2 pos)
     Motorcycles[p] = CLEAR;
     Beams[p] = CLEAR;
 
-    if (pos.x >= 300 - dimMoto && pos.x < 290 + dimMoto && pos.y >= 200 - dimMoto && pos.y < 190 + dimMoto)
+
+    for(int i = 0; i < 10000; i++){}
+
+    // On choisis aleatoirement une position dans la partie gauche de la simulation
+    float randomY1 = random(vec2(123.45f, 67.89f)) * (WSY - 2 * dimMoto) + dimMoto;
+    float randomX1 = random(vec2(234.56f, 78.90f)) * (WSX / 2 - 2 * dimMoto) + dimMoto;
+
+    ivec2 moto1Pos = ivec2(int(randomX1), int(randomY1));
+
+    // On choisis aleatoirement une position dans la partie droite de la simulation
+    float randomY2 = random(vec2(345.67f, 89.01f)) * (WSY - 2 * dimMoto) + dimMoto;
+    float randomX2 = random(vec2(456.78f, 90.12f)) * (WSX / 2 - 2 * dimMoto) + (WSX / 2);
+
+    ivec2 moto2Pos = ivec2(int(randomX2), int(randomY2));
+
+    // Assure que les motos soit spawn alignees pour la suite des mouvements
+    moto1Pos = ivec2((moto1Pos.x / dimMoto) * dimMoto, (moto1Pos.y / dimMoto) * dimMoto);
+    moto2Pos = ivec2((moto2Pos.x / dimMoto) * dimMoto, (moto2Pos.y / dimMoto) * dimMoto);
+
+    // Premiere moto
+    if (pos.x >= moto1Pos.x && pos.x < moto1Pos.x + dimMoto &&
+        pos.y >= moto1Pos.y && pos.y < moto1Pos.y + dimMoto)
         Motorcycles[p] = MOTO_1;
 
-    if (pos.x >= 600 - dimMoto && pos.x < 590 + dimMoto && pos.y >= 200 - dimMoto && pos.y < 190 + dimMoto)
+    // deuxieme moto
+    if (pos.x >= moto2Pos.x && pos.x < moto2Pos.x + dimMoto &&
+        pos.y >= moto2Pos.y && pos.y < moto2Pos.y + dimMoto)
         Motorcycles[p] = MOTO_2;
-
-    Display[p] += Motorcycles[p];
 }
-
-void restartGame()
-{
-    ivec2 clearPos;
-    for (int i = 0; i < WSX; i++)
-    {
-        for (int j = 0; j < WSY; j++)
-        {
-            clearPos = ivec2(i, j);
-            uint p = clearPos.x + clearPos.y * WSX;
-
-            Display[p] = CLEAR;
-            Motorcycles[p] = CLEAR;
-            Beams[p] = CLEAR;
-        }
-    }
-}
-
 bool isDirectionClear(ivec2 basePos, int direction)
 {
     ivec2 nextPos = basePos;
@@ -214,8 +213,8 @@ void main()
 {
     ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
     uint p = pos.x + pos.y * WSX;
-
-    int slowFactor = 10;
+    
+    int slowFactor = 2;
 
     if (step == Init)
     {
@@ -237,12 +236,9 @@ void main()
     {
         Display[p] = Motorcycles[p] + Beams[p];
     }
-    if (left_pressed && step % 2 == 0)
+    if (left_pressed && step > 100)
     {
-        restartGame();
-    }
-    if (left_pressed && step % 2 == 1)
-    {
+
         initGame(pos);
     }
 }
