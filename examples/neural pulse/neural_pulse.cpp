@@ -71,8 +71,8 @@ void main() {
             // Distance to lightning center
             float dist = length(centered - flashPos);
             
-            // Core and outer glow
-            float baseRadius = 0.15 + sin(t * 4.0 + seed) * 0.02;
+            // Core and outer glow - smaller size
+            float baseRadius = 0.08 + sin(t * 4.0 + seed) * 0.01; // Reduced from 0.15
             float glowRadius = baseRadius * (1.0 + flashIntensity * 0.3);
             float coreSize = glowRadius * 0.3;
             
