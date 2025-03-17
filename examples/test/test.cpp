@@ -1,237 +1,188 @@
-#version 450
+#define M_PI 3.14159265358979323846
 
-// Workgroup size
-layout(local_size_x = 16, local_size_y = 16) in;
+#define blue1 vec3(0.74, 0.95, 1.00)
+#define blue2 vec3(0.87, 0.98, 1.00)
+#define blue3 vec3(0.35, 0.76, 0.83)
+#define blue4 vec3(0.953, 0.969, 0.89)
+#define red   vec3(1.00, 0.38, 0.227)
 
-void main() 
-{
-    // Get the current pixel coordinates
-    ivec2 pixelCoords = ivec2(gl_GlobalInvocationID.xy);
+#define SMOOTH(r, R) (1.0 - smoothstep(R - 1.0, R + 1.0, r))
+#define MOV(a, b, c, d, t) (vec2(a * cos(t) + b * cos(0.1 * (t)), c * sin(t) + d * cos(0.1 * (t))))
+
+void main() {
+    uint x = gl_GlobalInvocationID.x;
+    uint y = gl_GlobalInvocationID.y;
+    uint p = x + y * WSX;
     
-    // Input parameters (these are just placeholders)
-    vec2 resolution = vec2(800.0, 600.0); // Example resolution
-    float time = 1.0; // Example time (you can replace this with an actual uniform in your app)
-
-    // Check if within bounds
-    if(pixelCoords.x >= int(resolution.x) || pixelCoords.y >= int(resolution.y)) {
-        return;
+    // Normalized coordinates
+    vec2 uv = vec2(float(x), float(y));
+    vec2 c = vec2(float(WSX) / 2.0, float(WSY) / 2.0); // Center
+    
+    // Scale factor to match the original effect size
+    float scale = min(float(WSX), float(WSY)) / 650.0;
+    
+    // Time variable
+    float time = float(step) * 0.01;
+    
+    // Start with a black background
+    vec3 finalColor = vec3(0.0);
+    
+    // ---- Begin radar element calculations ----
+    
+    // Moving scan line
+    {
+        float theta0 = 90.0 * time;
+        vec2 d = uv - c;
+        float r = length(d);
+        
+        if (r < 240.0 * scale) {
+            vec2 p = 240.0 * scale * vec2(cos(theta0 * M_PI / 180.0), -sin(theta0 * M_PI / 180.0));
+            float l = length(d - p * clamp(dot(d, p) / dot(p, p), 0.0, 1.0));
+            d = normalize(d);
+            float theta = mod(180.0 * atan(d.y, d.x) / M_PI + theta0, 360.0);
+            float gradient = clamp(1.0 - theta / 90.0, 0.0, 1.0);
+            finalColor += (SMOOTH(l, 1.0) + 0.5 * gradient) * blue3;
+        }
     }
     
-    // Normalized pixel coordinates (from 0 to 1)
-    vec2 fragCoord = vec2(pixelCoords);
-    vec2 uv = (fragCoord * 2.0 - resolution.xy) / resolution.y;
-    
-    // Time loop
-    float animTime = abs(8.0 - mod(time + 8.0, 16.0));
+    // Main circles
+    {
+        // Circle 1
+        float r1 = length(uv - c);
+        finalColor += (SMOOTH(r1 - 0.5 * scale, 100.0 * scale) - SMOOTH(r1 + 0.5 * scale, 100.0 * scale)) * blue1;
         
-    // Side lengths for demo
-    float edge_x = (0.6 + 0.4 * cos(time)) * smoothstep(1.0, 2.0, animTime);
-    float edge_y = (0.6 + 0.4 * sin(time)) * smoothstep(3.0, 4.0, animTime);
+        // Circle 2
+        float r2 = length(uv - c);
+        finalColor += (SMOOTH(r2 - 0.5 * scale, 165.0 * scale) - SMOOTH(r2 + 0.5 * scale, 165.0 * scale)) * blue1;
+        
+        // Circle 3
+        float r3 = length(uv - c);
+        finalColor += (SMOOTH(r3 - 1.0 * scale, 240.0 * scale) - SMOOTH(r3 + 1.0 * scale, 240.0 * scale)) * blue4;
+    }
     
-    // Hypotenuse edge
-    vec2 edge_h = vec2(edge_x, -edge_y) * smoothstep(5.0, 6.0, animTime);
-    
-    // Centered position coordinates
-    vec2 p = uv + 0.5 * vec2(edge_x, edge_y);
-    
-    // Distance to x-edge
-    float d = length(p - clamp(p, vec2(0.0), vec2(edge_x, 0)));
-    
-    // Distance to y-edge
-    d = min(d, length(p - clamp(p, vec2(0.0), vec2(0, edge_y))));
-    
-    // Hypotenuse edge distance
-    p -= vec2(0, edge_y);
-    float h = clamp(dot(p, edge_h) / dot(edge_h, edge_h), 0.0, 1.0);
-    d = min(d, length(p - edge_h * h));
-    
-    // Compute distance field sign
-    float ex = -p.x;
-    float ey = -edge_y - p.y;
-    float eh = edge_y * p.x + edge_x * p.y;
-    
-    // Use the sign of the greatest edge
-    float sig = sign(max(ex, max(ey, eh)));
-    sig = mix(1.0, sig, smoothstep(6.0, 7.0, animTime));
-    
-    // Isolines
-    vec3 col = 0.95 + 0.05 * cos(d * 1e2 + vec3(0, 1, 2));
-    col /= 1.0 + 20.0 * d * exp(sig * vec3(3, 0, -1));
-    
-    // Output color (write to the image)
-    imageStore(image2D, pixelCoords, vec4(col, 1.0));
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// #define RADIUS 10
-// #define MAX_LENGTH 50
-
-
-// void main()
-// {
-//     int x = int(gl_GlobalInvocationID.x);
-//     int y = int(gl_GlobalInvocationID.y);
-//     int p = x + y * int(WSX);
-//     int positions[MAX_LENGTH][2]; // Tableau pour stocker les positions du serpent
-
-//     for (int i = 0; i < MAX_LENGTH; ++i)
-//     {
-//         positions[i][0] = 0;
-//         positions[i][1] = 0;
-//     }
-
-//     // Initial background is black & opaque
-//     if (step == 0)
-//     {
-//         data_0[p] = 0xFF000000 + y;
-//     }
-//     else
-//     {
-//         // Déplacer le serpent en fonction de la souris
-//         for (int i = MAX_LENGTH - 1; i > 0; --i)
-//         {
-//             positions[i][0] = positions[i - 1][0];
-//             positions[i][1] = positions[i - 1][1];
-//         }
-
-//         // Stocke la nouvelle position de la souris
-//         positions[0][0] = mousex;
-//         positions[0][1] = mousey;
-
-//         // Dessiner chaque segment du serpent
-//         for (int i = 0; i < MAX_LENGTH; ++i)
-//         {
-//             float dx = float(positions[i][0] - x);
-//             float dy = float(positions[i][1] - y);
-//             float dist = sqrt(dx * dx + dy * dy);
+    // Segmented outer circle
+    {
+        vec2 d = uv - c;
+        float r = length(d);
+        
+        if (r > 0.0) {
+            d = normalize(d);
+            float theta = 180.0 * (atan(d.y, d.x) / M_PI);
             
-//             // Dessiner un segment du serpent
-//             if (dist < RADIUS)
-//             {
-//                 int col = 0xFF00FF00; // Vert pour le serpent
-//                 data_0[p] = 0xFF000000 + col;
-//             }
-//         }
-//     }
-
-//     step++;
-// }
-
-
-
-
-
-
-
-
-
-
-
-// #define RADIUS 40
-
-// void main()
-// {
-//     int x = int(gl_GlobalInvocationID.x);
-//     int y = int(gl_GlobalInvocationID.y);
-//     int p = x + y * int(WSX);
-
-//     // Initial background is black & opaque
-//     if (step == 0)
-//     {
-//         data_0[p] = 0xFF000000 + y;
-//     }else{
-//         // Draw a fading red circle
-//         float dx = float(mousex - x);
-//         float dy = float(mousey - y);
-//         float dist = sqrt(dx * dx + dy * dy);
-
-//         int pix = data_0[p];
-//         int col = pix & 0x00FFFFFF;
-//         float r = RADIUS + 10 * sin(step / 10.0f);
-//         if (dist < r - 1)
-//         {
-//             col = col + 0x04;
-//             data_0[p] = 0xFF000000 + col;
-//         }
-
-//     }
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// void main() {
-//     uint x = gl_GlobalInvocationID.x;
-//     uint y = gl_GlobalInvocationID.y;
-//     uint p = x + y * WSX; // Indexation en 1D d'une matrice 2D
-
-//     int row = y % 2; // Alternance de lignes
-//     int col = x % 2; // Alternance de colonnes
-
-//     data_0[p] = (row == col) ? 0xFFFFFF00 : 0xFF0000FF; // Motif damier
-//     data_1[p] =  0xFFFF0000 - int(x + y) * (step); 
-// }
-
-
-
-// void main() {
-// 	uint x = gl_GlobalInvocationID.x;
-// 	uint y = gl_GlobalInvocationID.y;
-// 	uint p = x + y * WSX;
-// 	data_0[p] = 0xFFFF0000 - int(x+y*1024)*(step);
-// }
-
+            float segmentPattern = smoothstep(2.0, 2.1, abs(mod(theta + 2.0, 45.0) - 2.0)) *
+                mix(0.5, 1.0, float(abs(mod(theta, 180.0) - 90.0) > 45.0));
+                
+            float circle = SMOOTH(r - 2.0 * scale, 313.0 * scale) - SMOOTH(r + 2.0 * scale, 313.0 * scale);
+            
+            finalColor += segmentPattern * circle * blue1;
+        }
+    }
+    
+    // Triangular elements
+    {
+        vec2 d = uv - c;
+        float radius = (315.0 + 30.0 * sin(time)) * scale;
+        
+        // Right triangle
+        float t1 = 0.0;
+        if (d.x - radius >= -8.0 * scale && d.x - radius <= 0.0) {
+            t1 = 1.0 - smoothstep(7.0 * scale + d.x - radius, 9.0 * scale + d.x - radius, abs(d.y));
+        }
+        
+        // Left triangle
+        float t2 = 0.0;
+        if (d.x + radius >= 0.0 && d.x + radius <= 8.0 * scale) {
+            t2 = 1.0 - smoothstep(7.0 * scale - d.x - radius, 9.0 * scale - d.x - radius, abs(d.y));
+        }
+        
+        // Bottom triangle
+        float t3 = 0.0;
+        if (d.y - radius >= -8.0 * scale && d.y - radius <= 0.0) {
+            t3 = 1.0 - smoothstep(7.0 * scale + d.y - radius, 9.0 * scale + d.y - radius, abs(d.x));
+        }
+        
+        // Top triangle
+        float t4 = 0.0;
+        if (d.y + radius >= 0.0 && d.y + radius <= 8.0 * scale) {
+            t4 = 1.0 - smoothstep(7.0 * scale - d.y - radius, 9.0 * scale - d.y - radius, abs(d.x));
+        }
+        
+        float trianglePattern = t1 + t2 + t3 + t4;
+        finalColor += trianglePattern * blue2;
+    }
+    
+    // Center dot
+    {
+        float r = length(uv - c);
+        finalColor += (SMOOTH(r - 0.5 * scale, 10.0 * scale) - SMOOTH(r + 0.5 * scale, 10.0 * scale)) * blue3;
+    }
+    
+    // Semicircle with opening
+    {
+        vec2 d = uv - c;
+        float r = length(d);
+        
+        if (r > 0.0) {
+            d = normalize(d);
+            float opening = 0.5 + 0.2 * cos(time);
+            
+            if (abs(d.y) > opening) {
+                float circle = SMOOTH(r - 0.5 * scale, 262.0 * scale) - SMOOTH(r + 0.5 * scale, 262.0 * scale);
+                finalColor += 0.7 * circle * blue3;
+            }
+        }
+    }
+    
+    // Add blips if within radar range
+    if (length(uv - c) < 240.0 * scale) {
+        // Blip 1
+        {
+            vec2 p = 130.0 * scale * MOV(1.3, 1.0, 1.0, 1.4, 3.0 + 0.1 * time);
+            float r = length(uv - (c + p));
+            finalColor += SMOOTH(r, 3.0 * scale) * vec3(1, 1, 1);
+        }
+        
+        // Blip 2
+        {
+            vec2 p = 130.0 * scale * MOV(0.9, -1.1, 1.7, 0.8, -2.0 + sin(0.1 * time) + 0.15 * time);
+            float r = length(uv - (c + p));
+            finalColor += SMOOTH(r, 3.0 * scale) * vec3(1, 1, 1);
+        }
+        
+        // Blip 3 (animated)
+        {
+            vec2 p = 50.0 * scale * MOV(1.54, 1.7, 1.37, 1.8, sin(0.1 * time + 7.0) + 0.2 * time);
+            float r = length(uv - (c + p));
+            float R = (8.0 + mod(87.0 * time, 80.0)) * scale;
+            
+            float blip = (0.5 - 0.5 * cos(30.0 * time)) * SMOOTH(r, 5.0 * scale)
+                + SMOOTH(6.0 * scale, r) - SMOOTH(8.0 * scale, r)
+                + smoothstep(max(8.0 * scale, R - 20.0 * scale), R, r) - SMOOTH(R, r);
+                
+            finalColor += blip * red;
+        }
+    }
+    
+    // Add fixed targets with halos
+    {
+        vec2 targetPositions[3] = vec2[](
+            c + vec2(0.3, 0.2) * float(WSX) * 0.5,
+            c + vec2(-0.4, -0.3) * float(WSX) * 0.5,
+            c + vec2(0.1, -0.5) * float(WSX) * 0.5
+        );
+        
+        for (int i = 0; i < 3; i++) {
+            float d = length(uv - targetPositions[i]);
+            finalColor += red * exp(-50.0 * d / scale) * 0.7;
+        }
+    }
+    
+    // Convert to ARGB format
+    int r = int(clamp(finalColor.r, 0.0, 1.0) * 255.0);
+    int g = int(clamp(finalColor.g, 0.0, 1.0) * 255.0);
+    int b = int(clamp(finalColor.b, 0.0, 1.0) * 255.0);
+    int color = (r << 16) | (g << 8) | b;
+    
+    // Write to output
+    data_0[p] = 0xFF000000 | color;
+}
