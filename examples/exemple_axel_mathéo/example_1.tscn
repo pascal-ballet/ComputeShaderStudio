@@ -1,9 +1,15 @@
-[gd_scene load_steps=3 format=3 uid="uid://hey35ul6ytf0"]
+[gd_scene load_steps=2 format=3 uid="uid://hey35ul6ytf0"]
 
 [ext_resource type="Script" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_6846p"]
-[ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/icon.svg" id="2_s3fct"]
 
-[node name="CompShadStudioEx1" type="Node2D"]
+[node name="CompShadStudioEx1" type="CenterContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
 
 [node name="ComputeShaderStudio2D2" type="Node" parent="." node_paths=PackedStringArray("data")]
 script = ExtResource("1_6846p")
@@ -20,9 +26,11 @@ void main() {
 	data_1[p] = 0xFF0000AA;//s + int( 1.0 + 99999.9*sin(float(x+float(step+y))/1000.0));
 }
 "
-data = [NodePath("../Matrix1"), null]
+data = [NodePath("../TextureRect"), null]
 
-[node name="Matrix1" type="Sprite2D" parent="."]
-position = Vector2(651, 322)
-scale = Vector2(4.89062, 4.79688)
-texture = ExtResource("2_s3fct")
+[node name="TextureRect" type="TextureRect" parent="."]
+custom_minimum_size = Vector2(1024, 1024)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+expand_mode = 2

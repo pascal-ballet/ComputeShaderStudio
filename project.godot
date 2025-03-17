@@ -15,6 +15,10 @@ run/main_scene="res://examples/exemple_axel_mathéo/exemple_AM.tscn"
 config/features=PackedStringArray("4.3", "Forward Plus")
 config/icon="res://addons/compute_shader_studio/icon.png"
 
+[display]
+
+window/size/mode=2
+
 [dotnet]
 
 project/assembly_name="compute_shader_studio"
