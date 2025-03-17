@@ -2,8 +2,16 @@ float rand(uint x, uint y) {
     return fract(sin(float(x) * 12.9898 + float(y) * 78.233) * 43758.5453);
 }
 
+float rand2(float n) {
+    return fract(sin(n) * 43758.5453123);
+}
+
 int rgb_to_int(int r, int g, int b) {
     return 0xFF000000 | (r << 16) | (g << 8) | b;
+}
+
+int rgb_to_int_alpha(int r, int g, int b, int a) {
+    return (a << 24) | (r << 16) | (g << 8) | b;
 }
 
 int lerp_color(int c1, int r1, int g1, int b1, int r2, int g2, int b2, float t) {
@@ -11,6 +19,56 @@ int lerp_color(int c1, int r1, int g1, int b1, int r2, int g2, int b2, float t) 
     int g = int(float(g1) + t * float(g2 - g1));
     int b = int(float(b1) + t * float(b2 - b1));
     return rgb_to_int(r, g, b);
+}
+
+bool is_star(uint x, uint y, float density) {
+    float r = rand(x, y);
+    return r < density;
+}
+
+bool is_shooting_star(uint x, uint y, uint time, int num_stars) {
+    for (int i = 0; i < num_stars; i++) {
+        // Utiliser une seed différente pour chaque étoile
+        float seed = float(i) * 123.456 + float(i % 7) * 789.123;
+        
+        // Décalage temporel pour disperser les étoiles
+        float time_offset = float(i) * 10.0;
+        
+        // Position de départ variable pour chaque étoile
+        float offset_x = rand2(seed) * float(WSX);
+        float offset_y = rand2(seed + 100.0) * float(WSY) * 0.5;
+        
+        // Vitesse variable pour disperser davantage
+        float speed = 1.0 + rand2(seed + 200.0) * 2.0;
+        
+        // Angle légèrement variable pour éviter l'alignement parfait
+        float angle = 3.14159 * 0.25 + rand2(seed + 300.0) * 0.1 - 0.05;
+        
+        // Cycle de temps plus long et avec décalage
+        float cycle_time = float((time + uint(time_offset)) % 500);
+        
+        // Position actuelle basée sur le temps
+        float current_x = offset_x + cos(angle) * speed * cycle_time;
+        float current_y = offset_y + sin(angle) * speed * cycle_time;
+        
+        // Longueur de la traînée réduite
+        float tail_length = 5.0 + rand2(seed + 400.0) * 8.0;
+        
+        // Vérifier si le pixel est sur la trajectoire de l'étoile
+        for (float t = 0.0; t < 1.0; t += 0.1) {
+            float tail_x = current_x - cos(angle) * tail_length * t;
+            float tail_y = current_y - sin(angle) * tail_length * t;
+            
+            float dist_sq = float((int(x) - int(tail_x)) * (int(x) - int(tail_x)) + 
+                                 (int(y) - int(tail_y)) * (int(y) - int(tail_y)));
+            
+            // Épaisseur réduite de la traînée
+            if (dist_sq < (1.0 - t) * 2.0) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 void main() {
@@ -24,7 +82,21 @@ void main() {
     int BLUE = rgb_to_int(0, 0, 255);
     int ORANGE = rgb_to_int(255, 165, 0);
     int YELLOW = rgb_to_int(255, 255, 0);
-
+    
+    // Fond noir
+    data_0[p] = BLACK;
+    
+    // Étoiles fixes
+    if (is_star(x, y, 0.001)) {
+        float brightness = 0.5 + rand(x, y + 1000) * 0.5;
+        int star_color = rgb_to_int(
+            int(220.0 * brightness), 
+            int(220.0 * brightness), 
+            int(255.0 * brightness)
+        );
+        data_0[p] = star_color;
+    }
+    
     int cx = int(WSX) / 2;
     int cy = int(WSY) / 2;
     
@@ -85,7 +157,8 @@ void main() {
         }
     }
     
-    data_0[p] = BLACK;
+    // Variable pour savoir si on a dessiné un cercle à cette position
+    bool circle_drawn = false;
     
     for (int i = 0; i <= current_circle && i < safe_num_circles; i++) {
         float current_radius = float(max_radius) - float(i) * radius_step;
@@ -125,6 +198,7 @@ void main() {
                 }
                 
                 data_0[p] = color;
+                circle_drawn = true;
             }
         }
     }
@@ -183,6 +257,12 @@ void main() {
             }
             
             data_0[p] = color;
+            circle_drawn = true;
         }
+    }
+    
+    // Étoiles filantes - 50 étoiles plus petites et dispersées
+    if (!circle_drawn && is_shooting_star(x, y, step, 50)) {
+        data_0[p] = WHITE;
     }
 }

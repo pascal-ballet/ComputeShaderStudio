@@ -21,6 +21,80 @@ int lerp_color(int c1, int r1, int g1, int b1, int r2, int g2, int b2, float t) 
     return rgb_to_int(r, g, b);
 }
 
+float water_height(float x, float time) {
+    float wave1 = sin(x * 0.02 + time * 0.5) * 10.0;
+    float wave2 = sin(x * 0.05 + time * 0.3) * 5.0;
+    float wave3 = sin(x * 0.1 + time * 0.7) * 3.0;
+    return wave1 + wave2 + wave3;
+}
+
+bool is_water(uint x, uint y, uint time, int screen_height, bool is_inside_circle) {
+    if (is_inside_circle) {
+        return false;
+    }
+    
+    int water_start_y = int(screen_height * 0.7);
+    if (int(y) < water_start_y) {
+        return false;
+    }
+    float base_height = float(water_start_y);
+    float wave_height = water_height(float(x), float(time) * 0.05);
+    float surface_height = base_height + wave_height;
+    return float(y) >= surface_height;
+}
+
+bool is_inside_circle(uint x, uint y, float cx, float cy, float radius) {
+    float dx = float(x) - cx;
+    float dy = float(y) - cy;
+    float dist_sq = dx * dx + dy * dy;
+    return dist_sq <= radius * radius;
+}
+
+int water_color(uint x, uint y, uint time, int screen_height, float circle_dist) {
+    int base_r = 200;
+    int base_g = 150;
+    int base_b = 255;
+    
+    int water_start_y = int(screen_height * 0.7);
+    float depth = float(y - water_start_y) / float(screen_height - water_start_y);
+    depth = min(1.0, max(0.0, depth));
+    
+    base_b = int(float(base_b) * (1.0 - depth * 0.5));
+    base_g = int(float(base_g) * (1.0 - depth * 0.7));
+    
+    float wave_height = water_height(float(x), float(time) * 0.05);
+    float surface_height = float(water_start_y) + wave_height;
+    float surface_dist = float(y) - surface_height;
+    
+    if (surface_dist >= -2.0 && surface_dist <= 2.0) {
+        float wave_slope = water_height(float(x) + 1.0, float(time) * 0.05) - 
+                           water_height(float(x) - 1.0, float(time) * 0.05);
+        float foam_intensity = abs(wave_slope) * 0.2;
+        
+        base_r = int(mix(float(base_r), 255.0, foam_intensity));
+        base_g = int(mix(float(base_g), 255.0, foam_intensity));
+        base_b = int(mix(float(base_b), 255.0, foam_intensity));
+    }
+    
+    if (circle_dist > 0.0) {
+        float wave_effect = sin(float(time) * 0.2 + circle_dist * 10.0) * 0.5 + 0.5;
+        float collision_foam = 0.7 + wave_effect * 0.3;
+        
+        collision_foam *= circle_dist;
+        
+        base_r = int(mix(float(base_r), 255.0, collision_foam));
+        base_g = int(mix(float(base_g), 255.0, collision_foam));
+        base_b = int(mix(float(base_b), 255.0, collision_foam));
+    }
+    
+    float shimmer = sin(float(x) * 0.1 + float(y) * 0.1 + float(time) * 0.2) * 0.1 + 0.1;
+    base_r = min(255, base_r + int(shimmer * 20.0));
+    base_g = min(255, base_g + int(shimmer * 30.0));
+    base_b = min(255, base_b + int(shimmer * 40.0));
+    
+    return rgb_to_int(base_r, base_g, base_b);
+}
+
 bool is_star(uint x, uint y, float density) {
     float r = rand(x, y);
     return r < density;
@@ -28,41 +102,21 @@ bool is_star(uint x, uint y, float density) {
 
 bool is_shooting_star(uint x, uint y, uint time, int num_stars) {
     for (int i = 0; i < num_stars; i++) {
-        // Utiliser une seed différente pour chaque étoile
         float seed = float(i) * 123.456 + float(i % 7) * 789.123;
-        
-        // Décalage temporel pour disperser les étoiles
         float time_offset = float(i) * 10.0;
-        
-        // Position de départ variable pour chaque étoile
         float offset_x = rand2(seed) * float(WSX);
         float offset_y = rand2(seed + 100.0) * float(WSY) * 0.5;
-        
-        // Vitesse variable pour disperser davantage
         float speed = 1.0 + rand2(seed + 200.0) * 2.0;
-        
-        // Angle légèrement variable pour éviter l'alignement parfait
         float angle = 3.14159 * 0.25 + rand2(seed + 300.0) * 0.1 - 0.05;
-        
-        // Cycle de temps plus long et avec décalage
         float cycle_time = float((time + uint(time_offset)) % 500);
-        
-        // Position actuelle basée sur le temps
         float current_x = offset_x + cos(angle) * speed * cycle_time;
         float current_y = offset_y + sin(angle) * speed * cycle_time;
-        
-        // Longueur de la traînée réduite
         float tail_length = 5.0 + rand2(seed + 400.0) * 8.0;
-        
-        // Vérifier si le pixel est sur la trajectoire de l'étoile
         for (float t = 0.0; t < 1.0; t += 0.1) {
             float tail_x = current_x - cos(angle) * tail_length * t;
             float tail_y = current_y - sin(angle) * tail_length * t;
-            
             float dist_sq = float((int(x) - int(tail_x)) * (int(x) - int(tail_x)) + 
                                  (int(y) - int(tail_y)) * (int(y) - int(tail_y)));
-            
-            // Épaisseur réduite de la traînée
             if (dist_sq < (1.0 - t) * 2.0) {
                 return true;
             }
@@ -83,10 +137,8 @@ void main() {
     int ORANGE = rgb_to_int(255, 165, 0);
     int YELLOW = rgb_to_int(255, 255, 0);
     
-    // Fond noir
     data_0[p] = BLACK;
     
-    // Étoiles fixes
     if (is_star(x, y, 0.001)) {
         float brightness = 0.5 + rand(x, y + 1000) * 0.5;
         int star_color = rgb_to_int(
@@ -157,8 +209,80 @@ void main() {
         }
     }
     
-    // Variable pour savoir si on a dessiné un cercle à cette position
     bool circle_drawn = false;
+    float circle_distance = 0.0; 
+    bool is_inside_any_circle = false;
+    
+    float circle_centers_x[20];
+    float circle_centers_y[20];
+    float circle_radii[20];
+    int num_active_circles = 0;
+    
+    for (int i = 0; i <= current_circle && i < safe_num_circles; i++) {
+        float current_radius = float(max_radius) - float(i) * radius_step;
+        
+        circle_centers_x[num_active_circles] = float(cx);
+        circle_centers_y[num_active_circles] = float(cy);
+        circle_radii[num_active_circles] = current_radius;
+        num_active_circles++;
+        
+        if (is_inside_circle(x, y, float(cx), float(cy), current_radius + thickness)) {
+            is_inside_any_circle = true;
+        }
+    }
+    
+    for (int i = 0; i < current_circle && i < safe_num_circles - 1; i++) {
+        float current_radius = float(max_radius) - float(i) * radius_step;
+        float next_radius = float(max_radius) - float(i+1) * radius_step;
+        
+        float end_angle, next_start_angle;
+        
+        if (i % 2 == 0) {
+            end_angle = completion_values[i] * 2.0 * 3.14159;
+        } else {
+            end_angle = (1.0 - completion_values[i]) * 2.0 * 3.14159;
+        }
+        
+        if ((i+1) % 2 == 0) {
+            next_start_angle = start_angles[i+1] * 2.0 * 3.14159;
+        } else {
+            next_start_angle = (1.0 - start_angles[i+1]) * 2.0 * 3.14159;
+        }
+        
+        float end_x = float(cx) + cos(end_angle) * current_radius;
+        float end_y = float(cy) + sin(end_angle) * current_radius;
+        
+        float start_x = float(cx) + cos(next_start_angle) * next_radius;
+        float start_y = float(cy) + sin(next_start_angle) * next_radius;
+        
+        circle_centers_x[num_active_circles] = end_x;
+        circle_centers_y[num_active_circles] = end_y;
+        circle_radii[num_active_circles] = float(thickness);
+        num_active_circles++;
+        
+        circle_centers_x[num_active_circles] = start_x;
+        circle_centers_y[num_active_circles] = start_y;
+        circle_radii[num_active_circles] = float(thickness);
+        num_active_circles++;
+        
+        float px = float(x);
+        float py = float(y);
+        
+        float line_dx = start_x - end_x;
+        float line_dy = start_y - end_y;
+        float line_length_sq = line_dx * line_dx + line_dy * line_dy;
+        
+        float t = max(0.0, min(1.0, ((px - end_x) * line_dx + (py - end_y) * line_dy) / line_length_sq));
+        
+        float closest_x = end_x + t * line_dx;
+        float closest_y = end_y + t * line_dy;
+        
+        float dist_sq = (px - closest_x) * (px - closest_x) + (py - closest_y) * (py - closest_y);
+        
+        if (dist_sq <= float(thickness * thickness)) {
+            is_inside_any_circle = true;
+        }
+    }
     
     for (int i = 0; i <= current_circle && i < safe_num_circles; i++) {
         float current_radius = float(max_radius) - float(i) * radius_step;
@@ -261,8 +385,25 @@ void main() {
         }
     }
     
-    // Étoiles filantes - 50 étoiles plus petites et dispersées
-    if (!circle_drawn && is_shooting_star(x, y, step, 50)) {
+    if (is_water(x, y, step, int(WSY), is_inside_any_circle)) {
+        int water_col = water_color(x, y, step, int(WSY), circle_distance);
+        
+        if (circle_drawn) {
+            int r = (water_col >> 16) & 0xFF;
+            int g = (water_col >> 8) & 0xFF;
+            int b = water_col & 0xFF;
+            
+            r = min(255, r + 150);
+            g = min(255, g + 150);
+            b = min(255, b + 150);
+            
+            water_col = rgb_to_int(r, g, b);
+        }
+        
+        data_0[p] = water_col;
+    }
+    
+    if (!circle_drawn && !is_water(x, y, step, int(WSY), is_inside_any_circle) && is_shooting_star(x, y, step, 50)) {
         data_0[p] = WHITE;
     }
 }
