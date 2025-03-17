@@ -1,17 +1,19 @@
-[gd_scene load_steps=4 format=3 uid="uid://d1hhshnvrt86e"]
+[gd_scene load_steps=3 format=3 uid="uid://d1hhshnvrt86e"]
 
-[ext_resource type="Script" path="res://examples/example_mandelbrot.gd" id="1_5gp20"]
-[ext_resource type="Script" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_t5cx1"]
+[ext_resource type="Script" uid="uid://bib00xk6p8oo4" path="res://examples/example_mandelbrot.gd" id="1_5gp20"]
+[ext_resource type="Script" uid="uid://c8esqdv0y26yp" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_t5cx1"]
 [ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/icon.svg" id="2_dyrad"]
 
 [node name="example_mandelbrot" type="Node2D"]
-script = ExtResource("1_5gp20")
 
 [node name="ComputeShaderStudio2D" type="Node" parent="." node_paths=PackedStringArray("data")]
 script = ExtResource("1_t5cx1")
+print_step = true
+print_passes = true
+print_generated_code = true
 WSX = 512
 WSY = 512
-glsl_file = "res://examples/cube/circles.cpp"
+glsl_file = "res://examples/example_mandelbrot.cpp"
 data = [NodePath("../mandelbrot"), NodePath("../julia")]
 
 [node name="mandelbrot" type="Sprite2D" parent="."]
