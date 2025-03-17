@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://cets11mlsd8hb"]
 
-[ext_resource type="Script" uid="uid://c8esqdv0y26yp" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_cogap"]
+[ext_resource type="Script" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_cogap"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_pm7bb"]
 
@@ -13,26 +13,14 @@ noise = SubResource("FastNoiseLite_pm7bb")
 
 [node name="ComputeShaderStudio2D2" type="Node" parent="." node_paths=PackedStringArray("data")]
 script = ExtResource("1_cogap")
-WSX = 256
+WSX = 1920
+WSY = 1080
 glsl_file = "res://examples/basic_examples/example_5.cpp"
 GLSL_code = ""
 data = [NodePath("../TextureRect")]
 
-[node name="Label" type="Label" parent="."]
-offset_left = 278.0
-offset_top = -1.0
-offset_right = 679.0
-offset_bottom = 101.0
-scale = Vector2(1.72, 1.72)
-text = "Compute Shader Studio
-Example 5: using an external GLSL file
-and a TextureRect"
-horizontal_alignment = 1
-vertical_alignment = 1
-
 [node name="TextureRect" type="TextureRect" parent="."]
-offset_left = 278.0
-offset_top = 192.0
-offset_right = 975.0
-offset_bottom = 629.0
+offset_right = 256.0
+offset_bottom = 128.0
 texture = SubResource("NoiseTexture2D_nxi5j")
+metadata/_edit_use_anchors_ = true
