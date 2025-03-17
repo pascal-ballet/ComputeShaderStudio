@@ -155,20 +155,19 @@ void draw_scores_in_demilitarized_zone() {
         // Fond de la zone demilitarisee
         data_0[p] = ZONE_DEMILITARISEE;
         
-        // Recuperer les scores
-        int score_joueur = data_0[SCORE_JOUEUR];
-        int score_ia_1 = data_0[SCORE_IA_1];
-        int score_ia_2 = data_0[SCORE_IA_2];
-        int score_ia_3 = data_0[SCORE_IA_3];
+        // Recuperer les scores et les diviser par 10
+        int score_joueur = data_0[SCORE_JOUEUR] / 10;
+        int score_ia_1 = data_0[SCORE_IA_1] / 10;
+        int score_ia_2 = data_0[SCORE_IA_2] / 10;
+        int score_ia_3 = data_0[SCORE_IA_3] / 10;
         
         // Quadrant haut gauche - Joueur
         if (x < centerX && y < centerY) {
             data_0[p] = SCORE_BG_JOUEUR;
             
             // Afficher le score du joueur
-            // Calculer les chiffres individuels (jusqu'a 4 chiffres)
-            int thousands = score_joueur / 1000;
-            int hundreds = (score_joueur / 100) % 10;
+            // Calculer les chiffres individuels (jusqu'a 3 chiffres)
+            int hundreds = score_joueur / 100;
             int tens = (score_joueur / 10) % 10;
             int ones = score_joueur % 10;
             
@@ -177,12 +176,7 @@ void draw_scores_in_demilitarized_zone() {
             int startY = centerY - ZONE_DEM_SIZE / 2 + 3;
             
             // Afficher chaque chiffre
-            if (thousands > 0) {
-                draw_digit(thousands, startX, startY, JOUEUR);
-                draw_digit(hundreds, startX + 4, startY, JOUEUR);
-                draw_digit(tens, startX + 8, startY, JOUEUR);
-                draw_digit(ones, startX + 12, startY, JOUEUR);
-            } else if (hundreds > 0) {
+            if (hundreds > 0) {
                 draw_digit(hundreds, startX, startY, JOUEUR);
                 draw_digit(tens, startX + 4, startY, JOUEUR);
                 draw_digit(ones, startX + 8, startY, JOUEUR);
@@ -198,20 +192,14 @@ void draw_scores_in_demilitarized_zone() {
             data_0[p] = SCORE_BG_IA_1;
             
             // Afficher le score de l'IA 1
-            int thousands = score_ia_1 / 1000;
-            int hundreds = (score_ia_1 / 100) % 10;
+            int hundreds = score_ia_1 / 100;
             int tens = (score_ia_1 / 10) % 10;
             int ones = score_ia_1 % 10;
             
             int startX = centerX + 3;
             int startY = centerY - ZONE_DEM_SIZE / 2 + 3;
             
-            if (thousands > 0) {
-                draw_digit(thousands, startX, startY, IA_1);
-                draw_digit(hundreds, startX + 4, startY, IA_1);
-                draw_digit(tens, startX + 8, startY, IA_1);
-                draw_digit(ones, startX + 12, startY, IA_1);
-            } else if (hundreds > 0) {
+            if (hundreds > 0) {
                 draw_digit(hundreds, startX, startY, IA_1);
                 draw_digit(tens, startX + 4, startY, IA_1);
                 draw_digit(ones, startX + 8, startY, IA_1);
@@ -227,20 +215,14 @@ void draw_scores_in_demilitarized_zone() {
             data_0[p] = SCORE_BG_IA_2;
             
             // Afficher le score de l'IA 2
-            int thousands = score_ia_2 / 1000;
-            int hundreds = (score_ia_2 / 100) % 10;
+            int hundreds = score_ia_2 / 100;
             int tens = (score_ia_2 / 10) % 10;
             int ones = score_ia_2 % 10;
             
             int startX = centerX - ZONE_DEM_SIZE / 2 + 3;
             int startY = centerY + 3;
             
-            if (thousands > 0) {
-                draw_digit(thousands, startX, startY, IA_2);
-                draw_digit(hundreds, startX + 4, startY, IA_2);
-                draw_digit(tens, startX + 8, startY, IA_2);
-                draw_digit(ones, startX + 12, startY, IA_2);
-            } else if (hundreds > 0) {
+            if (hundreds > 0) {
                 draw_digit(hundreds, startX, startY, IA_2);
                 draw_digit(tens, startX + 4, startY, IA_2);
                 draw_digit(ones, startX + 8, startY, IA_2);
@@ -256,20 +238,14 @@ void draw_scores_in_demilitarized_zone() {
             data_0[p] = SCORE_BG_IA_3;
             
             // Afficher le score de l'IA 3
-            int thousands = score_ia_3 / 1000;
-            int hundreds = (score_ia_3 / 100) % 10;
+            int hundreds = score_ia_3 / 100;
             int tens = (score_ia_3 / 10) % 10;
             int ones = score_ia_3 % 10;
             
             int startX = centerX + 3;
             int startY = centerY + 3;
             
-            if (thousands > 0) {
-                draw_digit(thousands, startX, startY, IA_3);
-                draw_digit(hundreds, startX + 4, startY, IA_3);
-                draw_digit(tens, startX + 8, startY, IA_3);
-                draw_digit(ones, startX + 12, startY, IA_3);
-            } else if (hundreds > 0) {
+            if (hundreds > 0) {
                 draw_digit(hundreds, startX, startY, IA_3);
                 draw_digit(tens, startX + 4, startY, IA_3);
                 draw_digit(ones, startX + 8, startY, IA_3);
@@ -481,7 +457,7 @@ void main() {
         }
         
         // Calculer les scores tous les steps
-        if (step % 1 == 0 && x == 0 && y == 0) {
+        if (step % 10 == 0 && x == 0 && y == 0) {
             calculate_scores();
         }
     }
