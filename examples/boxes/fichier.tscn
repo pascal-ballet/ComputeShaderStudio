@@ -1,0 +1,43 @@
+[gd_scene load_steps=6 format=3 uid="uid://cets11mlsd8hb"]
+
+[ext_resource type="Script" uid="uid://ymdghjh2i2lw" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_cogap"]
+[ext_resource type="Script" uid="uid://2wy07yux7xmu" path="res://examples/boxes/fichier.gd" id="1_y3tek"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_pm7bb"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_nxi5j"]
+width = 256
+height = 128
+noise = SubResource("FastNoiseLite_pm7bb")
+
+[sub_resource type="Theme" id="Theme_xvegm"]
+
+[node name="CompShadStudioEx5" type="Node2D"]
+script = ExtResource("1_y3tek")
+
+[node name="ComputeShaderStudio2D2" type="Node" parent="." node_paths=PackedStringArray("data")]
+script = ExtResource("1_cogap")
+pause = true
+WSX = 1152
+WSY = 648
+glsl_file = "res://examples/boxes/fichier.cpp"
+data = [NodePath("../TextureRect")]
+
+[node name="TextureRect" type="TextureRect" parent="."]
+offset_left = -5.0
+offset_top = -2.0
+offset_right = 573.0
+offset_bottom = 369.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+texture = SubResource("NoiseTexture2D_nxi5j")
+
+[node name="Button" type="Button" parent="."]
+offset_left = 2.0
+offset_top = 8.0
+offset_right = 76.0
+offset_bottom = 41.0
+theme = SubResource("Theme_xvegm")
+text = "Jouer"
+
+[connection signal="pressed" from="Button" to="." method="_on_button_pressed"]
