@@ -26,7 +26,7 @@
 #define SCORE_IA_3 7
 
 // Taille de la zone demilitarisee
-#define ZONE_DEM_SIZE 40
+#define ZONE_DEM_SIZE 30
 
 // Verifier si un point est dans la zone demilitarisee 
 bool is_demilitarized_zone(int x, int y) {
@@ -155,11 +155,11 @@ void draw_scores_in_demilitarized_zone() {
         // Fond de la zone demilitarisee
         data_0[p] = ZONE_DEMILITARISEE;
         
-        // Recuperer les scores et les diviser par 10
-        int score_joueur = data_0[SCORE_JOUEUR] / 10;
-        int score_ia_1 = data_0[SCORE_IA_1] / 10;
-        int score_ia_2 = data_0[SCORE_IA_2] / 10;
-        int score_ia_3 = data_0[SCORE_IA_3] / 10;
+        // Recuperer les scores et les diviser par 16
+        int score_joueur = data_0[SCORE_JOUEUR] / (int(WSX)/8);
+        int score_ia_1 = data_0[SCORE_IA_1] / (int(WSX)/8);
+        int score_ia_2 = data_0[SCORE_IA_2] / (int(WSX)/8);
+        int score_ia_3 = data_0[SCORE_IA_3] / (int(WSX)/8);
         
         // Quadrant haut gauche - Joueur
         if (x < centerX && y < centerY) {
@@ -366,7 +366,7 @@ void main() {
             }
             
             // IA expansion automatique - garde ce comportement pour equilibrer le jeu
-            if (step % 3 == 0) { // Ralentir IA pour equilibrer
+            if (step % 5 == 0) { // Ralentir IA pour equilibrer
                 // IA 1 Plus agressive
                 if (data_0[p] == IA_1 && random_event(x, y, step, AI_EXPANSION_RATE * 1.5)) {
                     int direction = hash(x, y, step) % 8;
@@ -457,7 +457,7 @@ void main() {
         }
         
         // Calculer les scores tous les steps
-        if (step % 10 == 0 && x == 0 && y == 0) {
+        if (step % 30 == 0 && x == 0 && y == 0) {
             calculate_scores();
         }
     }
