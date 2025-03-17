@@ -12,6 +12,16 @@
 #define BLINK_DURATION 20   // Durée du clignotement (1 seconde)
 #define BLINK_SPEED 0.15    // Vitesse de propagation du noir
 #define TRANSITION_WIDTH 5.0 // Largeur de la transition du noir
+#define ANIMATION_INTERVAL 300  // 5 secondes à 60fps
+#define PULSE_AMPLITUDE 10.0
+#define PULSE_SPEED 0.08
+#define RING_SPACING 20.0   // Espacement entre les cercles
+#define RING_THICKNESS 4.0  // Épaisseur des cercles
+#define SPACING_VARIATION 10.0
+#define WAVE_SPEED 0.15     // Augmentation de la vitesse de propagation (anciennement 0.05)
+#define TRANSITION_DURATION 60.0  // Durée de la transition en frames
+#define MAX_TRANSITION_RADIUS 60.0  // Rayon maximum du cercle de transition
+#define TRANSITION_OUT_START (ANIMATION_INTERVAL - TRANSITION_DURATION)
 
 void main()
 {
@@ -85,37 +95,106 @@ void main()
             float z = sqrt(RADIUS*RADIUS - dist*dist);
             float normal_z = z/RADIUS;
             float light = normal_z;
-            // Combine la lumière ambiante avec la lumière directionnelle
             light = clamp(light * (0.7 + lightAngle * LIGHT_INTENSITY), 0.2f, 1.0f);
             
-            if (dist < PUPIL_RADIUS) {
-                data_0[p] = 0xFF000000;
-            } else if (dist < IRIS_RADIUS) {
-                // Vérification si on est dans une période de clignotement
-                bool is_blinking = (step % BLINK_INTERVAL) < BLINK_DURATION;
+            // Alternance entre les animations
+            bool usePulsingAnimation = ((step / ANIMATION_INTERVAL) % 2) == 1;
+            
+            if (usePulsingAnimation) {
+                float d = sqrt(dx * dx + dy * dy);
+                float cycleStart = float(step % ANIMATION_INTERVAL);
                 
-                if (is_blinking) {
-                    // Calcul de la propagation du noir
-                    float blink_progress = float(step % BLINK_INTERVAL) * BLINK_SPEED;
-                    float blink_radius = blink_progress * IRIS_RADIUS;
+                // Gestion des transitions
+                if (cycleStart < TRANSITION_DURATION) {
+                    // Transition d'entrée (comme avant)
+                    float transitionRadius = (cycleStart / TRANSITION_DURATION) * MAX_TRANSITION_RADIUS;
                     
-                    // Crée une transition douce
-                    float fade = clamp((blink_radius - dist) / TRANSITION_WIDTH, 0.0, 1.0);
-                    
-                    if (dist < blink_radius) {
-                        // Zone noire
-                        data_0[p] = 0xFF000000;
-                    } else if (dist < blink_radius + TRANSITION_WIDTH) {
-                        // Zone de transition
-                        int red = int((1.0 - fade) * 200.0f * light);
-                        data_0[p] = 0xFF000000 | red;
+                    if (d < transitionRadius) {
+                        // Nouvelle animation
+                        float animatedD = d - float(step) * WAVE_SPEED;
+                        float rings = mod(animatedD, RING_SPACING);
+                        
+                        if (rings < RING_THICKNESS) {
+                            data_0[p] = 0xFF000000;
+                        } else {
+                            int value = int(255.0f * light);
+                            int red = int(180.0f * light);   // Augmenté de 128 à 180
+                            int green = 0;
+                            int blue = int(180.0f * light);  // Augmenté de 128 à 180
+                            data_0[p] = 0xFF000000 | (red << 16) | (green << 8) | blue;
+                        }
                     } else {
-                        // Zone normale
-                        int red = int(200.0f * light);
-                        data_0[p] = 0xFF000000 | red;
+                        // Animation normale
+                        if (dist < PUPIL_RADIUS) {
+                            data_0[p] = 0xFF000000;
+                        }
+                        // ...reste du code de l'animation normale...
+                    }
+                } else if (cycleStart > TRANSITION_OUT_START) {
+                    // Transition de sortie
+                    float transitionOutProgress = (cycleStart - TRANSITION_OUT_START) / TRANSITION_DURATION;
+                    float fadeRadius = (1.0 - transitionOutProgress) * MAX_TRANSITION_RADIUS;
+                    
+                    if (d < fadeRadius) {
+                        // Zone encore visible de l'animation des cercles
+                        float animatedD = d - float(step) * WAVE_SPEED;
+                        float rings = mod(animatedD, RING_SPACING);
+                        
+                        if (rings < RING_THICKNESS) {
+                            data_0[p] = 0xFF000000;
+                        } else {
+                            int value = int(255.0f * light);
+                            int red = int(180.0f * light);   // Augmenté de 128 à 180
+                            int green = 0;
+                            int blue = int(180.0f * light);  // Augmenté de 128 à 180
+                            data_0[p] = 0xFF000000 | (red << 16) | (green << 8) | blue;
+                        }
+                    } else {
+                        // Zone qui revient à l'animation normale
+                        if (dist < PUPIL_RADIUS) {
+                            data_0[p] = 0xFF000000;
+                        } else if (dist < IRIS_RADIUS) {
+                            if ((crescent1MainDist < DOT_RADIUS && crescent1SecDist > DOT_RADIUS - 1.0) ||
+                                (crescent2MainDist < DOT_RADIUS && crescent2SecDist > DOT_RADIUS - 1.0) ||
+                                (crescent3MainDist < DOT_RADIUS && crescent3SecDist > DOT_RADIUS - 1.0) ||
+                                small_dot1_dist < SMALL_DOT_RADIUS ||
+                                small_dot2_dist < SMALL_DOT_RADIUS ||
+                                small_dot3_dist < SMALL_DOT_RADIUS) {
+                                data_0[p] = 0xFF000000;
+                            } else if (dist > IRIS_RADIUS - IRIS_BORDER) {
+                                data_0[p] = 0xFF404040;
+                            } else {
+                                int red = int(200.0f * light);
+                                data_0[p] = 0xFF000000 | red;
+                            }
+                        } else {
+                            int value = int(255.0f * light);
+                            int red = value;
+                            int green = int(value * 0.95);
+                            int blue = int(value * 0.9);
+                            data_0[p] = 0xFF000000 | (red << 16) | (green << 8) | blue;
+                        }
                     }
                 } else {
-                    // Comportement normal de l'iris
+                    // Animation complète des cercles (entre les deux transitions)
+                    float animatedD = d - float(step) * WAVE_SPEED;
+                    float rings = mod(animatedD, RING_SPACING);
+                    
+                    if (rings < RING_THICKNESS) {
+                        data_0[p] = 0xFF000000;
+                    } else {
+                        int value = int(255.0f * light);
+                        int red = int(180.0f * light);   // Augmenté de 128 à 180
+                        int green = 0;
+                        int blue = int(180.0f * light);  // Augmenté de 128 à 180
+                        data_0[p] = 0xFF000000 | (red << 16) | (green << 8) | blue;
+                    }
+                }
+            } else {
+                // Animation normale
+                if (dist < PUPIL_RADIUS) {
+                    data_0[p] = 0xFF000000;
+                } else if (dist < IRIS_RADIUS) {
                     if ((crescent1MainDist < DOT_RADIUS && crescent1SecDist > DOT_RADIUS - 1.0) ||
                         (crescent2MainDist < DOT_RADIUS && crescent2SecDist > DOT_RADIUS - 1.0) ||
                         (crescent3MainDist < DOT_RADIUS && crescent3SecDist > DOT_RADIUS - 1.0) ||
@@ -129,17 +208,16 @@ void main()
                         int red = int(200.0f * light);
                         data_0[p] = 0xFF000000 | red;
                     }
+                } else {
+                    int value = int(255.0f * light);
+                    int red = value;
+                    int green = int(value * 0.95);
+                    int blue = int(value * 0.9);
+                    data_0[p] = 0xFF000000 | (red << 16) | (green << 8) | blue;
                 }
-            } else {
-                int value = int(255.0f * light);
-                // Ajoute une teinte légèrement jaune à la lumière
-                int red = value;
-                int green = int(value * 0.95);
-                int blue = int(value * 0.9);
-                data_0[p] = 0xFF000000 | (red << 16) | (green << 8) | blue;
             }
         } else {
-            data_0[p] = 0xFF000000;
+            data_0[p] = 0xFF404040; // Fond gris moyen au lieu de gris foncé
         }
     }
 }
