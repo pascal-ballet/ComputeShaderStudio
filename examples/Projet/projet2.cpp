@@ -73,28 +73,25 @@ void circle(uint cx, uint cy, uint rayon, int epaisseur) {
 
 void main() {
     if (step == 0) {
-        data_0[p] = GREEN; 
+        data_0[p] = GREEN;
     }
-
     uint centerX = 540;
     uint centerY = 540;
-
-    for (uint i = 0; i < step +2; i++) { 
-        uint size = step - (i * 10);
-        if (size > 0) {
-            // drawSquare(270, 270, size, (i + step / 30) % 15 + 1);
-            // drawSquare(810, 270, size, (i + step / 30) % 15 + 1);
-            // drawSquare(270, 810, size, (i + step / 30) % 15 + 1);
-            // drawSquare(810, 810, size, (i + step / 30) % 15 + 1);
-            drawSquare(540, 540, size, (i + step / 30) % 15 + 1);
-        }
-    }
-
-    // if (input_params.append(Input.get_mouse_button_mask()) != 0) { 
-    //     uint mouseX = Input.get_mouse_position().x;
-    //     uint mouseY = Input.get_mouse_position().y;
-        
-         drawSquare(540, 540, 20, 1);
-         circle(mousex,mousey,50,3);
+    // for (uint i = 0; i < step +2; i++) {
+    //     uint size = step - (i * 10);
+    //     if (size > 0) {
+    //         // drawSquare(270, 270, size, (i + step / 30) % 15 + 1);
+    //         // drawSquare(810, 270, size, (i + step / 30) % 15 + 1);
+    //         // drawSquare(270, 810, size, (i + step / 30) % 15 + 1);
+    //         // drawSquare(810, 810, size, (i + step / 30) % 15 + 1);
+    //         drawSquare(540, 540, size, (i + step / 30) % 15 + 1);
+    //     }
     // }
+
+    //drawSquare(540, 540, 20, 1);
+        //circle(mousex, mousey, 50, 3);
+    
+        if ((mouse_button)> 0) {
+            circle(mousex, mousey, 50, 3);
+        }
 }
