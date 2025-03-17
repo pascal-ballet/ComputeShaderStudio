@@ -109,7 +109,7 @@ void main()
                         float dist2 = (px2 - float(x)) * (px2 - float(x)) + (py2 - float(y)) * (py2 - float(y));
                         if (dist2 < threshold && dist2 < minDist) {
                             minDist = dist2;
-                            color = 0xFF00FF00; // Face 2: Green
+                            color = 0xFFFFFFFF; // Face 2: Green
                             isOnCube = true;
                         }
                     }
@@ -208,7 +208,7 @@ void main()
                         float dist2 = (px2 - float(x)) * (px2 - float(x)) + (py2 - float(y)) * (py2 - float(y));
                         if (dist2 < threshold && dist2 < minDist) {
                             minDist = dist2;
-                            color = 0xFF00FF00; // Face 2: Green
+                            color = 0xFFFFFFFF; // Face 2: Green
                             isOnCube = true;
                         }
                     }

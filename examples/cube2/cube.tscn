@@ -1,13 +1,16 @@
 [gd_scene load_steps=3 format=3 uid="uid://bn86hxa8xefmh"]
 
-[ext_resource type="Script" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_hegqh"]
+[ext_resource type="Script" uid="uid://c8esqdv0y26yp" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_hegqh"]
 [ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/icon.svg" id="2_hegqh"]
 
 [node name="Cube" type="Node2D"]
 
 [node name="ComputeShaderStudio2D" type="Node" parent="." node_paths=PackedStringArray("data")]
 script = ExtResource("1_hegqh")
+WSX = 512
+WSY = 256
 glsl_file = "res://examples/cube2/cube.cpp"
+GLSL_code = ""
 data = [NodePath("../Icon")]
 metadata/_custom_type_script = "uid://c8esqdv0y26yp"
 
