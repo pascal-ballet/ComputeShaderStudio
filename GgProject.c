@@ -60,21 +60,29 @@ void main() {
 
 		//définition de la dimension de chaque case
 		int dimension = (130/10);
-		int cx=int(x)+(dimension/2);
-		int cy=int(y)+dimension/2;
+
+		float cx = (x / dimension) * dimension + dimension / 2;
+		float cy = (y / dimension) * dimension + dimension / 2;
 
 	
 			if (((x / dimension) + (y / dimension)) % 2 == 0) {
 				// Case blanche
 
-				float dx = float(mousex) - float(x);
-				float dy= float(mousey) - float(y);
+				float dx = cx - float(x);
+				float dy= cy - float(y);
 				float dist=sqrt(dx*dx +dy*dy);
 
-				if(dist<(dimension/2)){
+				//définition des pions noirs
+				if( (dist<(dimension/2)) && ( (y / dimension) < 3 )){
 					r = 0;
 					g = 0;
 					b = 0;
+				}
+				//définition des pions blanc
+				else if( (dist<(dimension/2)) && (  (y / dimension) >= 7 ) ){
+					r = 128;
+					g = 128;
+					b = 128;
 				}
 				else{
 					r = 255;
@@ -84,14 +92,21 @@ void main() {
 			}  
 			else {
 				// Case marron
-				float dx = float(mousex) - float(x);
-				float dy= float(mousey) - float(y);
+				float dx = float(cx) - float(x);
+				float dy= float(cy) - float(y);
 				float dist=sqrt(dx*dx +dy*dy);
 
-				if(dist<(dimension/2)){
+				//définition des pions noirs
+				if( (dist<(dimension/2)) && ( (y / dimension) < 3 )){
 					r = 0;
 					g = 0;
 					b = 0;
+				}
+				//définition des pions blanc
+				else if( (dist<(dimension/2)) && (  (y / dimension) >= 7 ) ){
+					r = 128;
+					g = 128;
+					b = 128;
 				}
 				else{
 					r = 92;
