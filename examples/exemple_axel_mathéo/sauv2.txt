@@ -12,7 +12,7 @@ int lerp_color(int c1, int r1, int g1, int b1, int r2, int g2, int b2, float t) 
     int b = int(float(b1) + t * float(b2 - b1));
     return rgb_to_int(r, g, b);
 }
-
+//voici le main
 void main() {
     uint x = gl_GlobalInvocationID.x;
     uint y = gl_GlobalInvocationID.y;
