@@ -39,19 +39,19 @@ void main() {
     int y = int(gl_GlobalInvocationID.y);
     int p = x + y * int(WSX);
     
-    // Définir les limites des différentes zones
-    float skyLimit = float(WSX) / 4.0 - 10.0;  // Limite entre ciel et route
-    float laneY1 = float(WSX) / 4.0;         // Voie du haut (voitures vers la droite - lente)
-    float laneY4 = float(WSX) / 4.0 + 115;    // Voie du bas (voitures vers la gauche - lente)
-    float grassStart = laneY4 + 30.0;         // Début de l'herbe après la route
+    // Définir les limites des différentes zones - route descendue et ciel étoilé agrandi
+    float skyLimit = float(WSX) / 2.5;  // Limite entre ciel et route (plus grande portion de ciel)
+    float laneY1 = skyLimit + 10.0;     // Voie du haut (voitures vers la droite - lente)
+    float laneY4 = laneY1 + 115;        // Voie du bas (voitures vers la gauche - lente)
+    float grassStart = laneY4 + 20.0;   // Début de l'herbe après la route (portion d'herbe réduite)
     
     // Ciel nocturne avec étoiles
     if (y < int(skyLimit)) {
         // Dégradé pour le ciel nocturne (plus foncé en haut, plus clair vers l'horizon)
         float skyGradient = float(y) / skyLimit;
         vec3 skyColor = mix(
-            vec3(0.02, 0.03, 0.15),  // Bleu nuit très foncé (haut)
-            vec3(0.05, 0.07, 0.2),   // Bleu nuit un peu plus clair (vers l'horizon)
+            vec3(0.25, 0.1, 0.05),  // Couleur du ciel en haut (bleu foncé)
+            vec3(0.28, 0.15, 0.08),   // Couleur du ciel vers l'horizon (légèrement plus claire)
             skyGradient
         );
         
@@ -233,9 +233,9 @@ void main() {
         }
     }
 
-    // Délimiter les voies
-    float laneY2 = float(WSX) / 4.0 + 35; // Voie du haut (voitures vers la droite - rapide)
-    float laneY3 = float(WSX) / 4.0 + 80; // Voie du bas (voitures vers la gauche - rapide)
+    // Délimiter les voies - ajustées à la nouvelle position de la route
+    float laneY2 = laneY1 + 35; // Voie du haut (voitures vers la droite - rapide)
+    float laneY3 = laneY1 + 80; // Voie du bas (voitures vers la gauche - rapide)
     
     // Route mouillée
     if (y >= int(skyLimit) && y < int(grassStart)) {
@@ -252,7 +252,7 @@ void main() {
         if (y > int(laneY1) + 30 && y < int(laneY1) + 33) {
             // Ligne pointillée pour voies allant dans le même sens (droite)
             if (int(float(x) / 20.0) % 2 == 0) {
-                vec3 lineColor = vec3(0.8, 0.8, 0.1); // Jaune
+                vec3 lineColor = vec3(0.9, 0.9, 0.9); // Blanc
                 data_0[p] = 0xFF000000 | (int(lineColor.r * 255.0) << 16) | (int(lineColor.g * 255.0) << 8) | int(lineColor.b * 255.0);
             }
         }
@@ -260,7 +260,7 @@ void main() {
         // Ligne centrale entre les deux sens (double ligne continue)
         if ((y > int(laneY2) + 25 && y < int(laneY2) + 28) || 
             (y > int(laneY3) - 10 && y < int(laneY3) - 7)) {
-            vec3 lineColor = vec3(0.8, 0.8, 0.1); // Jaune
+            vec3 lineColor = vec3(0.9, 0.9, 0.9); // Blanc
             data_0[p] = 0xFF000000 | (int(lineColor.r * 255.0) << 16) | (int(lineColor.g * 255.0) << 8) | int(lineColor.b * 255.0);
         }
         
@@ -268,7 +268,7 @@ void main() {
         if (y > int(laneY3) + 30 && y < int(laneY3) + 33) {
             // Ligne pointillée pour voies allant dans le même sens (gauche)
             if (int(float(x) / 20.0) % 2 == 0) {
-                vec3 lineColor = vec3(0.8, 0.8, 0.1); // Jaune
+                vec3 lineColor = vec3(0.9, 0.9, 0.9); // Blanc
                 data_0[p] = 0xFF000000 | (int(lineColor.r * 255.0) << 16) | (int(lineColor.g * 255.0) << 8) | int(lineColor.b * 255.0);
             }
         }
