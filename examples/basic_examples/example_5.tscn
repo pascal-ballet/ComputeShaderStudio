@@ -14,7 +14,7 @@ noise = SubResource("FastNoiseLite_pm7bb")
 [node name="ComputeShaderStudio2D2" type="Node" parent="." node_paths=PackedStringArray("data")]
 script = ExtResource("1_cogap")
 WSX = 256
-glsl_file = "res://examples/example_5.cpp"
+glsl_file = "res://examples/basic_examples/example_5.cpp"
 GLSL_code = ""
 data = [NodePath("../TextureRect")]
 
