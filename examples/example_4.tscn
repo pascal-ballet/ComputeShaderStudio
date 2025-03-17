@@ -1,0 +1,97 @@
+[gd_scene load_steps=3 format=3 uid="uid://bg2ni580ra7pa"]
+
+[ext_resource type="Script" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_ke3fj"]
+[ext_resource type="Texture2D" uid="uid://2behgeplwycn" path="res://examples/grid_512x512.png" id="2_flqlh"]
+
+[node name="CompShadStudioEx4" type="Node2D"]
+
+[node name="Label" type="Label" parent="."]
+offset_left = 0.999908
+offset_top = 1.0
+offset_right = 232.0
+offset_bottom = 60.0
+scale = Vector2(1.72, 1.72)
+text = "Compute Shader Studio
+Example 4: BIG Game Of Life"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ComputeShaderStudio2D2" type="Node" parent="." node_paths=PackedStringArray("data")]
+script = ExtResource("1_ke3fj")
+pause = true
+nb_passes = 2
+WSX = 512
+WSY = 512
+GLSL_code = "// Write your code HERE
+#define ALIVE 0xFFFFFFFF
+#define DEAD 0xFF0000FF
+
+void compute_next_step(uint x, uint y, uint p) {
+		if ( x > 0 && y > 0 && x < WSX-1 && y < WSY - 1) { // in sandbox
+			uint n = 0 ; // Number of living neighbors
+			for (uint i = x-1; i <= x+1; i++) {
+				for (uint j = y-1; j <= y+1; j++) {
+					uint k = i + j * WSX;
+					if (k != p && data_0[k] == ALIVE )
+						n++;
+				}
+			}
+			if (data_0[p] == DEAD) {
+				if ( n == 3)
+					data_1[p] = ALIVE; // Birth
+				else
+					data_1[p] = DEAD ;
+			} else { // ALIVE
+				if (n <=1 || n >= 4) // Under or over population
+					data_1[p] = DEAD;
+				else
+					data_1[p] = ALIVE; // Survive
+			}
+		}
+}
+
+void main() {
+	uint x = gl_GlobalInvocationID.x;
+	uint y = gl_GlobalInvocationID.y;
+	uint p = x + y * WSX;
+	if ( step == 0 ) { // initialisation ************************
+		if ( current_pass == 0 ) {
+			data_1[p] = DEAD ;
+			if (data_0[p] < 0 || x==0 || y==0 || x==WSX-1 || y==WSY-1)
+				data_0[p] = DEAD ;
+			else
+				data_0[p] = ALIVE ;
+		}
+	} else { // in process *********************************
+		if (current_pass == 0)
+			compute_next_step(x, y, p);
+		else
+			data_0[p] = data_1[p]; // The future is now
+	}
+}
+"
+data = [NodePath("../Grid512x512_0"), null]
+
+[node name="ButtonStep" type="Button" parent="."]
+offset_left = 91.0
+offset_top = 131.0
+offset_right = 182.0
+offset_bottom = 162.0
+scale = Vector2(2.4, 2.4)
+text = "Step"
+
+[node name="ButtonPlay" type="Button" parent="."]
+offset_left = 92.0
+offset_top = 219.0
+offset_right = 183.0
+offset_bottom = 250.0
+scale = Vector2(2.4, 2.4)
+text = "Play"
+
+[node name="Grid512x512_0" type="Sprite2D" parent="."]
+position = Vector2(762.7, 314.7)
+scale = Vector2(1.2, 1.2)
+texture = ExtResource("2_flqlh")
+
+[connection signal="pressed" from="ButtonStep" to="ComputeShaderStudio2D2" method="_on_button_step"]
+[connection signal="pressed" from="ButtonPlay" to="ComputeShaderStudio2D2" method="_on_button_play"]

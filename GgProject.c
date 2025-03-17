@@ -114,6 +114,8 @@ void main() {
 					b = 51;
 				}
 			}
+
+			//if(mouse_button == 1){}
 		
 
 		// La scène prend les valeurs orgb définies
