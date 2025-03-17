@@ -68,7 +68,7 @@ void main() {
         
 
         float pos_y;
-        if (temps_ecoule < 1.0) {
+        if (temps_ecoule < tempsRebond) {
             float normalized_time = temps_ecoule / tempsRebond;//entre 0 et 1
             pos_y = maxHauteur + (minHauteur - maxHauteur) * normalized_time * normalized_time;
             if (pos_y > minHauteur) {
@@ -82,6 +82,6 @@ void main() {
         }
 
         //Dessin balle
-        cercle(uint(pos_y), depart_x);
+        cercle(uint(pos_y) - WSY/6, depart_x + WSX/2);
     }
 }
