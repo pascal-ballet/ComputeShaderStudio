@@ -46,7 +46,21 @@ void main() {
     
     float radius_step = float(max_radius - min_radius) / float(num_circles - 1);
     
-    int current_step = step % (frames_per_circle * num_circles);
+    int total_animation_frames = frames_per_circle * num_circles;
+    int total_cycle_frames = total_animation_frames * 2;
+    
+    int cycle_step = step % total_cycle_frames;
+    bool is_disappearing = cycle_step >= total_animation_frames;
+    
+    int current_step;
+    if (is_disappearing) {
+        current_step = total_animation_frames * 2 - cycle_step - 1;
+    } else {
+        current_step = cycle_step;
+    }
+    
+    current_step = min(current_step, total_animation_frames - 1);
+    
     int current_circle = current_step / frames_per_circle;
     int circle_progress = current_step % frames_per_circle;
     
