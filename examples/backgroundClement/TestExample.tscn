@@ -7,7 +7,7 @@
 
 [node name="ComputeShaderStudio2D" type="Node" parent="." node_paths=PackedStringArray("data")]
 script = ExtResource("1_bowy1")
-glsl_file = "res://examples/exampleClement/background.cpp"
+glsl_file = "res://examples/backgroundClement/background.cpp"
 GLSL_code = "
 "
 data = [NodePath("../Sprite2D")]

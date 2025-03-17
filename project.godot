@@ -11,10 +11,8 @@ config_version=5
 [application]
 
 config/name="compute_shader_studio"
-
-run/main_scene="res://examples/example_5.tscn"
-config/features=PackedStringArray("4.4", "Forward Plus")
-
+run/main_scene="res://examples/backgroundClement/TestExample.tscn"
+config/features=PackedStringArray("4.3", "Forward Plus")
 config/icon="res://addons/compute_shader_studio/icon.png"
 
 [editor_plugins]
