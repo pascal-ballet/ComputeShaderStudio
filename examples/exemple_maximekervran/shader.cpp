@@ -1,9 +1,10 @@
-#define CERCLE 0xFFFFFFFF
 #define FOND 0x00000000
 #define RAYON 50.0
 #define PI 3.141592
 
-void cercle(uint cy, uint cx) {
+
+
+void cercle(uint cy, uint cx, int couleur) {
     uint x = gl_GlobalInvocationID.x;
     uint y = gl_GlobalInvocationID.y;
     uint p = x + y * WSX;
@@ -11,10 +12,19 @@ void cercle(uint cy, uint cx) {
     float distance = sqrt(float((x - cx) * (x - cx) + (y - cy) * (y - cy)));
     
     if (distance <= RAYON) {
-        data_0[p] = CERCLE;
+        data_0[p] = couleur;
     } else {
         data_0[p] = FOND;
     }
+}
+
+int couleur_rebond(int rebonds) {
+    if (rebonds % 6 == 0) return 0xFFFFFFFF; // Blanc
+    if (rebonds % 6 == 1) return 0xFF0000FF; // Rouge
+    if (rebonds % 6 == 2) return 0xFF00FF00; // Vert
+    if (rebonds % 6 == 3) return 0xFFFF0000; // Bleu
+    if (rebonds % 6 == 4) return 0xFF00FFFF; // Jaune
+    return 0xFFFF00FF; // Magenta
 }
 
 void main() {
@@ -68,6 +78,8 @@ void main() {
         
 
         float pos_y;
+        int nbRebonds = 0;
+
         if (temps_ecoule < tempsRebond) {
             float normalized_time = temps_ecoule / tempsRebond;//entre 0 et 1
             pos_y = maxHauteur + (minHauteur - maxHauteur) * normalized_time * normalized_time;
@@ -76,12 +88,15 @@ void main() {
             }
         } else {
             float cycles = temps_ecoule / tempsRebond;
-            float amplitude = (minHauteur - maxHauteur) * pow(energiePerdue, floor(cycles));
+            nbRebonds = int(floor(cycles));
+            float amplitude = (minHauteur - maxHauteur) * pow(energiePerdue, float(nbRebonds));
             float phase = (cycles - floor(cycles)) * 2.0 * PI;
             pos_y = minHauteur - amplitude * (0.5 + 0.5 * sin(phase - PI/2.0));
         }
 
+        int couleur_actuelle = couleur_rebond(nbRebonds);
+
         //Dessin balle
-        cercle(uint(pos_y) - WSY/6, depart_x + WSX/2);
+        cercle(uint(pos_y) - WSY/6, depart_x + WSX/2, couleur_actuelle);
     }
 }
