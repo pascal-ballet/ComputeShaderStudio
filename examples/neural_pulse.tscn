@@ -1,0 +1,23 @@
+[gd_scene load_steps=3 format=3 uid="uid://bfxajmj0pco8j"]
+
+[ext_resource type="Script" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_8keew"]
+[ext_resource type="Script" path="res://examples/neural_pulse.gd" id="1_rxj88"]
+
+[node name="NeuralPulse" type="Node2D"]
+script = ExtResource("1_rxj88")
+
+[node name="ComputeShaderStudio2D" type="Node" parent="."]
+script = ExtResource("1_8keew")
+GLSL_code = "// Write your code HERE
+void main() {
+    uint x = gl_GlobalInvocationID.x;
+    uint y = gl_GlobalInvocationID.y;
+    uint p = x + y * WSX;
+    
+    // Utiliser imageStore au lieu de data_0/data_1
+    // Format RGBA pour le noir (0, 0, 0, 1)
+    vec4 black_color = vec4(0.0, 0.0, 0.0, 1.0);
+    
+    // Écrire dans l'image de sortie
+    imageStore(outputImage, ivec2(x, y), black_color);
+}"
