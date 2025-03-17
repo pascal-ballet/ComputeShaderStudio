@@ -27,6 +27,15 @@ void main() {
     float t = float(step) * 0.01;
     
     vec2 uv = (fragCoord - 0.5 * iResolution) / iResolution.y;
+    
+    // Calcul du centre de l'écran et de la direction de la souris
+    vec2 screenCenter = 0.5 * iResolution;
+    float mouseDir = atan(float(mousey) - screenCenter.y, float(mousex) - screenCenter.x);
+    
+    // Angle final = rotation intrinsèque + direction de la souris
+    float rotAngleXZ = t + mouseDir;      // Rotation dans le plan xz
+    float rotAngleYZ = -t * 1.2 + mouseDir; // Rotation dans le plan yz avec une vitesse différente
+    
     vec3 col = vec3(0.0);
     vec3 camPos = vec3(0.0, 0.0, 3.5);
     vec3 rayDir = normalize(vec3(uv, -1.0));
@@ -34,12 +43,10 @@ void main() {
     vec3 p = vec3(0.0);
     float d = 0.0;
     
-    // Raymarching loop with two independent rotations:
-    // Rotation in xz plane with angle t and in yz plane with a different angle.
     for (int i = 0; i < 50; i++){
         p = camPos + depth * rayDir;
-        p.xz = rotation(t) * p.xz;          // Rotation sur le plan xz
-        p.yz = rotation(-t * 1.2) * p.yz;     // Rotation sur le plan yz (différente vitesse et direction)
+        p.xz = rotation(rotAngleXZ) * p.xz;
+        p.yz = rotation(rotAngleYZ) * p.yz;
         d = sdSphere(p, 1.25);
         depth += d;
         if (d < 0.001 || depth > 10.0) break;
