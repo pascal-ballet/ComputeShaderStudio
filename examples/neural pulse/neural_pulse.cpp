@@ -16,7 +16,7 @@ void main() {
     // Simple black background
     vec3 finalColor = vec3(0.0, 0.0, 0.0);
     
-    // Random lightning flashes
+    // Random lightning flashes with movement
     for (int i = 0; i < 3; i++) {
         // Basic flickering effect
         float seed = float(i) * 3.14;
@@ -39,9 +39,33 @@ void main() {
             float microFlicker = sin(t * 30.0 + seed * 5.0) * 0.5 + 0.5;
             flashIntensity = flashIntensity * (0.7 + 0.3 * microFlicker);
             
-            // Random position that changes over time
-            float posX = sin(t * 0.13 + seed * 12.34) * 0.8;
-            float posY = cos(t * 0.11 + seed * 43.21) * 0.5;
+            // Movement paths for the lightning balls
+            // Starting point A
+            float startX = sin(seed * 12.34) * 0.8;
+            float startY = cos(seed * 43.21) * 0.5;
+            
+            // Ending point B
+            float endX = sin(seed * 12.34 + 3.14) * 0.8;
+            float endY = cos(seed * 43.21 + 3.14) * 0.5;
+            
+            // Speed factor (unique for each lightning ball)
+            // Range from fast to very fast
+            float speedFactor = 1.0 + sin(seed * 7.89) * 0.5 + 0.5; // Will range from 1.0 to 2.0
+            
+            // Calculate position along path
+            float movementProgress = fract(t * speedFactor + seed); // Cycles from 0 to 1
+            
+            // Apply easing for more natural movement
+            movementProgress = smoothstep(0.0, 1.0, movementProgress);
+            
+            // Current position
+            float posX = mix(startX, endX, movementProgress);
+            float posY = mix(startY, endY, movementProgress);
+            
+            // Add some orbit/wobble to the movement
+            posX += sin(t * 2.0 * speedFactor + seed * 9.87) * 0.1;
+            posY += cos(t * 1.7 * speedFactor + seed * 6.54) * 0.08;
+            
             vec2 flashPos = vec2(posX, posY);
             
             // Distance to lightning center
@@ -60,12 +84,20 @@ void main() {
             float detail = sin(dist * 20.0 + t * 5.0) * 0.5 + 0.5;
             glow = glow * (0.9 + detail * 0.1);
             
-            // Color blend
+            // Speed-based color variation
             vec3 outerColor = vec3(0.85, 0.9, 1.0);
             vec3 coreColor = vec3(1.0, 1.0, 1.0);
+            
+            // Add speed trail effect
+            float trail = smoothstep(0.0, 0.3, movementProgress) * (1.0 - smoothstep(0.7, 1.0, movementProgress));
+            float trailIntensity = trail * speedFactor * 0.5;
+            
+            // Add slight color variation based on speed
+            coreColor = mix(coreColor, vec3(1.0, 0.9, 0.8), (speedFactor - 1.0) * 0.5);
+            
             vec3 lightningColor = mix(outerColor, coreColor, min(1.0, coreGlow * 0.5));
             
-            finalColor += lightningColor * glow;
+            finalColor += lightningColor * glow * (1.0 + trailIntensity);
         }
     }
     
