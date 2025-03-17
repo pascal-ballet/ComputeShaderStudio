@@ -67,7 +67,7 @@ void main() {
             finalColor += 0.7 * blue3;
         }
     }
-     // Triangular elements - simplified
+     // Triangular elements
      float radius = (315.0 + 30.0 * sin(time)) * scale;
      // Right triangle
      if (d.x - radius >= -8.0 * scale && d.x - radius <= 0.0) {
@@ -90,7 +90,7 @@ void main() {
          finalColor += t * blue2;
      }
      
-    // Blips - simplified
+    // Blips 
     if (r < 240.0 * scale) {
         // Blip 1
         {
