@@ -1,78 +1,70 @@
-// Write your code HERE
+float random(vec2 st) {
+    return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
+}
+
+// inspiré par le background shadertoy suivant : https://www.shadertoy.com/view/Wf2GDt
+float noise(vec2 st) {
+    vec2 i = floor(st);
+    vec2 f = fract(st);
+    
+    // Quatre coins du carré
+    float a = random(i);
+    float b = random(i + vec2(1.0, 0.0));
+    float c = random(i + vec2(0.0, 1.0));
+    float d = random(i + vec2(1.0, 1.0));
+    
+    // Interpolation lisse
+    vec2 u = f * f * (3.0 - 2.0 * f);
+    
+    return mix(a, b, u.x) +
+           (c - a) * u.y * (1.0 - u.x) +
+           (d - b) * u.x * u.y;
+}
+
 void main() {
     uint x = gl_GlobalInvocationID.x;
     uint y = gl_GlobalInvocationID.y;
     uint p = x + y * WSX;
     
-    // Couleur par défaut (noir)
-    uvec4 color = uvec4(0xFF000000);
+    // Variables équivalentes à celles de ShaderToy
+    float iTime = step / 10.0; // Utilisation de step au lieu de iTime
+    vec2 fragCoord = vec2(float(x), float(y));
+    vec2 iResolution = vec2(float(WSX), float(WSY));
+    vec4 fragColor = vec4(0.0);
     
-    // Créer un quadrillage avec effet de perspective dans la moitié inférieure
-    if (y >= WSY / 2) {
-        // Point de fuite au centre horizontal, en haut de la zone du quadrillage
-        float vanishX = WSX / 2.0;
-        float vanishY = WSY / 2.0;
-        
-        // Calculer les coordonnées relatives au point de fuite
-        float dx = float(x) - vanishX;
-        float dy = float(y) - vanishY;
-        
-        // Calculer la distance par rapport au point de fuite
-        float dist = sqrt(dx*dx + dy*dy);
-        
-        // Créer les lignes horizontales (parallèles à l'axe X) - mailles plus fines
-        float lineSpacing = 15.0; // Espacement réduit pour des mailles plus fines
-        float distMod = mod(dist, lineSpacing);
-        
-        // Créer les lignes radiales (partant du point de fuite) - plus nombreuses
-        float radialSpacing = 3.14159 / 36.0; // Doublement du nombre de lignes radiales
-        float angle = atan(dx, dy); // En radians
-        float angleMod = mod(angle, radialSpacing);
-        
-        // Anti-aliasing amélioré pour les lignes
-        // Largeur de ligne qui diminue avec la distance
-        float baseThickness = 1.0; // Ligne plus fine
-        float lineThickness = max(0.3, baseThickness - dist / 400.0);
-        
-        // Calculer l'intensité pour un effet de dégradé (anti-aliasing amélioré)
-        float lineIntensity = 0.0;
-        float radialIntensity = 0.0;
-        
-        // Anti-aliasing doux pour les lignes horizontales
-        float fadeWidth = 1.0; // Zone de transition adaptée aux lignes plus fines
-        if (distMod < lineThickness) {
-            lineIntensity = 1.0;
-        } else if (distMod < lineThickness + fadeWidth) {
-            // Fonction de lissage cubique pour une transition plus douce
-            float t = (distMod - lineThickness) / fadeWidth;
-            lineIntensity = 1.0 - (t * t * (3.0 - 2.0 * t));
-        }
-        
-        // Anti-aliasing doux pour les lignes radiales
-        float radialEdge = 0.03 + 0.01 * (dist / 300.0); // Zone de transition adaptée
-        if (angleMod < radialEdge) {
-            // Transition douce près du bord
-            float t = angleMod / radialEdge;
-            radialIntensity = 1.0 - (t * t * (3.0 - 2.0 * t));
-        } else if (angleMod > radialSpacing - radialEdge) {
-            // Transition douce près du bord opposé
-            float t = (radialSpacing - angleMod) / radialEdge;
-            radialIntensity = 1.0 - (t * t * (3.0 - 2.0 * t));
-        }
-        
-        // Utiliser l'intensité maximale entre les deux types de lignes
-        float finalIntensity = max(lineIntensity, radialIntensity);
-        
-        if (finalIntensity > 0.0) {
-            // Couleur rose fluo pour un effet futuristique, avec intensité variable
-            uint alpha = 0xFF;
-            uint r = uint(min(255.0, 230.0 * finalIntensity));
-            uint b = uint(min(255.0, 255.0 * finalIntensity));
-            uint g = uint(min(255.0, 50.0 * finalIntensity)); // Un peu de vert pour plus de profondeur
-            color = uvec4((alpha << 24) | (r << 16) | (g << 8) | b);
-        }
+    // Conversion du code shadertoy
+    float t = iTime / 10.0;
+    
+    vec2 pos = 100.0 * fragCoord/(iResolution.xy);
+    float yPos = pos.y/100.0;
+    pos.y += sin(2.0*t);
+    pos.x += cos(5.0*t);
+    pos *= mat2(sin(t/2.0),-cos(t/2.0),cos(t/2.0),sin(t/2.0))/8.0;
+    
+    // Boucle de l'effet de fractale
+    for (float i = 0.0; i < 8.0; i++) {
+        fragColor = cos(pos.xxxx*0.3)*0.5+0.5;
+        float n = noise(pos/5.0);
+        fragColor *= n;
+        pos.x += sin(pos.y + iTime*0.3 + i);
+        pos *= mat2(6.0,-8.0,8.0,6.0)/8.0;
     }
     
-    // Conversion explicite en int pour résoudre l'erreur de type
+    // Fade vertical
+    fragColor *= 1.0 - smoothstep(0.0, 0.91, yPos);
+    
+    // Teinte bleue
+    fragColor *= vec4(0.2, 0.23, 0.54, 1.0);
+    
+    // Conversion de la couleur au format requis par le buffer
+    uint r = uint(min(255.0, fragColor.r * 255.0));
+    uint g = uint(min(255.0, fragColor.g * 255.0));
+    uint b = uint(min(255.0, fragColor.b * 255.0));
+    uint alpha = 0xFF;
+    
+    // Construction de la couleur finale
+    uvec4 color = uvec4((alpha << 24) | (r << 16) | (g << 8) | b);
+    
+    // Écriture dans le buffer
     data_0[p] = int(color.x);
 }
