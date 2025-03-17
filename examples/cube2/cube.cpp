@@ -253,7 +253,7 @@ void main()
         if (isOnCube) {
             data_0[p] = color;
         } else {
-            data_0[p] = 0xFF000000;
+            data_0[p] = 0xFF4C4C4C;
         }
     }
 }
