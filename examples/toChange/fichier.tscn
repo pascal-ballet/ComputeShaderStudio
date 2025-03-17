@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=3 uid="uid://cets11mlsd8hb"]
 
-[ext_resource type="Script" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_cogap"]
-[ext_resource type="Script" path="res://examples/toChange/fichier.gd" id="1_y3tek"]
+[ext_resource type="Script" uid="uid://ymdghjh2i2lw" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_cogap"]
+[ext_resource type="Script" uid="uid://2wy07yux7xmu" path="res://examples/toChange/fichier.gd" id="1_y3tek"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_pm7bb"]
 
@@ -18,16 +18,16 @@ script = ExtResource("1_y3tek")
 [node name="ComputeShaderStudio2D2" type="Node" parent="." node_paths=PackedStringArray("data")]
 script = ExtResource("1_cogap")
 pause = true
-WSX = 256
-WSY = 256
+WSX = 1152
+WSY = 648
 glsl_file = "res://examples/toChange/fichier.cpp"
 data = [NodePath("../TextureRect")]
 
 [node name="Label" type="Label" parent="."]
-offset_left = 278.0
-offset_top = -1.0
-offset_right = 679.0
-offset_bottom = 101.0
+offset_left = 240.0
+offset_top = -4.0
+offset_right = 641.0
+offset_bottom = 98.0
 scale = Vector2(1.72, 1.72)
 text = "Compute Shader Studio
 Example 5: using an external GLSL file
@@ -36,17 +36,19 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="TextureRect" type="TextureRect" parent="."]
-offset_left = 278.0
-offset_top = 192.0
-offset_right = 975.0
-offset_bottom = 629.0
+offset_left = -5.0
+offset_top = -2.0
+offset_right = 573.0
+offset_bottom = 369.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
 texture = SubResource("NoiseTexture2D_nxi5j")
 
 [node name="Button" type="Button" parent="."]
-offset_left = 105.0
-offset_top = 209.0
-offset_right = 233.0
-offset_bottom = 299.0
+offset_left = 25.0
+offset_top = 32.0
+offset_right = 153.0
+offset_bottom = 122.0
 theme = SubResource("Theme_xvegm")
 text = "Play"
 

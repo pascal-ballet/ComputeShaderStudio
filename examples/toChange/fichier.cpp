@@ -1,3 +1,5 @@
+// Adapte de https://www.shadertoy.com/view/wc2XRh
+// Version optimisee pour la bibliotheque Compute Shader Studio dans Godot.
 #define POINTCOUNT 8
 #define PI 3.14159
 #define iResolution vec2(float(WSX), float(WSY))
