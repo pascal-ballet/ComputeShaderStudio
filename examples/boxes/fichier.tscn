@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=3 uid="uid://cets11mlsd8hb"]
 
-[ext_resource type="Script" uid="uid://ymdghjh2i2lw" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_cogap"]
-[ext_resource type="Script" uid="uid://2wy07yux7xmu" path="res://examples/boxes/fichier.gd" id="1_y3tek"]
+[ext_resource type="Script" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_cogap"]
+[ext_resource type="Script" path="res://examples/boxes/fichier.gd" id="1_y3tek"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_pm7bb"]
 
