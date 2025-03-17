@@ -18,7 +18,7 @@ void main() {
     uv = mod(uv, vec2(1.0));
 
     // t = "temps" bas sur step
-    float t = float(step) * 0.005;
+    float t = float(step) * 0.006;
 
     vec2 points[POINTCOUNT];
     for (int i = 0; i < POINTCOUNT; i++) {
@@ -69,5 +69,5 @@ void main() {
     int g = int(clamp(col.g, 0.0, 1.0) * 255.0);
     int b = int(clamp(col.b, 0.0, 1.0) * 255.0);
 
-    data_0[p] = (a << 24) | (r << 16) | (g << 8) | b;
+    data_0[p] = (a << 24) | (r <<8 ) | (g << 16) | b;
 }
