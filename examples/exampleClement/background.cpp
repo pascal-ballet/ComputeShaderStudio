@@ -26,8 +26,8 @@ void main() {
     uint y = gl_GlobalInvocationID.y;
     uint p = x + y * WSX;
     
-    // Variables équivalentes à celles de ShaderToy
-    float iTime = step / 10.0; // Utilisation de step au lieu de iTime
+    //variable time basé sur la variable step de computeShaderStudio 
+    float iTime = step / 10.0;
     vec2 fragCoord = vec2(float(x), float(y));
     vec2 iResolution = vec2(float(WSX), float(WSY));
     vec4 fragColor = vec4(0.0);
@@ -53,7 +53,7 @@ void main() {
     // Fade vertical
     fragColor *= 1.0 - smoothstep(0.0, 0.91, yPos);
     
-    // Teinte bleue
+    // Teinte rouge
     fragColor *= vec4(0.2, 0.23, 0.54, 1.0);
     
     // Conversion de la couleur au format requis par le buffer
