@@ -1,11 +1,11 @@
 #define CAR_WIDTH 60.0
 #define CAR_HEIGHT 30.0
 #define WHEEL_RADIUS 8.0
-#define SPEED 2.0
+#define SPEED 1.5
 #define RAIN_DROPS 500
 #define SPLASH_PARTICLES 20
-#define CAR_COUNT 8  // Plus de voitures pour remplir les 4 voies
-#define STAR_COUNT 200  // Nombre d'étoiles dans le ciel
+#define CAR_COUNT 5  //4voitur en tout
+#define STAR_COUNT 200  
 
 float hash(float n) { return fract(sin(n) * 43758.5453123); }
 
