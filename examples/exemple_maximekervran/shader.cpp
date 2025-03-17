@@ -2,8 +2,7 @@
 #define RAYON 50.0
 #define PI 3.141592
 
-
-
+//calc cercle euclidien
 void cercle(uint cy, uint cx, int couleur) {
     uint x = gl_GlobalInvocationID.x;
     uint y = gl_GlobalInvocationID.y;
@@ -18,6 +17,7 @@ void cercle(uint cy, uint cx, int couleur) {
     }
 }
 
+//cycle de couleurs
 int couleur_rebond(int rebonds) {
     if (rebonds % 6 == 0) return 0xFFFFFFFF; // Blanc
     if (rebonds % 6 == 1) return 0xFF0000FF; // Rouge
@@ -39,7 +39,7 @@ void main() {
     uint mouse_x = uint(mousex);
     uint mouse_y = uint(mousey);
 
-    //etat souris
+    //etat bouton souris
     bool mouse_pressed = mouse_button > 0;
 
     //stocke coordonnees de lancement
@@ -48,8 +48,9 @@ void main() {
     uint depart_y = uint(data_1[2]);
     uint depart_step = uint(data_1[3]);
 
+    //gestion lancement balle
     if (mouse_pressed && (!depart_balle || (mouse_x != depart_x || mouse_y != depart_y))) {
-        //etat lance
+        //stocke animation
         data_1[0] = 1;
         
         //Enregistre lancement
@@ -65,28 +66,28 @@ void main() {
     }
     
     
-    //calc pos
+    //calc position
     if (depart_balle) {
         float temps_ecoule = float(step - depart_step);
         float maxHauteur = float(depart_y);
         float minHauteur = float(WSY - uint(RAYON));
         float tempsRebond = 90.0;
         float energiePerdue = 0.85;
-        
-        // Position calculation: start at bottom, bounce up with decreasing height
-        //float y_pos = maxHeight - amplitude * (0.5 + 0.5 * sin(phase - PI/2.0));
-        
+                
 
         float pos_y;
         int nbRebonds = 0;
 
+        //calc temps ecoule
         if (temps_ecoule < tempsRebond) {
+            //premier rebond
             float normalized_time = temps_ecoule / tempsRebond;//entre 0 et 1
             pos_y = maxHauteur + (minHauteur - maxHauteur) * normalized_time * normalized_time;
             if (pos_y > minHauteur) {
                 pos_y = minHauteur;
             }
         } else {
+            //rebonds suivants
             float cycles = temps_ecoule / tempsRebond;
             nbRebonds = int(floor(cycles));
             float amplitude = (minHauteur - maxHauteur) * pow(energiePerdue, float(nbRebonds));
@@ -94,6 +95,7 @@ void main() {
             pos_y = minHauteur - amplitude * (0.5 + 0.5 * sin(phase - PI/2.0));
         }
 
+        //couleur balle
         int couleur_actuelle = couleur_rebond(nbRebonds);
 
         //Dessin balle
