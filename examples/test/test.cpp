@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #define M_PI 3.14159265358979323846
 
 #define blue1 vec3(0.74, 0.95, 1.00)
@@ -9,11 +10,14 @@
 #define SMOOTH(r, R) (1.0 - smoothstep(R - 1.0, R + 1.0, r))
 #define MOV(a, b, c, d, t) (vec2(a * cos(t) + b * cos(0.1 * (t)), c * sin(t) + d * cos(0.1 * (t))))
 
+=======
+>>>>>>> acdc12f316fab591711a0beaa2bfd7620111fab2
 void main() {
     uint x = gl_GlobalInvocationID.x;
     uint y = gl_GlobalInvocationID.y;
     uint p = x + y * WSX;
     
+<<<<<<< HEAD
     // Normalized coordinates
     vec2 uv = vec2(float(x), float(y));
     vec2 c = vec2(float(WSX) / 2.0, float(WSY) / 2.0); // Center
@@ -186,3 +190,25 @@ void main() {
     // Write to output
     data_0[p] = 0xFF000000 | color;
 }
+=======
+    vec2 uv = vec2(float(x) / float(WSX), float(y) / float(WSY));
+    vec2 pos = uv - 0.5;
+    pos.x *= float(WSX) / float(WSY);
+    
+    float z = float(step) * 0.01;
+    float l = length(pos);
+    
+    uv += pos / l * (sin(z) + 1.0) * abs(sin(l * 9.0 - z - z));
+    
+    // Adjusted colors for a more feminine palette
+    float r = 0.12 / length(mod(uv + 0.4, vec2(1.0)) - 0.5);  // Soft pink
+    float g = 0.05 / length(mod(uv + 0.6, vec2(1.0)) - 0.5);  // Light purple
+    float b = 0.10 / length(mod(uv + 0.8, vec2(1.0)) - 0.5);  // Lavender
+    
+    int color = (int(r * 255.0) << 16) | (int(g * 255.0) << 8) | int(b * 255.0);
+    data_0[p] = 0xFF000000 | color;
+}
+
+
+/// comm test
+>>>>>>> acdc12f316fab591711a0beaa2bfd7620111fab2
