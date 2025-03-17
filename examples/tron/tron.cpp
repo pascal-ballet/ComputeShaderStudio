@@ -1,4 +1,3 @@
-
 //  800 * 450
 //  data_0 : affichage
 //  data_1 : motos
@@ -47,9 +46,6 @@ void initGame(ivec2 pos)
     Motorcycles[p] = CLEAR;
     Beams[p] = CLEAR;
 
-
-    for(int i = 0; i < 10000; i++){}
-
     // On choisis aleatoirement une position dans la partie gauche de la simulation
     float randomY1 = random(vec2(123.45f, 67.89f)) * (WSY - 2 * dimMoto) + dimMoto;
     float randomX1 = random(vec2(234.56f, 78.90f)) * (WSX / 2 - 2 * dimMoto) + dimMoto;
@@ -62,7 +58,7 @@ void initGame(ivec2 pos)
 
     ivec2 moto2Pos = ivec2(int(randomX2), int(randomY2));
 
-    // Assure que les motos soit spawn alignees pour la suite des mouvements
+    // pour que les motos soit spawn alignees pour la suite des mouvements
     moto1Pos = ivec2((moto1Pos.x / dimMoto) * dimMoto, (moto1Pos.y / dimMoto) * dimMoto);
     moto2Pos = ivec2((moto2Pos.x / dimMoto) * dimMoto, (moto2Pos.y / dimMoto) * dimMoto);
 
@@ -123,25 +119,88 @@ bool isDirectionClear(ivec2 basePos, int direction)
 
 int chooseDirection(ivec2 basePos, int id_moto, int randomDir)
 {
-    // si direction aleatoire disponible alors go
+    // Trouver la position de l'autre moto
+    ivec2 enemyPos = ivec2(-1, -1);
+    int enemyMoto = (id_moto == MOTO_1) ? MOTO_2 : MOTO_1;
+
+    for (int y = 0; y < WSY; y++)
+    {
+        for (int x = 0; x < WSX; x++)
+        {
+            uint p = x + y * WSX;
+            if (Motorcycles[p] == enemyMoto)
+            {
+                enemyPos = ivec2(x, y);
+                break;
+            }
+        }
+        if (enemyPos.x != -1)
+            break;
+    }
+
+    // Si on trouve l'autre moto, on calcule la direction ver elle
+    if (enemyPos.x != -1)
+    {
+        ivec2 diff = enemyPos - basePos;
+
+        // nombre aleatoire pour decider si on suit l'ennemi ou si on fait un mouvement aleatoire
+        float chaseChance = random(vec2(float(step) * 0.7234f + float(id_moto), step));
+
+        // 70% de chance de suivre l'autre moto', 30% de faire un mouvement aleatoire
+        if (chaseChance < 0.70f)
+        {
+            int dirTab[4];
+            float dirChoice = random(vec2(float(step) * 0.3456f + float(id_moto), step));
+
+            if (abs(diff.x) > abs(diff.y) || dirChoice > 0.5f)
+            {
+                dirTab[0] = (diff.x > 0) ? 1 : 3;                                   // Droite ou Gauche
+                dirTab[1] = (diff.y > 0) ? 2 : 0;                                   // Bas ou Haut
+                dirTab[2] = (random(vec2(step * 0.1234f, id_moto)) > 0.5f) ? 0 : 2; // Y aleatoire
+                dirTab[3] = (random(vec2(step * 0.5678f, id_moto)) > 0.5f) ? 1 : 3; // X aleatoire
+            }
+            else
+            {
+                dirTab[0] = (diff.y > 0) ? 2 : 0;                                   // Bas ou Haut
+                dirTab[1] = (diff.x > 0) ? 1 : 3;                                   // Droite ou Gauche
+                dirTab[2] = (random(vec2(step * 0.9012f, id_moto)) > 0.5f) ? 1 : 3; // X aleatoire
+                dirTab[3] = (random(vec2(step * 0.3456f, id_moto)) > 0.5f) ? 2 : 0; // Y aleatoire
+            }
+
+            // Essayer chaque direction dans l'ordre de preference
+            for (int i = 0; i < 4; i++)
+            {
+                if (isDirectionClear(basePos, dirTab[i]))
+                {
+                    return dirTab[i];
+                }
+            }
+        }
+    }
+
     if (isDirectionClear(basePos, randomDir))
     {
         return randomDir;
     }
 
-    // si direction aleatoire non disponible alors tenter toutes les autres
-    float seed = random(vec2(float(step) * 0.5678f + float(id_moto), step));
-    int startDir = int(seed * 4.0);
+    // essayer toutes les directions dans un ordre aleatoire
+    int essais[4] = {0, 1, 2, 3};
+    for (int i = 3; i > 0; i--)
+    {
+        int j = int(random(vec2(float(step) * 0.8901f + float(i), id_moto)) * float(i + 1));
+        int temp = essais[i];
+        essais[i] = essais[j];
+        essais[j] = temp;
+    }
 
     for (int i = 0; i < 4; i++)
     {
-        int dir = (startDir + i) % 4;
-        if (dir != randomDir && isDirectionClear(basePos, dir))
+        if (isDirectionClear(basePos, essais[i]))
         {
-            return dir;
+            return essais[i];
         }
     }
-    // si on trouve pas une direction valide
+
     return -1;
 }
 
@@ -213,7 +272,7 @@ void main()
 {
     ivec2 pos = ivec2(gl_GlobalInvocationID.xy);
     uint p = pos.x + pos.y * WSX;
-    
+
     int slowFactor = 2;
 
     if (step == Init)
@@ -236,9 +295,8 @@ void main()
     {
         Display[p] = Motorcycles[p] + Beams[p];
     }
-    if (left_pressed && step > 100)
+    if (mouse_button > 0 && step > 100)
     {
-
         initGame(pos);
     }
 }
