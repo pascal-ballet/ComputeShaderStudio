@@ -107,31 +107,42 @@ void main()
         float dot3_center_y = dot3_y - SMALL_DOT_OFFSET * sin(angle + 4.1888);
         float small_dot3_dist = sqrt(pow(x - dot3_center_x, 2) + pow(y - dot3_center_y, 2));
 
-        // Génération du fond animé
-        float iTime = step / 10.0;
-        vec2 fragCoord = vec2(float(x), float(y));
+        // Variables nécessaires pour le background animé
+        float t = step / 10.0; // division par 10 pour ralentir l'animation 
+        vec2 fragCoord = vec2(float(x), float(y));// Position du pixel
         vec2 iResolution = vec2(float(WSX), float(WSY));
-        vec4 fragColor = vec4(0.0);
+        vec4 fragColor = vec4(0.0); //couleur initiale = noir transparent 
         
         float t = iTime / 10.0;
         vec2 pos = 100.0 * fragCoord/(iResolution.xy);
         float yPos = pos.y/100.0;
+        // mouvement oscillaoire vertical et horizontal
         pos.y += sin(2.0*t);
         pos.x += cos(5.0*t);
+        // rotation progressive de l'effet 
         pos *= mat2(sin(t/2.0),-cos(t/2.0),cos(t/2.0),sin(t/2.0))/8.0;
         
+        // Boucle gérant l'effet de fractale
         for (float i = 0.0; i < 8.0; i++) {
+            //motif de base répétés avec transitions douces 
             fragColor = cos(pos.xxxx*0.3)*0.5+0.5;
+            //ajout de bruit de Perlin pour un effet de texture organique 
             float n = noise(pos/5.0);
+            //multiplie la couleur par le bruit de Perlin
             fragColor *= n;
+            //deformation ondulatoire horizontale 
             pos.x += sin(pos.y + iTime*0.3 + i);
+            //deformation ondulatoire verticale
             pos *= mat2(6.0,-8.0,8.0,6.0)/8.0;
         }
-        
+
+        //fade vertical 
         fragColor *= 1.0 - smoothstep(0.0, 0.91, yPos);
+        
+        //teinte rouge 
         fragColor *= vec4(0.2, 0.23, 0.54, 1.0);
         
-        // Conversion de la couleur du fond
+        // Conversion de la couleur du fond float -> int
         uint r = uint(min(255.0, fragColor.r * 255.0));
         uint g = uint(min(255.0, fragColor.g * 255.0));
         uint b = uint(min(255.0, fragColor.b * 255.0));
