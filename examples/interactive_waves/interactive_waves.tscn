@@ -1,0 +1,339 @@
+#define MAX_CELLS 48
+#define CELL_GROWTH_RATE 0.015
+#define DIVISION_THRESHOLD 25.0
+#define MIN_RADIUS 8.0
+#define MAX_AGE 200.0
+
+void main()
+{
+    int x = int(gl_GlobalInvocationID.x);
+    int y = int(gl_GlobalInvocationID.y);
+    int p = x + y * int(WSX);
+
+    // At first step, initialize background and the first cell
+    if (step == 0) {
+        // Create dark blue gradient background
+        float gradientY = float(y) / float(WSY);
+        int blue = int(20 + gradientY * 40);
+        data_0[p] = 0xFF000000 | blue;
+        
+        // Initialize the first cell at the center
+        if (x == 0 && y == 0) {
+            // First cell in the center
+            data_0[0] = floatBitsToInt(WSX / 2.0);       // x position
+            data_0[1] = floatBitsToInt(WSY / 2.0);       // y position
+            data_0[2] = floatBitsToInt(MIN_RADIUS * 1.5);// radius
+            data_0[3] = floatBitsToInt(0.0);             // age
+            data_0[4] = 1;                               // isAlive
+            data_0[5] = 0;                               // dividing
+            data_0[6] = floatBitsToInt(1.0);             // health (new property)
+            data_0[7] = floatBitsToInt(0.0);             // dx
+            data_0[8] = floatBitsToInt(0.0);             // dy
+            data_0[9] = 0;                               // cell type (0=normal)
+            
+            // Initialize other cells as inactive
+            for (int i = 1; i < MAX_CELLS; i++) {
+                int baseIdx = i * 10;
+                data_0[baseIdx] = 0; // not alive
+            }
+        }
+    } else {
+        // Process cell simulation logic - only in one thread to avoid race conditions
+        if (x == 0 && y == 0) {
+            // Update cell states
+            for (int i = 0; i < MAX_CELLS; i++) {
+                int baseIdx = i * 10;
+                int isAlive = (i == 0) ? data_0[4] : data_0[baseIdx];
+                
+                if (isAlive == 1) {
+                    // Get cell properties
+                    float cellX = (i == 0) ? intBitsToFloat(data_0[0]) : intBitsToFloat(data_0[baseIdx + 1]);
+                    float cellY = (i == 0) ? intBitsToFloat(data_0[1]) : intBitsToFloat(data_0[baseIdx + 2]);
+                    float radius = (i == 0) ? intBitsToFloat(data_0[2]) : intBitsToFloat(data_0[baseIdx + 3]);
+                    float age = (i == 0) ? intBitsToFloat(data_0[3]) : intBitsToFloat(data_0[baseIdx + 4]);
+                    int dividing = (i == 0) ? data_0[5] : data_0[baseIdx + 5];
+                    float health = (i == 0) ? intBitsToFloat(data_0[6]) : intBitsToFloat(data_0[baseIdx + 6]);
+                    float dx = (i == 0) ? intBitsToFloat(data_0[7]) : intBitsToFloat(data_0[baseIdx + 7]);
+                    float dy = (i == 0) ? intBitsToFloat(data_0[8]) : intBitsToFloat(data_0[baseIdx + 8]);
+                    int cellType = (i == 0) ? data_0[9] : data_0[baseIdx + 9];
+                    
+                    // Apply random movement based on cell type
+                    float moveScale = (cellType == 0) ? 0.2 : 0.4; // Type 1 cells move faster
+                    
+                    // Create more organic movement with noise
+                    float moveX = sin(step * 0.03 + i * 2.1) * moveScale;
+                    float moveY = cos(step * 0.04 + i * 1.7) * moveScale;
+                    
+                    // Add influence from mouse position
+                    float mouseDx = mousex - cellX;
+                    float mouseDy = mousey - cellY;
+                    float mouseDist = sqrt(mouseDx*mouseDx + mouseDy*mouseDy);
+                    
+                    if (mouseDist < 100.0) {
+                        // Add slight attraction to mouse for type 0, repulsion for type 1
+                        float mouseInfluence = 0.05 / (mouseDist + 10.0);
+                        if (cellType == 0) {
+                            moveX += mouseInfluence * mouseDx;
+                            moveY += mouseInfluence * mouseDy;
+                        } else {
+                            moveX -= mouseInfluence * mouseDx;
+                            moveY -= mouseInfluence * mouseDy;
+                        }
+                    }
+                    
+                    // Update position with momentum
+                    dx = dx * 0.9 + moveX;
+                    dy = dy * 0.9 + moveY;
+                    cellX += dx;
+                    cellY += dy;
+                    
+                    // Grow cells if not dividing
+                    if (dividing == 0) {
+                        // Different cell types grow at different rates
+                        float growthRate = (cellType == 0) ? CELL_GROWTH_RATE : CELL_GROWTH_RATE * 1.2;
+                        radius += growthRate * health;
+                        age += 0.1;
+                        
+                        // Cells lose health as they age
+                        health = max(0.5, health - 0.0005);
+                    }
+                    
+                    // Check for division
+                    if (radius > DIVISION_THRESHOLD && dividing == 0 && health > 0.6) {
+                        dividing = 1;
+                        
+                        // Calculate division direction with some randomness
+                        float angle = step * 0.01 + i * 0.5 + sin(age * 0.1) * 0.3;
+                        data_0[baseIdx + 7] = floatBitsToInt(cos(angle));  // dx for division
+                        data_0[baseIdx + 8] = floatBitsToInt(sin(angle));  // dy for division
+                    }
+                    
+                    // Process cell division
+                    if (dividing == 1) {
+                        // Shrink dividing cell
+                        radius -= CELL_GROWTH_RATE * 0.7;
+                        
+                        // Find inactive cell to create new one
+                        for (int j = 1; j < MAX_CELLS; j++) {
+                            if (data_0[j * 10] == 0) { // Find inactive cell
+                                // Get division direction
+                                float divDx = intBitsToFloat(data_0[baseIdx + 7]);
+                                float divDy = intBitsToFloat(data_0[baseIdx + 8]);
+                                
+                                // Create new cell
+                                int newIdx = j * 10;
+                                data_0[newIdx] = 1; // alive
+                                data_0[newIdx + 1] = floatBitsToInt(cellX + divDx * radius * 0.8);
+                                data_0[newIdx + 2] = floatBitsToInt(cellY + divDy * radius * 0.8);
+                                data_0[newIdx + 3] = floatBitsToInt(radius * 0.9);
+                                data_0[newIdx + 4] = floatBitsToInt(0.0); // new age
+                                data_0[newIdx + 5] = 0; // not dividing
+                                
+                                // Cell mutation: 15% chance to change cell type during division
+                                int newCellType = cellType;
+                                if (sin(step * 0.1 + j * 0.3) > 0.7) {
+                                    newCellType = (cellType == 0) ? 1 : 0;
+                                }
+                                data_0[newIdx + 9] = newCellType;
+                                
+                                // New cell health is based on parent with some randomness
+                                float newHealth = health * 0.9 + 0.1 * sin(step + j);
+                                data_0[newIdx + 6] = floatBitsToInt(clamp(newHealth, 0.5, 1.0));
+                                
+                                // Give new cell momentum in division direction
+                                data_0[newIdx + 7] = floatBitsToInt(divDx * 0.5);
+                                data_0[newIdx + 8] = floatBitsToInt(divDy * 0.5);
+                                
+                                // Move original cell in opposite direction
+                                cellX -= divDx * radius * 0.5;
+                                cellY -= divDy * radius * 0.5;
+                                
+                                // Original cell gets momentum in opposite direction
+                                dx -= divDx * 0.5;
+                                dy -= divDy * 0.5;
+                                
+                                // Reset division state
+                                dividing = 0;
+                                health *= 0.9; // Division costs energy
+                                break;
+                            }
+                        }
+                    }
+                    
+                    // Keep cells within bounds
+                    cellX = clamp(cellX, radius, float(WSX) - radius);
+                    cellY = clamp(cellY, radius, float(WSY) - radius);
+                    
+                    // Cell interaction - simplified to avoid O(n²) complexity
+                    if (i % 3 == step % 3) { // Only process 1/3 of cells each frame
+                        for (int j = 0; j < MAX_CELLS; j++) {
+                            if (i != j && (j == 0 ? data_0[4] : data_0[j * 10]) == 1) {
+                                float otherX = (j == 0) ? intBitsToFloat(data_0[0]) : intBitsToFloat(data_0[j * 10 + 1]);
+                                float otherY = (j == 0) ? intBitsToFloat(data_0[1]) : intBitsToFloat(data_0[j * 10 + 2]);
+                                float otherRadius = (j == 0) ? intBitsToFloat(data_0[2]) : intBitsToFloat(data_0[j * 10 + 3]);
+                                int otherType = (j == 0) ? data_0[9] : data_0[j * 10 + 9];
+                                
+                                float distX = cellX - otherX;
+                                float distY = cellY - otherY;
+                                float distance = sqrt(distX*distX + distY*distY);
+                                float minDist = radius + otherRadius;
+                                
+                                // Simple collision response
+                                if (distance < minDist && distance > 0.1) {
+                                    float overlap = (minDist - distance) / distance;
+                                    
+                                    // Different response based on cell types
+                                    if (cellType == otherType) {
+                                        // Same type cells gently push each other
+                                        cellX += distX * overlap * 0.2;
+                                        cellY += distY * overlap * 0.2;
+                                    } else {
+                                        // Different type cells compete - stronger push
+                                        cellX += distX * overlap * 0.3;
+                                        cellY += distY * overlap * 0.3;
+                                        
+                                        // Cells lose health when in contact with opposite type
+                                        health -= 0.001;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Cell death conditions
+                    if ((age > MAX_AGE) || (health < 0.2)) {
+                        if (i > 0) { // Don't let the first cell die
+                            isAlive = 0;
+                        } else {
+                            // Rejuvenate the first cell to keep simulation going
+                            age = MAX_AGE * 0.5;
+                            health = 0.8;
+                        }
+                    }
+                    
+                    // Store updated values
+                    if (i == 0) {
+                        data_0[0] = floatBitsToInt(cellX);
+                        data_0[1] = floatBitsToInt(cellY);
+                        data_0[2] = floatBitsToInt(radius);
+                        data_0[3] = floatBitsToInt(age);
+                        data_0[4] = isAlive;
+                        data_0[5] = dividing;
+                        data_0[6] = floatBitsToInt(health);
+                        data_0[7] = floatBitsToInt(dx);
+                        data_0[8] = floatBitsToInt(dy);
+                    } else {
+                        data_0[baseIdx] = isAlive;
+                        data_0[baseIdx + 1] = floatBitsToInt(cellX);
+                        data_0[baseIdx + 2] = floatBitsToInt(cellY);
+                        data_0[baseIdx + 3] = floatBitsToInt(radius);
+                        data_0[baseIdx + 4] = floatBitsToInt(age);
+                        data_0[baseIdx + 5] = dividing;
+                        data_0[baseIdx + 6] = floatBitsToInt(health);
+                        data_0[baseIdx + 7] = floatBitsToInt(dx);
+                        data_0[baseIdx + 8] = floatBitsToInt(dy);
+                    }
+                }
+            }
+        }
+        
+        // Fade background slightly
+        int bg_color = data_0[p];
+        int blue = bg_color & 0xFF;
+        if (blue > 20) {
+            blue--;
+            data_0[p] = (bg_color & 0xFFFFFF00) | blue;
+        }
+        
+        // Visualization - draw all cells
+        bool pixel_drawn = false;
+        for (int i = 0; i < MAX_CELLS; i++) {
+            int baseIdx = i * 10;
+            int isAlive = (i == 0) ? data_0[4] : data_0[baseIdx];
+            
+            if (isAlive == 1) {
+                float cellX = (i == 0) ? intBitsToFloat(data_0[0]) : intBitsToFloat(data_0[baseIdx + 1]);
+                float cellY = (i == 0) ? intBitsToFloat(data_0[1]) : intBitsToFloat(data_0[baseIdx + 2]);
+                float radius = (i == 0) ? intBitsToFloat(data_0[2]) : intBitsToFloat(data_0[baseIdx + 3]);
+                float age = (i == 0) ? intBitsToFloat(data_0[3]) : intBitsToFloat(data_0[baseIdx + 4]);
+                int dividing = (i == 0) ? data_0[5] : data_0[baseIdx + 5];
+                float health = (i == 0) ? intBitsToFloat(data_0[6]) : intBitsToFloat(data_0[baseIdx + 6]);
+                int cellType = (i == 0) ? data_0[9] : data_0[baseIdx + 9];
+                
+                float dx = float(x - cellX);
+                float dy = float(y - cellY);
+                float dist = sqrt(dx*dx + dy*dy);
+                
+                // Draw cell interior
+                if (dist < radius) {
+                    // Age affects color - younger cells are brighter
+                    float age_factor = clamp(1.0 - age / MAX_AGE, 0.2, 1.0);
+                    // Health affects intensity
+                    float health_factor = clamp(health, 0.3, 1.0);
+                    
+                    int r, g, b;
+                    
+                    // Cell type determines base color
+                    if (cellType == 0) {
+                        // Type 0: Cyan/Teal cells
+                        r = int(50.0 * age_factor * health_factor);
+                        g = int(200.0 * age_factor * health_factor);
+                        b = int(180.0 * age_factor * health_factor);
+                    } else {
+                        // Type 1: Magenta/Purple cells
+                        r = int(180.0 * age_factor * health_factor);
+                        g = int(50.0 * age_factor * health_factor);
+                        b = int(220.0 * age_factor * health_factor);
+                    }
+                    
+                    // Dividing cells pulse
+                    if (dividing == 1) {
+                        float pulse = 0.7 + 0.3 * sin(step * 0.2);
+                        r = int(float(r) * pulse);
+                        g = int(float(g) * pulse);
+                        b = int(float(b) * pulse);
+                    }
+                    
+                    // Create a gradient from center to edge
+                    float gradient = pow(1.0 - (dist / radius), 0.5);
+                    r = int(float(r) * gradient);
+                    g = int(float(g) * gradient);
+                    b = int(float(b) * gradient);
+                    
+                    data_0[p] = 0xFF000000 | (r << 16) | (g << 8) | b;
+                    pixel_drawn = true;
+                }
+                // Draw cell membrane
+                else if (dist < radius + 1.5 && dist > radius - 0.5 && !pixel_drawn) {
+                    // Membrane color - white with health tint
+                    int memR = 255;
+                    int memG = 255;
+                    int memB = 255;
+                    
+                    if (cellType == 0) {
+                        // Type 0: slight cyan tint
+                        memR = 200;
+                        memG = 255;
+                        memB = 255;
+                    } else {
+                        // Type 1: slight magenta tint
+                        memR = 255;
+                        memG = 200;
+                        memB = 255;
+                    }
+                    
+                    // Dividing cells have brighter membrane
+                    if (dividing == 1) {
+                        float pulse = 0.7 + 0.3 * sin(step * 0.3);
+                        memR = min(255, int(float(memR) * pulse));
+                        memG = min(255, int(float(memG) * pulse));
+                        memB = min(255, int(float(memB) * pulse));
+                    }
+                    
+                    data_0[p] = 0xFF000000 | (memR << 16) | (memG << 8) | memB;
+                    pixel_drawn = true;
+                }
+            }
+        }
+    }
+}
