@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="compute_shader_studio"
-run/main_scene="uid://bn86hxa8xefmh"
+run/main_scene="uid://e5gixrwap30u"
 config/features=PackedStringArray("4.4", "Forward Plus")
 config/icon="res://addons/compute_shader_studio/icon.png"
 <<<<<<<Updatedupstreamrun/main_scene="res://examples/circles/circles.tscn"
