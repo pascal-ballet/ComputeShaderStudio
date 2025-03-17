@@ -1,32 +1,29 @@
-#version 310 core
-
 layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 
-// Vos constantes globales
-const uint global_size_x = 256;
-const uint global_size_y = 256;
-
-// Bindings
-layout(binding = 0) uniform sampler2D fond_texture;
-layout(std430, binding = 1) buffer ImageBuffer {
+layout(set = 0, binding = 0, std430) buffer Data {
     uint data[];
 };
 
-// Fonction utilitaire
-uint packColor(vec4 c) {
-    return (uint(c.r * 255) << 24) |
-           (uint(c.g * 255) << 16) |
-           (uint(c.b * 255) << 8)  |
-           (uint(c.a * 255));
-}
 
 void main() {
     uint x = gl_GlobalInvocationID.x;
     uint y = gl_GlobalInvocationID.y;
-    if (x >= global_size_x || y >= global_size_y) return; 
     
-    uint p = x + y * global_size_x;
-    vec2 uv = vec2(x, y) / vec2(global_size_x, global_size_y);
-    vec4 color = texture(fond_texture, uv);
-    data[p] = packColor(color);
+    if (x >= WSX || y >= WSY) {
+        return;
+    }
+    
+    uint p = x + y * WSX;
+    
+    uint pixel = data[p];
+    uint r = (pixel >> 24) & 0xFF;
+    uint g = (pixel >> 16) & 0xFF;
+    uint b = (pixel >> 8) & 0xFF;
+    uint a = pixel & 0xFF;
+    
+    r = 255;
+    g = 0;
+    b = 0;
+    
+    data[p] = (r << 24) | (g << 16) | (b << 8) | a;
 }
