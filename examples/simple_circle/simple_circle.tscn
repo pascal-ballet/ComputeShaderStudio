@@ -5,11 +5,8 @@
 
 [node name="SimpleCircle" type="Node2D"]
 
-[node name="ComputeShaderStudio2D" type="Node" parent="." node_paths=PackedStringArray("data")]
+[node name="ComputeShaderStudio2D" type="Node" parent="."]
 script = ExtResource("1_rlapi")
-WSX = 256
-glsl_file = "res://examples/simple_circle/simple_circle.cpp"
-data = [NodePath("../Icon")]
 metadata/_custom_type_script = "uid://c8esqdv0y26yp"
 
 [node name="Icon" type="Sprite2D" parent="."]
