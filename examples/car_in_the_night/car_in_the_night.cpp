@@ -29,10 +29,10 @@ void main() {
     float carPosY = float(WSX) / 3.0;
     
     // Nuit - fond noir avec leger bleu
-    vec3 nightColor = vec3(0.02, 0.03, 0.08);
-    
+    vec3 nightColor = vec3(0.05, 0.1, 0.25); // Nouvelle couleur
+
     // Route mouillée - gris fonce avec reflets
-    vec3 roadColor = vec3(0.05, 0.05, 0.07);
+    vec3 roadColor = vec3(0.08, 0.08, 0.07);
     
     // Couleur de base - nuit
     data_0[p] = 0xFF000000 | (int(nightColor.r * 255.0) << 16) | (int(nightColor.g * 255.0) << 8) | int(nightColor.b * 255.0);
