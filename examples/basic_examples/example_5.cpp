@@ -2,7 +2,7 @@
 
 void main() {
     float angle = step * 0.01;  
-
+    
     uint x = gl_GlobalInvocationID.x;
     uint y = gl_GlobalInvocationID.y;
     uint p = x + y * WSX;
