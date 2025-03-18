@@ -134,12 +134,13 @@ void main() {
     drawSquare(1000, 50, 30, 1);
     drawCross(mousex, mousey, 50, 3);
 
-    circle(540, 540, 200, 20);
+    // Agrandissement du cercle
+    circle(540, 540, 300, 20);  // Le rayon du cercle est maintenant de 300
     
     uint movingCircleRadius = 30;
     uint centerX = 540;
     
-    float amplitude = 160.0;
+    float amplitude = 270.0;
     float frequency = 0.05;
     float sinValue = sin(float(step) * frequency); 
     uint normalY = uint(540.0 + amplitude * sinValue); 
@@ -147,9 +148,9 @@ void main() {
     
    
     if (mouse_button > 0) {
-       
         if ((mousex - centerX) * (mousex - centerX) + (mousey - normalY) * (mousey - normalY) <= movingCircleRadius * movingCircleRadius) {
             data_0[p] = CYAN;
+            drawSquare(mousex, mousey, 5, 7);
         }
     }
 
@@ -158,15 +159,11 @@ void main() {
             mousey >= 50 - 30 && mousey <= 50 + 30) {
             
                 for (uint i = 0; i < step +2; i++) {
-                        uint size = step - (i * 10);
-                        if (size > 0) {
-                            // drawSquare(270, 270, size, (i + step / 30) % 15 + 1);
-                            // drawSquare(810, 270, size, (i + step / 30) % 15 + 1);
-                            // drawSquare(270, 810, size, (i + step / 30) % 15 + 1);
-                            // drawSquare(810, 810, size, (i + step / 30) % 15 + 1);
-                            drawSquare(540, 540, size, (i + step / 30) % 15 + 1);
-                        }
+                    uint size = step - (i * 10);
+                    if (size > 0) {
+                        drawSquare(540, 540, size, (i + step / 30) % 15 + 1);
                     }
+                }
         }
     }
     
@@ -175,8 +172,25 @@ void main() {
         newcolor = 2; 
         circleFull(centerX, normalY, movingCircleRadius, newcolor);
     } else {
-        newcolor = 2;
+        newcolor = 1;
         circleFull(centerX, invertedY, movingCircleRadius, newcolor);
     }
+
+    // Ajout du mouvement libre de la boule à l'intérieur du cercle
+    float angle = float(step) * frequency; 
+    uint newX = uint(centerX + amplitude * cos(angle)); // Position X dans le cercle
+    uint newY = uint(540.0 + amplitude * sin(angle)); // Position Y dans le cercle
+    
+    // Déplacer la boule à n'importe où dans le cercle en fonction du mouvement de la souris
+    if (mouse_button > 0) {
+        if ((mousex - newX) * (mousex - newX) + (mousey - newY) * (mousey - newY) <= movingCircleRadius * movingCircleRadius) {
+            data_0[p] = CYAN;
+        }
+    }
+    
+    // Dessiner la boule à la nouvelle position calculée
+    circleFull(newX, newY, movingCircleRadius, 2);  // 2 représente la couleur de la boule en mouvement
 }
+
+
 
