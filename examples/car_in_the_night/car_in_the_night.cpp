@@ -1,7 +1,7 @@
 #define CAR_WIDTH 60.0
 #define CAR_HEIGHT 30.0
 #define WHEEL_RADIUS 8.0
-#define SPEED 2.0
+#define SPEED 1.50
 #define RAIN_DROPS 500
 #define SPLASH_PARTICLES 20
 #define CAR_COUNT 8  // Plus de voitures pour remplir les 4 voies
@@ -525,7 +525,7 @@ carColor = carColor + vec3(metallic);
         bool beamRight = goingRight;
         
         // Determiner si une voiture est en face (croisement)
-        float beamIntensityMultiplier = 1.0; // Pleine puissance par defaut
+        float beamIntensityMultiplier = 2.0; // Pleine puissance par defaut
         float detectionDistance = 250.0; // Distance a laquelle les voitures detectent celles qui arrivent en face
         
         // Verifier la proximite avec les voitures venant en sens inverse
