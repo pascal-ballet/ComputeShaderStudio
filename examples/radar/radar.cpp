@@ -1,7 +1,7 @@
 #define M_PI 3.14159265358979323846
 
 // Color definitions
-#define blue1 vec3(0.74, 0.95, 1.00)
+#define blue1 vec3(0.74, 0.0, 0.00)
 #define blue2 vec3(0.87, 0.98, 1.00)
 #define blue3 vec3(1.0, 1.0, 1.0)
 #define blue4 vec3(0.953, 0.969, 0.89)
