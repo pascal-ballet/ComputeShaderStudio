@@ -120,10 +120,30 @@ void drawCross(uint cx, uint cy, uint radius, uint thickness) {
 }
 }
 
+uint wang_hash(uint seed) {
+    seed = (seed ^ 61) ^ (seed >> 16);
+    seed *= 9;
+    seed = seed ^ (seed >> 4);
+    seed *= 0x27d4eb2d;
+    seed = seed ^ (seed >> 15);
+    return seed;
+}
+
 void main() {
     uint x = gl_GlobalInvocationID.x;
     uint y = gl_GlobalInvocationID.y;
     uint p = x + y * WSX;
+
+    uint seed = 12345;
+
+        uint centerX1 = 100 + wang_hash(seed + step) % 880;
+        uint centerY1 = 100 + wang_hash(seed + step) % 880;
+        uint size1 = 20 + wang_hash(seed + step) % 60;
+        uint color1 = 1 + wang_hash(seed + step) % 6;
+
+        if (step == 1) {
+            drawSquare(centerX1, centerY1, size1, color1);
+        }
     
     bool hasCollided = (data_0[0] == COLLISION_MARKER);
 
@@ -146,7 +166,16 @@ void main() {
     uint normalY = uint(540.0 + amplitude * sinValue); 
     uint invertedY = uint(540.0 - amplitude * sinValue); 
     
-   
+    if (mouse_button > 0) {
+        if (mousex >= centerX1 - size1 && mousex <= centerX1 + size1 &&
+            mousey >= centerY1 - size1 && mousey <= centerY1 + size1) {
+            
+            // Effacer le carré en changeant la couleur à noir
+            data_0[p] = BLACK;
+           
+        }
+    }
+
     if (mouse_button > 0) {
         if ((mousex - centerX) * (mousex - centerX) + (mousey - normalY) * (mousey - normalY) <= movingCircleRadius * movingCircleRadius) {
             data_0[p] = CYAN;
