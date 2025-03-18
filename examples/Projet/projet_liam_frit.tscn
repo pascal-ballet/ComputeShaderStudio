@@ -9,7 +9,7 @@
 script = ExtResource("1_8kd26")
 WSX = 1080
 WSY = 1080
-glsl_file = "res://examples/Projet/Shoot_them_up_test.cpp"
+glsl_file = "res://examples/Projet/projet.cpp"
 GLSL_code = ""
 data = [NodePath("../Icon")]
 

@@ -71,6 +71,23 @@ void circle(uint cx, uint cy, uint rayon, int epaisseur) {
     }
 }
 
+void drawCross(uint cx, uint cy, uint radius) {
+    uint x = gl_GlobalInvocationID.x;
+    uint y = gl_GlobalInvocationID.y;
+    uint p = x + y * WSX;
+    
+    // Vérifier si on est sur le contour du cercle
+    if ((x - cx) * (x - cx) + (y - cy) * (y - cy) >= (radius - 1) * (radius - 1) && 
+        (x - cx) * (x - cx) + (y - cy) * (y - cy) <= radius * radius) {
+        data_0[p] = WHITE;  // Contour du cercle
+    }
+
+    // Dessiner la croix (lignes horizontale et verticale)
+    if ((x >= cx - radius && x <= cx + radius && y == cy) || (y >= cy - radius && y <= cy + radius && x == cx)) {
+        data_0[p] = WHITE; // Lignes de la croix (blanches)
+    }
+}
+
 void main() {
     if (step == 0) {
         data_0[p] = GREEN;
