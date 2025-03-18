@@ -4,6 +4,111 @@ layout(set = 0, binding = 0, std430) buffer Data {
     uint data[];
 };
 
+// Variables globales pour Godot
+layout(set = 0, binding = 1) uniform SceneData {
+    float TIME;
+    float PROGRESS;
+    float CENTER_X;
+    float CENTER_Y;
+    float TARGET_X;
+    float TARGET_Y;
+    int ATTACK_TYPE; // 0=none, 1=dark_pulse, 2=flamethrower
+};
+
+void apply_dark_pulse(uint x, uint y, uint p) {
+    uint pixel = data[p];
+    uint r = (pixel >> 24) & 0xFF;
+    uint g = (pixel >> 16) & 0xFF;
+    uint b = (pixel >> 8) & 0xFF;
+    uint a = pixel & 0xFF;
+    
+    float centerX = CENTER_X > 0.0 ? CENTER_X : float(WSX) * 0.3;
+    float centerY = CENTER_Y > 0.0 ? CENTER_Y : float(WSY) * 0.5;
+    
+    float dx = float(x) - centerX;
+    float dy = float(y) - centerY;
+    float distance = sqrt(dx*dx + dy*dy);
+    
+    float waveRadius = PROGRESS * float(WSX) * 0.8;
+    float waveWidth = float(WSX) * 0.2;
+    float waveIntensity = 1.0 - abs(distance - waveRadius) / waveWidth;
+    waveIntensity = clamp(waveIntensity, 0.0, 1.0);
+    
+    float oscillation = sin(distance * 0.05 - TIME * 8.0) * 0.5 + 0.5;
+    waveIntensity *= oscillation;
+    
+    uint darkR = uint(min(r * 0.3, 255.0));
+    uint darkG = uint(min(g * 0.1, 255.0));
+    uint darkB = uint(min((b * 0.4) + 40.0 * waveIntensity, 255.0));
+    
+    float noiseTime = TIME * 10.0;
+    float noise = sin(float(x) * 0.1 + noiseTime) * cos(float(y) * 0.1 + noiseTime) * 0.5 + 0.5;
+    
+    float mixFactor = waveIntensity * PROGRESS * noise;
+    r = uint(mix(float(r), float(darkR), mixFactor));
+    g = uint(mix(float(g), float(darkG), mixFactor));
+    b = uint(mix(float(b), float(darkB), mixFactor));
+    
+    data[p] = (r << 24) | (g << 16) | (b << 8) | a;
+}
+
+void apply_flamethrower(uint x, uint y, uint p) {
+    uint pixel = data[p];
+    uint r = (pixel >> 24) & 0xFF;
+    uint g = (pixel >> 16) & 0xFF;
+    uint b = (pixel >> 8) & 0xFF;
+    uint a = pixel & 0xFF;
+    
+    float sourceX = CENTER_X > 0.0 ? CENTER_X : float(WSX) * 0.7;
+    float sourceY = CENTER_Y > 0.0 ? CENTER_Y : float(WSY) * 0.5;
+    
+    float targetX = TARGET_X > 0.0 ? TARGET_X : float(WSX) * 0.3;
+    float targetY = TARGET_Y > 0.0 ? TARGET_Y : float(WSY) * 0.5;
+    
+    float dirX = targetX - sourceX;
+    float dirY = targetY - sourceY;
+    float length = sqrt(dirX*dirX + dirY*dirY);
+    dirX /= length;
+    dirY /= length;
+
+    float px = float(x) - sourceX;
+    float py = float(y) - sourceY;
+    
+    float proj = px * dirX + py * dirY;
+    
+    float perpX = px - proj * dirX;
+    float perpY = py - proj * dirY;
+    float perpDist = sqrt(perpX*perpX + perpY*perpY);
+    
+    float maxFlameLength = length * PROGRESS;
+    float flameWidth = float(WSY) * 0.15;
+    
+    float flameIntensity = 0.0;
+    if (proj > 0.0 && proj < maxFlameLength) {
+        float coneWidth = flameWidth * (1.0 - proj / maxFlameLength);
+        flameIntensity = 1.0 - perpDist / coneWidth;
+        flameIntensity = clamp(flameIntensity, 0.0, 1.0);
+        
+        float flicker = sin(TIME * 15.0 + proj * 0.1) * 0.5 + 0.5;
+        float noise = sin(px * 0.2 + TIME * 8.0) * cos(py * 0.2 + TIME * 7.0) * 0.5 + 0.5;
+        
+        flameIntensity *= mix(0.7, 1.0, flicker * noise);
+    }
+    
+    float fireGradient = proj / maxFlameLength;
+    
+    uint fireR = 255;
+    uint fireG = uint(max(255.0 * (1.0 - fireGradient * 0.8), 0.0));
+    uint fireB = uint(max(100.0 * (1.0 - fireGradient * 1.5), 0.0));
+    
+    if (flameIntensity > 0.0) {
+        r = uint(mix(float(r), float(fireR), flameIntensity));
+        g = uint(mix(float(g), float(fireG), flameIntensity));
+        b = uint(mix(float(b), float(fireB), flameIntensity));
+    }
+    
+    data[p] = (r << 24) | (g << 16) | (b << 8) | a;
+}
 
 void main() {
     uint x = gl_GlobalInvocationID.x;
@@ -15,15 +120,10 @@ void main() {
     
     uint p = x + y * WSX;
     
-    uint pixel = data[p];
-    uint r = (pixel >> 24) & 0xFF;
-    uint g = (pixel >> 16) & 0xFF;
-    uint b = (pixel >> 8) & 0xFF;
-    uint a = pixel & 0xFF;
-    
-    r = 255;
-    g = 0;
-    b = 0;
-    
-    data[p] = (r << 24) | (g << 16) | (b << 8) | a;
+    if (ATTACK_TYPE == 1) {
+        apply_dark_pulse(x, y, p);
+    } 
+    else if (ATTACK_TYPE == 2) {
+        apply_flamethrower(x, y, p);
+    }
 }
