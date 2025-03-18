@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3 uid="uid://ch5kc8lmik5ef"]
+
+[ext_resource type="Texture2D" uid="uid://bhxau0hh6k20" path="res://addons/compute_shader_studio/icon.png" id="1_yrdup"]
+[ext_resource type="Script" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="2_jf41d"]
+
+[node name="GgProject" type="Node2D"]
+
+[node name="Icon" type="Sprite2D" parent="."]
+position = Vector2(590, 339)
+scale = Vector2(2.33865, 1.38843)
+texture = ExtResource("1_yrdup")
+
+[node name="ComputeShaderStudio2D" type="Node" parent="." node_paths=PackedStringArray("data")]
+script = ExtResource("2_jf41d")
+WSX = 130
+WSY = 130
+glsl_file = "res://GgProject.c"
+GLSL_code = ""
+data = [NodePath("../Icon")]
