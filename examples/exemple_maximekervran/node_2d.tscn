@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://bbx6m03cjregi"]
+
+[ext_resource type="Script" path="res://Projet_shader/GDScript.gd" id="1_ncx3q"]
+[ext_resource type="Texture2D" uid="uid://cuxtavxidco0j" path="res://icon.svg" id="2_v8pp1"]
+
+[node name="ProjetMaximeKERVRAN" type="Node2D"]
+position = Vector2(369, 112)
+
+[node name="ComputeShaderStudio2D" type="Node" parent="."]
+script = ExtResource("1_ncx3q")
+
+[node name="Icon" type="Sprite2D" parent="."]
+position = Vector2(121, 158.906)
+scale = Vector2(-3.09465, 2.81873)
+texture = ExtResource("2_v8pp1")
