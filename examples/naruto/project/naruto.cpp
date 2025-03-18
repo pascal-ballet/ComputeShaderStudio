@@ -108,7 +108,7 @@ void main()
         float small_dot3_dist = sqrt(pow(x - dot3_center_x, 2) + pow(y - dot3_center_y, 2));
 
         // Variables nécessaires pour le background animé
-        float t = step / 10.0; // division par 10 pour ralentir l'animation 
+        float iTime = step / 10.0; // division par 10 pour ralentir l'animation 
         vec2 fragCoord = vec2(float(x), float(y));// Position du pixel
         vec2 iResolution = vec2(float(WSX), float(WSY));
         vec4 fragColor = vec4(0.0); //couleur initiale = noir transparent 
