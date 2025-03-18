@@ -7,7 +7,6 @@
 
 [node name="ComputeShaderStudio2D" type="Node" parent="." node_paths=PackedStringArray("data")]
 script = ExtResource("1_7dugu")
-WSX = 512
 WSY = 256
 glsl_file = "res://examples/board/board.cpp"
 GLSL_code = ""

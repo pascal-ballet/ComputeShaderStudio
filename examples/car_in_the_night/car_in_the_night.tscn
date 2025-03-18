@@ -1,0 +1,20 @@
+[gd_scene load_steps=3 format=3 uid="uid://dnva7w0gtcb6x"]
+
+[ext_resource type="Script" uid="uid://c8esqdv0y26yp" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_osmo3"]
+[ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/icon.svg" id="2_ec1t8"]
+
+[node name="car_in_the_night" type="Node2D"]
+scale = Vector2(1978.73, -1431.95)
+
+[node name="ComputeShaderStudio2D" type="Node" parent="." node_paths=PackedStringArray("data")]
+script = ExtResource("1_osmo3")
+WSX = 1920
+WSY = 1080
+glsl_file = "res://examples/car_in_the_night/car_in_the_night.cpp"
+data = [NodePath("Icon")]
+metadata/_custom_type_script = "uid://c8esqdv0y26yp"
+
+[node name="Icon" type="Sprite2D" parent="ComputeShaderStudio2D"]
+position = Vector2(576, 323.5)
+scale = Vector2(9, 5.05469)
+texture = ExtResource("2_ec1t8")
