@@ -1,13 +1,13 @@
 [gd_scene load_steps=3 format=3 uid="uid://bpmms2lv1wfgk"]
 
-[ext_resource type="Script" uid="uid://ctdqncychsdep" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_htga1"]
-[ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/circle_project/icon.svg" id="2_l2oj0"]
+[ext_resource type="Script" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_htga1"]
+[ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/WireSphere/icon.svg" id="2_l2oj0"]
 
 [node name="Rainfx" type="Node2D"]
 
 [node name="ComputeShaderStudio2D" type="Node" parent="." node_paths=PackedStringArray("data")]
 script = ExtResource("1_htga1")
-glsl_file = "res://examples/circle_project/circle.cpp"
+glsl_file = "res://examples/WireSphere/wireSphere.cpp"
 GLSL_code = ""
 data = [NodePath("../Icon")]
 
