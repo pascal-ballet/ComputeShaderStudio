@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3 uid="uid://ddfhk06k1ymy"]
+
+[ext_resource type="Script" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_bowy1"]
+[ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/icon.svg" id="2_n443p"]
+
+[node name="background" type="Node2D"]
+
+[node name="ComputeShaderStudio2D" type="Node" parent="." node_paths=PackedStringArray("data")]
+script = ExtResource("1_bowy1")
+glsl_file = "res://examples/backgroundClement/background.cpp"
+GLSL_code = "
+"
+data = [NodePath("../Sprite2D")]
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(369, 246)
+scale = Vector2(3.60063, 3.6475)
+texture = ExtResource("2_n443p")

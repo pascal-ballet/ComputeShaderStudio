@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3 uid="uid://duh7anebdiq5r"]
+
+[ext_resource type="Script" uid="uid://c8esqdv0y26yp" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_o3uyj"]
+[ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/icon.svg" id="2_gpcd8"]
+
+[node name="finale" type="Node2D"]
+
+[node name="ComputeShaderStudio2D" type="Node" parent="." node_paths=PackedStringArray("data")]
+script = ExtResource("1_o3uyj")
+glsl_file = "res://examples/naruto/project/naruto.cpp"
+data = [NodePath("../Icon")]
+metadata/_custom_type_script = "uid://c8esqdv0y26yp"
+
+[node name="Icon" type="Sprite2D" parent="."]
+position = Vector2(685, 320)
+scale = Vector2(5.3125, 5.03125)
+texture = ExtResource("2_gpcd8")

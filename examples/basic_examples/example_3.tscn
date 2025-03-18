@@ -4,7 +4,7 @@
 [ext_resource type="Script" uid="uid://jw3o2qu3a0pl" path="res://examples/LabelStepPass.gd" id="2_4aq4t"]
 [ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/icon.svg" id="2_4upxj"]
 
-[node name="CompShadStudioEx3" type="Node2D"]
+[node name="CompShadStudioEx4" type="Node2D"]
 
 [node name="ComputeShaderStudio2D2" type="Node" parent="." node_paths=PackedStringArray("data")]
 script = ExtResource("1_eimw3")
