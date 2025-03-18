@@ -1,14 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://cutxgtalwsp6q"]
 
-[ext_resource type="Script" path="res://examples/cells/cells.gd" id="1_dw4h8"]
-[ext_resource type="Script" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="2_6o5l7"]
-
-[sub_resource type="FastNoiseLite" id="FastNoiseLite_pm7bb"]
-
-[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_0uqft"]
-width = 256
-height = 128
-noise = SubResource("FastNoiseLite_pm7bb")
+[ext_resource type="Script" uid="uid://bs2f5sxok3d3i" path="res://examples/cells/cells.gd" id="1_dw4h8"]
+[ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/icon.svg" id="2_oji6h"]
 
 [node name="Cells" type="Control" node_paths=PackedStringArray("data")]
 layout_mode = 3

@@ -4,17 +4,18 @@
     Adapted from https://en.wikipedia.org/wiki/Plotting_algorithms_for_the_Mandelbrot_set
 */
 
-#define MAX_IT 500
+//#define MAX_IT 500
+#define MAX_IT 10
 #define PI 3.141592
 #define TWO_PI (2.0*3.141592)
 
 #define RADIUS 2.0
 
-layout(binding = 1) buffer UserUniforms {
-    float u_zoom;
-    float u_pos_x;
-    float u_pos_y;
-};
+//layout(binding = 1) buffer UserUniforms {
+    float u_zoom  = 1.5f;
+    float u_pos_x = -0.75f;
+    float u_pos_y = 0.0f;
+//};
 
 #define PALETTE_SIZE 16
 const vec3 palette[PALETTE_SIZE] = {
@@ -57,12 +58,17 @@ vec3 coloring(vec2 z, uint it) {
     float index = 3 * log(smooth_iter) * PALETTE_SIZE / log(MAX_IT);
 
     // Linear interpolation
-    vec3 c1 = palette[int(index)];
-    vec3 c2 = palette[(int(index) + 1) % PALETTE_SIZE];
-    return mix(c1, c2, fract(index));
+    vec3 c1 = palette[int(index) % PALETTE_SIZE];
+    vec3 c2 = palette[(int(index) + 1 + mouse_button) % PALETTE_SIZE];
+
+    vec3 col = mix(c1, c2, fract(index));
+    return col;
 }
 
 vec3 fractal(vec2 z, vec2 c) {
+
+    //return vec3(1,0,1); // Test
+
     uint it;
     for (it = 0; it < MAX_IT && z.x*z.x + z.y*z.y < RADIUS*RADIUS; it++) {
         // z := z*z + c     (a+bi) * (a+bi) = a*a - b*b + 2abi

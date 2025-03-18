@@ -1,4 +1,3 @@
-
 #define RADIUS 40
 
 void main()

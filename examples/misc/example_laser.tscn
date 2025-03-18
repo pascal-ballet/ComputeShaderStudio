@@ -1,12 +1,12 @@
 [gd_scene load_steps=3 format=3 uid="uid://cdtqwwdxs783m"]
 
-[ext_resource type="Script" uid="uid://b88ieqj4hfk8r" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_26wk6"]
-[ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/icon.svg" id="2_urrfs"]
+[ext_resource type="Script" uid="uid://c8esqdv0y26yp" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_iu3i1"]
+[ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/icon.svg" id="2_o5bv1"]
 
 [node name="exeample_psycho_seizure" type="Node2D"]
 
 [node name="ComputeShaderStudio2D" type="Node" parent="." node_paths=PackedStringArray("data")]
-script = ExtResource("1_26wk6")
+script = ExtResource("1_iu3i1")
 WSX = 2000
 WSY = 2000
 GLSL_code = "#define red  0xFF0000FF
@@ -77,4 +77,4 @@ data = [NodePath("../Icon")]
 [node name="Icon" type="Sprite2D" parent="."]
 position = Vector2(580, 333)
 scale = Vector2(4.5625, 3.83594)
-texture = ExtResource("2_urrfs")
+texture = ExtResource("2_o5bv1")

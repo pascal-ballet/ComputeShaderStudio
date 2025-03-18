@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3 uid="uid://cmucgsppcoo5e"]
 
-[ext_resource type="Script" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_eimw3"]
-[ext_resource type="Script" path="res://examples/LabelStepPass.gd" id="2_4aq4t"]
+[ext_resource type="Script" uid="uid://c8esqdv0y26yp" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_eimw3"]
+[ext_resource type="Script" uid="uid://jw3o2qu3a0pl" path="res://examples/LabelStepPass.gd" id="2_4aq4t"]
 [ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/icon.svg" id="2_4upxj"]
 
 [node name="CompShadStudioEx4" type="Node2D"]
@@ -70,6 +70,28 @@ text = "Compute Shader Studio - Example 3: Game Of Life"
 horizontal_alignment = 1
 vertical_alignment = 1
 
+[node name="LabelData_0" type="Label" parent="."]
+offset_left = 103.0
+offset_top = 506.0
+offset_right = 332.0
+offset_bottom = 541.0
+scale = Vector2(1.72, 1.72)
+text = "data_0"
+horizontal_alignment = 1
+vertical_alignment = 1
+script = ExtResource("2_4aq4t")
+
+[node name="LabelData_1" type="Label" parent="."]
+offset_left = 654.0
+offset_top = 506.0
+offset_right = 883.0
+offset_bottom = 541.0
+scale = Vector2(1.72, 1.72)
+text = "data_1"
+horizontal_alignment = 1
+vertical_alignment = 1
+script = ExtResource("2_4aq4t")
+
 [node name="LabelStepPass" type="Label" parent="."]
 offset_left = 56.0
 offset_top = 56.0
@@ -92,18 +114,18 @@ scale = Vector2(3.27344, 3.02344)
 texture = ExtResource("2_4upxj")
 
 [node name="ButtonStep" type="Button" parent="."]
-offset_left = 348.0
-offset_top = 540.0
-offset_right = 439.0
-offset_bottom = 571.0
+offset_left = 346.0
+offset_top = 563.0
+offset_right = 437.0
+offset_bottom = 594.0
 scale = Vector2(2.4, 2.4)
 text = "Step"
 
 [node name="ButtonPlay" type="Button" parent="."]
-offset_left = 587.0
-offset_top = 541.0
-offset_right = 678.0
-offset_bottom = 572.0
+offset_left = 585.0
+offset_top = 564.0
+offset_right = 676.0
+offset_bottom = 595.0
 scale = Vector2(2.4, 2.4)
 text = "Play"
 
