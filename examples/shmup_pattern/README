@@ -1,0 +1,22 @@
+Created by Ewan Durand, 5 March 2025
+
+Inspired by Shoot'em up games
+
+Generates patterns with variable parameters :
+ - Number of bullets (per generation)
+ - Radius of the circle around spawn point
+ - An initial offset angle
+ - A dynamic offset angle (increases for each bullet of the generation)
+
+Can handle 2 patterns at the same time spawning at SPAWN1 and SPAWN2
+
+Pattern parameters :
+	- Number of bullets
+	- Circle radius
+	- Initial offset
+	- Dynamic offset
+
+Control management :
+	- Middle click (mouse_button = 4) : switch managed pattern (default : 0)
+	- Right click (mouse_button = 2) : switch managed parameter (default : 0)
+	- Left click (mouse_button = 1) : switch parameter's value (default : 0)
