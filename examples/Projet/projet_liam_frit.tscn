@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3 uid="uid://bonxt31s15o3g"]
+
+[ext_resource type="Script" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_8kd26"]
+[ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/icon.svg" id="2_5doh8"]
+
+[node name="ProjetLiamFrit" type="Node2D"]
+
+[node name="ComputeShaderStudio2D" type="Node" parent="." node_paths=PackedStringArray("data")]
+script = ExtResource("1_8kd26")
+WSX = 1080
+WSY = 1080
+glsl_file = "res://examples/Projet/projet.cpp"
+GLSL_code = ""
+data = [NodePath("../Icon")]
+
+[node name="Icon" type="Sprite2D" parent="."]
+position = Vector2(435.875, 235)
+scale = Vector2(3.92383, 3.43359)
+texture = ExtResource("2_5doh8")
