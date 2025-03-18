@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://bonxt31s15o3g"]
 
-[ext_resource type="Script" uid="uid://c8esqdv0y26yp" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_8kd26"]
+[ext_resource type="Script" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_8kd26"]
 [ext_resource type="Texture2D" uid="uid://demftcowdd5c6" path="res://examples/icon.svg" id="2_5doh8"]
 
 [node name="ProjetLiamFrit" type="Node2D"]
