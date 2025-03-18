@@ -1,0 +1,85 @@
+[gd_scene load_steps=3 format=3 uid="uid://ch5rc8sw7pkvs"]
+
+[ext_resource type="Script" path="res://addons/compute_shader_studio/compute_shader_studio_2d.gd" id="1_1g222"]
+[ext_resource type="Texture2D" uid="uid://byqwe7hublowc" path="res://icon.svg" id="2_4cfqx"]
+
+[node name="Node2D" type="Node2D"]
+
+[node name="ComputeShaderStudio2D" type="Node" parent="." node_paths=PackedStringArray("data")]
+script = ExtResource("1_1g222")
+GLSL_code = "void main() {
+    uint x = gl_GlobalInvocationID.x;
+    uint y = gl_GlobalInvocationID.y;
+    uint p = x + y * WSX;
+    
+    vec2 center = vec2(float(WSX) * 0.5, float(WSY) * 0.5);
+    float radius = float(min(WSX, WSY)) * 0.1;
+    
+    vec2 pos = vec2(float(x), float(y));
+    
+    vec2 toPoint = pos - center;
+    
+    float distToObstacle = length(toPoint) - radius;
+    
+    uint color = 0x000000AA;
+    
+    if (distToObstacle <= 0.0) {
+        color = 0x555555AA;
+    } else {
+        bool inShadow = false;
+        
+        if (toPoint.x > 0.0) {
+            float shadowLength = radius * 3.0;
+            
+            float shadowDistX = toPoint.x;
+            
+            if (shadowDistX < shadowLength) {
+                float t = shadowDistX / shadowLength;
+                
+                float shadowHeight;
+                
+                if (t < 0.7) {
+                    shadowHeight = radius;
+                } else {
+                    float transition = (t - 0.7) / 0.3;
+                    shadowHeight = radius * (1.0 - transition * transition);
+                }
+                
+                if (abs(toPoint.y) < shadowHeight) {
+                    inShadow = true;
+                    color = 0x000000AA;
+                }
+            }
+        }
+        
+        if (!inShadow) {
+            if (mod(float(y), 2.5) < 2.0) {
+                float xAnimated = float(x) - float(step) * 1.5;
+                
+                bool lineHitsObstacle = (abs(pos.y - center.y) < radius);
+                
+                if (mod(xAnimated, 20.0) < 10.0) {
+                    if (lineHitsObstacle && pos.x > center.x) {
+                        color = 0xFF0000AA;
+                    } else {
+                        color = 0x3366FFAA;
+                    }
+                } else {
+                    if (lineHitsObstacle && pos.x > center.x) {
+                        color = 0xFF5555AA;
+                    } else {
+                        color = 0x66AAFFAA;
+                    }
+                }
+            }
+        }
+    }
+    
+    data_0[p] = int(color);
+}"
+data = [NodePath("../Icon")]
+
+[node name="Icon" type="Sprite2D" parent="."]
+position = Vector2(561, 297.25)
+scale = Vector2(8.75, 4.65235)
+texture = ExtResource("2_4cfqx")
