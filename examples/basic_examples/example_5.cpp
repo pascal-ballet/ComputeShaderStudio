@@ -36,19 +36,25 @@ void main() {
     };
 
     Planete planetes[8] = {
-        { 0.01, 80,  15, 0xFFFFFF00 }, // Mercure
-        { 0.008, 120,  30, 0xFFFFA500 }, // Venus
-        { 0.005, 150,  30, 0xFF0000FF }, // Terre
-        { 0.003, 190,  20, 0xFFFF0000 }, // Mars
-        { 0.0009, 250, 60, 0xFF964B00 }, // Jupiter
-        { 0.0005, 300, 55, 0xFFD2B48C }, // Saturne
-        { 0.0003, 380, 50, 0xFF00FFFF }, // Uranus
-        { 0.0002, 450, 45, 0xFF000080 }  // Neptune
+        { 0.01, 80,  15, 0xFF0000FF }, // Mercure
+        { 0.008, 120,  30, 0xFF5500FF }, // Venus
+        { 0.005, 150,  30, 0xFF55FF00 }, // Terre
+        { 0.003, 200,  20, 0xFF0055FF }, // Mars
+        { 0.0009, 250, 55, 0xFF00DDFF }, // Jupiter
+        { 0.0005, 300, 40, 0xFF00EEFF }, // Saturne
+        { 0.0003, 450, 50, 0xFFF5F5F5 }, // Uranus
+        { 0.0002, 550, 45, 0xFFFF1100 }  // Neptune
     };
     
     // Affichage et couleur
     if (distSoleil <= Soleil) {
-        data_0[p] = 0xFF0000FF; //rouge
+        data_0[p] = 0xFF0022FF; //rouge
+        if(distSoleil <= Soleil - 200){
+            data_0[p] = 0xFF00FFFF; //rouge
+        }
+        if(distSoleil <= Soleil - 1500){
+            data_0[p] = 0xFFFFFFFF; //rouge
+        }
     } else {
         for (int i = 0; i < 8; i++) { //pour chaque planete de planetes
 
