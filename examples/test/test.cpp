@@ -15,17 +15,17 @@ void main() {
     uint y = gl_GlobalInvocationID.y;
     uint p = x + y * WSX;
     
-    // Normalized coordinates
+    //Calcule les coordonnées normalisées et la distance depuis le centre de l'écran (r).
     vec2 uv = vec2(float(x), float(y));
     vec2 c = vec2(float(WSX) / 2.0, float(WSY) / 2.0); // Center
     vec2 d = uv - c;
     float r = length(d);
     
-    // Scale factor and time
+    //Définit un facteur d'échelle pour adapter les éléments à la taille de l'écran et une variable du temps   
     float scale = min(float(WSX), float(WSY)) / 650.0;
     float time = float(step) * 0.01;
     
-    // Start with a black background
+    // arriere plan noir
     vec3 finalColor = vec3(0.0);
     
     // Normalized direction (for angles)
@@ -33,15 +33,15 @@ void main() {
     float angle = atan(dn.y, dn.x);
     float theta = 180.0 * angle / M_PI;
     
-    // Main circles - combined into one section
+    //Dessine trois cercles concentriques de différentes tailles.
     finalColor += (SMOOTH(r - 0.5 * scale, 100.0 * scale) - SMOOTH(r + 0.5 * scale, 100.0 * scale)) * blue1;
     finalColor += (SMOOTH(r - 0.5 * scale, 165.0 * scale) - SMOOTH(r + 0.5 * scale, 165.0 * scale)) * blue1;
     finalColor += (SMOOTH(r - 1.0 * scale, 240.0 * scale) - SMOOTH(r + 1.0 * scale, 240.0 * scale)) * blue4;
     
-    // Center dot
+    // Dessine un petit point au centre.
     finalColor += (SMOOTH(r - 0.5 * scale, 10.0 * scale) - SMOOTH(r + 0.5 * scale, 10.0 * scale)) * blue3;
     
-    // Moving scan line
+    // Crée une ligne de balayage qui tourne comme un radar, avec un gradient.
     if (r < 240.0 * scale) {
         float scanAngle = 90.0 * time * M_PI / 180.0;
         vec2 scanDir = vec2(cos(scanAngle), -sin(scanAngle));
@@ -53,21 +53,23 @@ void main() {
         finalColor += (scanLine + 0.5 * gradient) * blue3 * smoothstep(240.0 * scale, 220.0 * scale, r);
     }
     
-    // Segmented outer circle
+    // Dessine un cercle extérieur avec des segments réguliers.
     if (r > 310.0 * scale && r < 316.0 * scale) {
         float segmentPattern = smoothstep(2.0, 2.1, abs(mod(theta + 2.0, 45.0) - 2.0)) * 
                               mix(0.5, 1.0, float(abs(mod(theta, 180.0) - 90.0) > 45.0));
         finalColor += segmentPattern * blue1;
     }
     
-    // Semicircle with opening
+    // Crée un demi-cercle avec une ouverture qui varie avec le temps.
     if (r > 260.0 * scale && r < 264.0 * scale) {
         float opening = 0.5 + 0.2 * cos(time);
         if (abs(dn.y) > opening) {
             finalColor += 0.7 * blue3;
         }
     }
-     // Triangular elements
+
+
+     // Dessine quatre triangles qui pulsent avec le temps autour d'un cercle invisible.
      float radius = (315.0 + 30.0 * sin(time)) * scale;
      // Right triangle
      if (d.x - radius >= -8.0 * scale && d.x - radius <= 0.0) {
@@ -90,7 +92,7 @@ void main() {
          finalColor += t * blue2;
      }
      
-    // Blips 
+    // Dessine deux points mobiles qui se déplacent sur des trajectoires complexes. 
     if (r < 240.0 * scale) {
         // Blip 1
         {
@@ -120,7 +122,7 @@ void main() {
         }
     }
     
-    // Fixed targets with halos
+    // Dessine trois cibles fixes avec des halos lumineux.
     vec2 targetPositions[3] = vec2[](
         c + vec2(0.3, 0.2) * float(WSX) * 0.5,
         c + vec2(-0.4, -0.3) * float(WSX) * 0.5,
