@@ -326,9 +326,10 @@ void main() {
         // Position Y selon la direction et la voie
         float carPosY;
         if (goingRight) {
-            carPosY = fastLane ? laneY2 - 10.0 : laneY1 - 10.0;
-        } else {
+            
             carPosY = fastLane ? laneY3 - 10.0 : laneY4 - 10.0;
+        } else {
+            carPosY = fastLane ? laneY2 - 10.0 : laneY1 - 10.0;
         }
         
         // Recuperer la vitesse et l'offset
